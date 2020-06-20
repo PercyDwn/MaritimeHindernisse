@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.1145
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TestFile", "TestFile\TestFile.pyproj", "{A01FCDD3-7944-4725-85F5-BDBDA66F34E9}"
-EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Projekt", "Projekt\Projekt.pyproj", "{A5991899-4C7B-44B3-9BDE-F781B3ED1A3A}"
 EndProject
 Global
@@ -13,8 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A01FCDD3-7944-4725-85F5-BDBDA66F34E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A01FCDD3-7944-4725-85F5-BDBDA66F34E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5991899-4C7B-44B3-9BDE-F781B3ED1A3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A5991899-4C7B-44B3-9BDE-F781B3ED1A3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
