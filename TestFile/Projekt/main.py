@@ -26,9 +26,9 @@ init_prior_x2 = gaussian(x,init_x2,variance_prior)
 #Test Datensatz
 measurements, real_objects,K = createTestDataSet()
 #GNN Aufruf
-#gnn_objects = gnn_algorithmus.gnn(measurements,K,p_d,lambda_c,F,H,n)
-print(math.pi)
+gnn_objects = gnn_algorithmus.gnn(measurements,K,p_d,lambda_c,F,H,n)
 
+     
 
 #Plots
 
