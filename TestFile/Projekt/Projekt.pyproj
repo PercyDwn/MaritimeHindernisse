@@ -24,7 +24,7 @@
     <Compile Include="functions.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GNN.py">
+    <Compile Include="gnn_algorithmus.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="KalmanFilter.py">

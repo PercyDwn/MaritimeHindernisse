@@ -1,15 +1,15 @@
 import  matplotlib.pyplot as plt
 import numpy as np
-import GNN 
+import gnn_algorithmus
 from functions import gaussian
 
 p_d = 0.99 #Detektionsrate
 lambda_c =0.3 #Clutter Intensität
 V= 5 #Cluttering Volume
 T= 0.001 #Abtastzeit
-A = [[1,T],
+F = [[1,T],
      [0,1]] #Systemmatrix
-C = [1,0] #Ausgangsmatrix
+H = [1,0] #Ausgangsmatrix
 n = 2 #Anzahl Objekte 
 variance_motion = 0.25
 variance_measurement = 0.2
@@ -37,13 +37,20 @@ def createTestDataSet():
         K= np.arange(len(measurements))
         return measurements, objects,K
 
+measurements, real_objects,K = createTestDataSet()
+
+#GNN Aufruf
+
+
+
+
 #Plots
-measurements, objects,K = createTestDataSet()
+
 for i in K:
     for j in range(len(measurements[i])):
         plt.plot(measurements[i][j],K[i],'ro',color='black')
-    for j in range(len(objects[i])):
-        plt.plot(objects[i][j],K[i],'ro',color='green')
+    for j in range(len(real_objects[i])):
+        plt.plot(real_objects[i][j],K[i],'ro',color='green')
 plt.legend('Z_k','x_ist')     
 plt.title('Messungen')
 plt.xlabel('x')
