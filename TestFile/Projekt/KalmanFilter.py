@@ -19,12 +19,12 @@ class KalmanFilter: #(object)
         Phat_kp=np.matmul(A, np.maltmul(Phat_k, np.transpose(A))) + Q #Prädiziertes P(k+1)
         return xhat_kp, Phat_kp   
 
-    #def update(xhat_k, Phat_k, y_k ,C , R):
-    #    K_k = (P_hatk.dot(np.transpose(C)).dot(np.linalg.inv(C.dot(Phat_k).dot(C.transpose())
-    #    xtil = xhat_k + K_k.dot(y_k - C.dot(x_hatk)) #Korriegiertes x(k)
-    #    Ptil = Phat_k - K_k.dot(C).dot(Phat_k)       #Korrigertes P(k)
-    #    return xtil, Ptil
-    #    Fehler ?? unexpected toke???
+    def update(xhat_k, Phat_k, y_k ,C , R):
+        K_k = (P_hatk.dot(np.transpose(C))).dot(np.linalg.inv(C.dot(Phat_k).dot(C.transpose())))
+        xtil = xhat_k+K_k.dot(y_k-C.dot(x_hatk)) #Korriegiertes x(k)
+        Ptil = Phat_k-K_k.dot(C).dot(Phat_k)       #Korrigertes P(k)
+        return xtil, Ptil
+        #Fehler ?? unexpected toke???
   
 
     @property 
