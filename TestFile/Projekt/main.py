@@ -14,8 +14,8 @@ F = [[1,T],
      [0,1]] #Systemmatrix
 H = [1,0] #Ausgangsmatrix
 n = 2 #Anzahl Objekte 
-variance_motion = 0.25
-variance_measurement = 0.2
+Q = [[0.25 ,0],[0 ,0.25]] #Varianz des Modellrauschens
+R = 0.2 #Varianz des Messrauschens
 variance_prior = 0.36
 init_x1 = 0
 init_x2 = 10
@@ -26,20 +26,21 @@ init_prior_x2 = gaussian(x,init_x2,variance_prior)
 #Test Datensatz
 measurements, real_objects,K = createTestDataSet()
 #GNN Aufruf
-gnn_objects = gnn_algorithmus.gnn(measurements,K,p_d,lambda_c,F,H,n)
+for k in K: #Für jeden Zeitschritt gnn Berechnen
+    gnn_objects = gnn_algorithmus.gnn(measurements[k],p_d,lambda_c,F,H,n,R,Q)
 
      
 
 #Plots
 
-#for i in K:
-#    for j in range(len(measurements[i])):
-#        plt.plot(measurements[i][j],K[i],'ro',color='black')
-#    for j in range(len(real_objects[i])):
-#        plt.plot(real_objects[i][j],K[i],'ro',color='green')
-#plt.legend('Z_k','x_ist')     
-#plt.title('Messungen')
-#plt.xlabel('x')
-#plt.ylabel('y')
-#plt.axis([0,20,-1,len(K)+1])
-#plt.show()
+for i in K:
+    for j in range(len(measurements[i])):
+        plt.plot(measurements[i][j],K[i],'ro',color='black')
+    for j in range(len(real_objects[i])):
+        plt.plot(real_objects[i][j],K[i],'ro',color='green')
+plt.legend('Z_k','x_ist')     
+plt.title('Messungen')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.axis([0,20,-1,len(K)+1])
+plt.show()
