@@ -26,8 +26,7 @@ init_prior_x2 = gaussian(x,init_x2,variance_prior)
 #Test Datensatz
 measurements, real_objects,K = createTestDataSet()
 #GNN Aufruf
-for k in K: #Für jeden Zeitschritt gnn Berechnen
-    gnn_objects = gnn_algorithmus.gnn(measurements[k],p_d,lambda_c,F,H,n,R,Q)
+estimate_gnn = gnn_algorithmus.gnn(measurements,p_d,lambda_c,F,H,n,R,Q)
 
      
 
