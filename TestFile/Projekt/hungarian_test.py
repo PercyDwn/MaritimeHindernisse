@@ -15,9 +15,10 @@ cost  = [[5, 9, 1,5,inf,inf],
 #indexes = hungarian.compute(cost)
 #print(cost)
 #print(indexes)
-P= cost[0,1:2]
-print(P)
+
 #A= [[1,2],[3,4]]
 #B= [[5],[6]]
 #C = concatenate((A,B),axis=1)
 #print(len(C[0]))
+S = np.array([10])
+print(np.det(S))

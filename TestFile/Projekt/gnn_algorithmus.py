@@ -1,4 +1,4 @@
-import  matplotlib.pyplot as plt
+
 import numpy as np
 from numpy import linalg as lin
 import math
@@ -6,7 +6,13 @@ from munkres import Munkres
 
 
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(data,p_d,lambda_c,F,H,n,R,Q):
+def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values):
+    #data Messung aller Zeitschritten
+    #p_d =detection rate
+    #lambda_c Clutter Intensität
+    #F, H  System bzw Ausgangsmatrux
+    #n Anzahl Objekten
+    #R,Q Kovarianz Matrizen
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
          #Initialisierung
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
@@ -14,20 +20,17 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q):
         theta_k = np.zeros((1,n)) #Data Assossiation Vektor
         number_coordinates = int(number_states/2) # Zahl Koordinaten: 1 wenn z= x, 2 wenn z=[x;y]
         estimate = np.zeros((number_states,n)) # Zustände geschätz 
+        estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
         P = np.zeros((number_states,n*number_states)) #Kovarianzmatrix des Schätzfehlers
-        total_cost = 0 #Kosten Data Assossiation 
-        N=7  # Anzahl Zeitpunkten (länge daten)
+        #total_cost = 0 #Kosten Data Assossiation 
+        estimate_all =[]
+        estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
+        z_opt_assossiation= 0 # Messung der wahrscheinlichsten Hypothese
         
-
-
-        estimate_all = [[2.5 ,0] ,[10 ,0]]
-
-        #berechnung estimate_all zur performance bewertung
             
 
-        for k in range(N+1):
-            print(k)
-            measurement_k = data[k]
+        while len(data)>0: #While: data nicht leer
+            measurement_k = data.pop(0)  
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
             L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
@@ -39,23 +42,23 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q):
                 P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
             #Prädiktion
                 estimate_i,P_i = kalman_filter_prediction(estimate_i, P_i,F,Q)
-            
-          
+         
             #Kostenmatrix erzeugen 
                 S = R+ np.matmul(H,np.matmul(P_i,np.transpose(H))) #Inovation Kovarianz
                 z_hat = np.matmul(H,estimate_i) #Predicted detection
                 L_missdetection[i][i] = np.log(1-p_d)
                 for j in range(m):
                     if number_coordinates == 1:
-                        L_detection[i][j] = np.log(p_d/lambda_c) - 0.5*np.log(2*math.pi*S)-0.5*1/S*(measurement_k[j]-z_hat)*(measurement_k[j]-z_hat) # Achtung: gilt nur für eindimensionale S
+                        
+                        L_detection[i][j] =  np.log(p_d/lambda_c) - 0.5*np.log(2*math.pi*abs(S))-0.5*1/S*(measurement_k[j]-z_hat)*(measurement_k[j]-z_hat)
+                        
+                         
                     else:
                         L_detection[i][j] = np.log(p_d/lambda_c) - 0.5*np.log(np.linalg.det(2*math.pi*S))-0.5*(np.matmul(np.transpose((measurement_k[j]-z_dach)),np.matmul(np.linalg.inv(S),(z_dach-measurement_k[j])))) 
-            #estimate_all[k*number_states,n] = estimate
             
+                 
+            L= np.concatenate((L_detection,L_missdetection),axis=1) #L_detection und L_missdetection zusammensetzen
             
-        
-            L= np.concatenate((L_detection,L_missdetection),axis=1)
-            print(L)
             #Berechnen assignment Matrix A mit Hungarian Algorithmus
             indexes_opt = hungarian.compute(L) #Assignment matrix indexes
            
@@ -67,20 +70,23 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q):
                 #Fallunterscheidung: theta = index von Messung wenn die Detektion einem Objekt entspicht, theta = 0 wenn die Detektion einem Clutter entspricht
                 if indexes_opt[i][1]< m :
                     theta_k[0][i] = indexes_opt[i][1] +1
+                    if number_coordinates ==1 :
+                       z_opt_assossiation = measurement_k[indexes_opt[i][1]] # Messung der wahrscheinlichsten Hypothese
+                    else:
+                       z_opt_assossiation = measurement_k[np.arange(0,number_coordinates,1)][indexes_opt[i][1]]
                 
                 else :
                     theta_k[0][i] = 0
             
-                if number_coordinates ==1 :
-                       z_opt_assossiation = measurement_k[indexes_opt[i][1]] # Messung der wahrscheinlichsten Hypothese
-                else:
-                       z_opt_assossiation = measurement_k[np.arange(0,number_coordinates,1)][indexes_opt[i][1]]
+                
 
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-        estimate_all.append(estimate)
-        k += k
+            
+            estimate_all.append(estimate.tolist())
+        
+        
         return estimate_all    
             
      

@@ -28,3 +28,8 @@ def createTestDataSet():
 def erwartungs_wert():
         pass
 
+def get_position(estimate):
+    position = [None] * len(estimate)
+    for i in range(len(estimate)):
+        position[i] = estimate[i][0]
+    return position
