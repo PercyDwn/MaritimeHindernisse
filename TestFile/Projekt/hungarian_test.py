@@ -21,4 +21,4 @@ cost  = [[5, 9, 1,5,inf,inf],
 #C = concatenate((A,B),axis=1)
 #print(len(C[0]))
 S = np.array([[10]])
-print(np.linalg.det(S)) #Fehler? VS Lukas numpy has not attribut det => np.det(S) in np.linalg.det(S) 
+print(np.linalg.det(S)) #Fehler? VS.Lukas: numpy has not attribut det => np.det(S) in np.linalg.det(S) 
