@@ -7,7 +7,7 @@ from functions import get_position
 import math
 
 #Initialisierung
-p_d = 0.97 #Detektionsrate
+p_d = 0.9 #Detektionsrate
 lambda_c =0.3 #Clutter Intensität
 V= 5 #Cluttering Volume
 T= 0.001 #Abtastzeit
@@ -16,20 +16,17 @@ F = [[1,T],
 H = [1,0] #Ausgangsmatrix
 n = 2 #Anzahl Objekte 
 Q = [[0.25 ,0],[0 ,0.25]] #Varianz des Modellrauschens
-R = 0.2 #Varianz des Messrauschens
-variance_prior = 0.36
-init_x1 = 0
-init_x2 = 10
+R = [[0.36]] #Varianz des Messrauschens
+init_x1 = -1
+init_x2 = 15
 init_values =np.array([[init_x1,init_x2],[0, 0]])
-x = np.arange(-20,20,0.1)
-init_prior_x1 = gaussian(x,init_x1,variance_prior)
-init_prior_x2 = gaussian(x,init_x2,variance_prior)
+P_i_init = [[1000,0],[0,1000]]
 
 #Test Datensatz
 measurements, real_objects,K = createTestDataSet()
 #GNN Aufruf
 data = measurements[:]
-estimate_gnn = gnn_algorithmus.gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values)
+estimate_gnn = gnn_algorithmus.gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init)
 position_gnn = get_position(estimate_gnn)
 print(position_gnn)
 
