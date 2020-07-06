@@ -3,7 +3,7 @@ import numpy as np
 from numpy import inf
 from numpy import concatenate
 import math
-
+from numpy.linalg import multi_dot
 
 hungarian = Munkres()
 
@@ -20,5 +20,11 @@ cost  = [[5, 9, 1,5,inf,inf],
 #B= [[5],[6]]
 #C = concatenate((A,B),axis=1)
 #print(len(C[0]))
-S = np.array([10])
-print(np.det(S))
+T = [[4]]
+S = [[10]]
+U = [[2]]
+##print(np.log(4*math.pi**2*np.linalg.det(S)))
+##print(np.transpose(S))
+#print(np.linalg.inv(S))
+#print(np.linalg.det(S))
+print(multi_dot([T,U,S]))
