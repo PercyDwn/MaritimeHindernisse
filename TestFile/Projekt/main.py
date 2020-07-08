@@ -10,12 +10,12 @@ import math
 p_d = 0.9 #Detektionsrate
 lambda_c =0.3 #Clutter Intensität
 V= 5 #Cluttering Volume
-T= 0.001 #Abtastzeit
+T= 1 #Abtastzeit
 F = [[1,T],
      [0,1]] #Systemmatrix
 H = [1,0] #Ausgangsmatrix
 n = 2 #Anzahl Objekte 
-Q = [[0.25 ,0],[0 ,0.25]] #Varianz des Modellrauschens
+Q = [[100 ,0],[0 ,100]] #Varianz des Modellrauschens
 R = [[0.36]] #Varianz des Messrauschens
 init_x1 = -1
 init_x2 = 15
