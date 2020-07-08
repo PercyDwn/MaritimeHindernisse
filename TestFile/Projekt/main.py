@@ -10,17 +10,17 @@ import math
 p_d = 0.9 #Detektionsrate
 lambda_c =0.3 #Clutter Intensität
 V= 5 #Cluttering Volume
-T= 0.001 #Abtastzeit
+T= 0.1 #Abtastzeit
 F = [[1,T],
      [0,1]] #Systemmatrix
 H = [1,0] #Ausgangsmatrix
 n = 2 #Anzahl Objekte 
-Q = [[0.25 ,0],[0 ,0.25]] #Varianz des Modellrauschens
-R = [[0.36]] #Varianz des Messrauschens
+Q = [[10 ,0],[0 ,10]] #Varianz des Modellrauschens
+R = [[10]] #Varianz des Messrauschens
 init_x1 = -1
 init_x2 = 15
 init_values =np.array([[init_x1,init_x2],[0, 0]])
-P_i_init = [[1000,0],[0,1000]]
+P_i_init = [[100,0],[0,100]]
 
 #Test Datensatz
 measurements, real_objects,K = createTestDataSet()
