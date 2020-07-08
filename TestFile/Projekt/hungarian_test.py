@@ -20,6 +20,7 @@ cost  = [[5, 9, 1,5,inf,inf],
 #B= [[5],[6]]
 #C = concatenate((A,B),axis=1)
 #print(len(C[0]))
+<<<<<<< HEAD
 T = [[4]]
 S = [[10]]
 U = [[2]]
@@ -28,3 +29,7 @@ U = [[2]]
 #print(np.linalg.inv(S))
 #print(np.linalg.det(S))
 print(multi_dot([T,U,S]))
+=======
+S = np.array([[10]])
+print(np.linalg.det(S)) #Fehler? VS.Lukas: numpy has not attribut det => np.det(S) in np.linalg.det(S) 
+>>>>>>> 89019558f949875ea2cca62d69ba6559e9a2dfe3
