@@ -28,14 +28,17 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
         #total_cost = 0 #Kosten Data Assossiation 
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
-        k = 0   #Zeitschritt
+        k = 1   #Zeitschritt
+
+        
+
 
         
         
             
         ## Berechnung mit Messdaten/Testdaten
         while len(data)>0: #While: data nicht leer
-            measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt)
+            measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
             L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
@@ -60,7 +63,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
                     help_L_0 = []
                     help_L_0.append(measurement_k[j]-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
                     help_L_1 = 0.5*(multi_dot([np.transpose(help_L_0),np.linalg.inv(S),help_L_0])) 
-                    help_L_2 = - 0.5*np.log(abs(4*math.pi**2*np.linalg.det(S)))
+                    help_L_2 = - 0.5*np.log(4*math.pi**2*np.linalg.det(S))
                     help_L_3  =np.log(p_d/lambda_c)
                     #L_detection[i][j] = np.log(p_d/lambda_c) - 0.5*np.log(abs(4*math.pi**2*np.linalg.det(S)))-0.5*(multi_dot([np.transpose(help_L),np.linalg.inv(S),help_L])) 
                     L_detection[i][j] = help_L_3 + help_L_2+ help_L_1
@@ -75,7 +78,10 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
             # Berechnung von Data Assossiation theta_k
             for i in range(n):
             
-                
+
+                #total_cost += L_old[i][indexes_opt[i][1]]
+                #weight_opt = np.exp(-total_cost)
+
                 #Fallunterscheidung: theta = index von Messung wenn die Detektion einem Objekt entspicht, theta = 0 wenn die Detektion einem Clutter entspricht
                 estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht 
                 P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
@@ -96,9 +102,8 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-            
+            print(estimate_all)
             estimate_all.append(estimate.tolist())
-            
             k = k+1
         
         return estimate_all    
@@ -121,16 +126,17 @@ def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,number_co
          
          help_estimate = z_opt_assossiation - np.matmul(H,estimate_i)
 
+
          if number_coordinates==1:
             K = help_K_1*help_K_2
             estimate_i = estimate_i +K*help_estimate #K Transponieren aufgrung Python und nicht der Theorie
          else:
              K = np.matmul(help_K_1,help_K_2)
              estimate_i = estimate_i +np.matmul(np.transpose(K),help_estimate) #K Transponieren aufgrung Python und nicht der Theorie
-
-         P_i = P_i - np.matmul(K,np.matmul(H,P_i))
+         help_P_1 = np.transpose(K)*np.transpose(np.matmul(H,P_i))
+         P_i = P_i - help_P_1
          
-     else: #Objekt nicht erkannt => werte durchreichen
+     else:
 
          P_i = P_i
          estimate_i = estimate_i
