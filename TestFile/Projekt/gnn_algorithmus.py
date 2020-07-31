@@ -30,7 +30,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
         k = 1   #Zeitschritt
 
-        
+        #test commit 
 
 
         
