@@ -64,7 +64,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
                     help_L_0.append(measurement_k[j]-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
                     help_L_1 = 0.5*(multi_dot([np.transpose(help_L_0),np.linalg.inv(S),help_L_0])) 
                     help_L_2 = - 0.5*np.log(4*math.pi**2*np.linalg.det(S))
-                    help_L_3  =np.log(p_d/lambda_c)
+                    help_L_3  = np.log(p_d/lambda_c)
                     #L_detection[i][j] = np.log(p_d/lambda_c) - 0.5*np.log(abs(4*math.pi**2*np.linalg.det(S)))-0.5*(multi_dot([np.transpose(help_L),np.linalg.inv(S),help_L])) 
                     L_detection[i][j] = help_L_3 + help_L_2+ help_L_1
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen  
@@ -102,7 +102,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-            print(estimate_all)
+   
             estimate_all.append(estimate.tolist())
             k = k+1
         
