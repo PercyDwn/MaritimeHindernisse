@@ -11,25 +11,5 @@ cost  = [[5, 9, 1,5,inf,inf],
           [10, 3, 2,inf,1,inf],
           [8, 7, 4,inf,inf,10]]
 
-#print(cost)
-#indexes = hungarian.compute(cost)
-#print(cost)
-#print(indexes)
+print(np.log(np.exp(2)))
 
-#A= [[1,2],[3,4]]
-#B= [[5],[6]]
-#C = concatenate((A,B),axis=1)
-#print(len(C[0]))
-<<<<<<< HEAD
-T = [[4]]
-S = [[10]]
-U = [[2]]
-##print(np.log(4*math.pi**2*np.linalg.det(S)))
-##print(np.transpose(S))
-#print(np.linalg.inv(S))
-#print(np.linalg.det(S))
-print(multi_dot([T,U,S]))
-=======
-S = np.array([[10]])
-print(np.linalg.det(S)) #Fehler? VS.Lukas: numpy has not attribut det => np.det(S) in np.linalg.det(S) 
->>>>>>> 89019558f949875ea2cca62d69ba6559e9a2dfe3
