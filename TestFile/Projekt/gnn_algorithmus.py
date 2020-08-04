@@ -38,7 +38,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
             
         ## Berechnung mit Messdaten/Testdaten
         while len(data)>0: #While: data nicht leer
-            measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt
+            measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt)
             total_cost = 0 #Kosten Data Assossiation 
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
@@ -56,17 +56,17 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
             #Kostenmatrix erzeugen 
             # Theorie zur Kostenmatrix :https://www.youtube.com/watch?v=uwBVssiFpOg&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=17&t=0s
                 S = R+ multi_dot([H,P_i,np.transpose(H)]) #Inovation Kovarianz
+                S_skaliert = (2*math.pi*S).tolist() # Mit 2*pi skaliertes S
                 S = S.tolist() #Detreminate und Inverse von List sklara möglich (array skalar unmöglich)
                 z_hat = np.matmul(H,estimate_i) #Predicted detection
-                L_missdetection[i][i] = np.log(1-p_d)
+                L_missdetection[i][i] = -np.log(1-p_d)
                 
                 for j in range(m):
                     help_L_0 = []
                     help_L_0.append(measurement_k[j]-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
                     help_L_1 = -0.5*(multi_dot([np.transpose(help_L_0),np.linalg.inv(S),help_L_0])) 
-                    help_L_2 = - 0.5*np.log(4*math.pi**2*np.linalg.det(S))
+                    help_L_2 = - 0.5*np.log(np.linalg.det(S_skaliert))
                     help_L_3  = np.log(p_d/lambda_c)
-                    #L_detection[i][j] = np.log(p_d/lambda_c) - 0.5*np.log(abs(4*math.pi**2*np.linalg.det(S)))-0.5*(multi_dot([np.transpose(help_L),np.linalg.inv(S),help_L])) 
                     L_detection[i][j] = -(help_L_3 + help_L_2+ help_L_1)
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen  
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen

@@ -7,7 +7,7 @@ from functions import get_position
 import math
 
 #Initialisierung
-p_d = 0.9 #Detektionsrate
+p_d = 0.95 #Detektionsrate
 lambda_c =0.3 #Clutter Intensität
 V= 5 #Cluttering Volume
 T= 0.001 #Abtastzeit
@@ -18,9 +18,9 @@ n = 2 #Anzahl Objekte
 Q = [[100 ,0],[0 ,100]] #Varianz des Modellrauschens
 R = [[10]] #Varianz des Messrauschens
 init_x1 = -1
-init_x2 = 15
+init_x2 = 15 
 init_values =np.array([[init_x1,init_x2],[0, 0]])
-P_i_init = [[100,0],[0,100]]
+P_i_init = [[10,0],[0,10]]
 
 #Test Datensatz
 measurements, real_objects,K = createTestDataSet()
@@ -49,6 +49,6 @@ for i in K:
 plt.legend('Z_k','x_ist')     
 plt.title('Messungen')
 plt.xlabel('x')
-plt.ylabel('y')
+plt.ylabel('k')
 plt.axis([-15,30,-1,len(K)+1])
 plt.show()
