@@ -36,6 +36,9 @@
     <Compile Include="hungarian_test.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MN.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="pyrate_common_math_gaussian.py">
       <SubType>Code</SubType>
     </Compile>

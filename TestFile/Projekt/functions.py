@@ -8,6 +8,11 @@ def gaussian(x,my,var): #Funktion berechnet die Gaß sche Verteilung in abhängi
     return gaussian
 
 def createTestDataSet():
+        warmup_data =  [[-1,0,6,13],
+             [-1,3.5,4,14,15],
+             [-5,-2.5,6,7, 14],
+             [-2,4.5,8,13,15],
+             ]
         measurements = [[1,2.5,6,12],
              [3,3.5,4,13,13.5],
              [4.5,6,7, 14],
