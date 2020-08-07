@@ -1,18 +1,15 @@
 import math
 import numpy as np
+from functions import createTestDataSet
 
 
-measurements = [[-1,0,6,13],
-             [-1,3.5,4,14,15],
-             [-5,-1.5,6,7, 14],
-             [-2,4.5,8,13,15],
-             [1,2.5,6,12],]
-objects = [[2.5,12],
-        [3.5,13],
-        [4.5, 14],
-        [4.5 ,15],
-        [4.5,16],
-        [4,17]]
+#measurements = [[-1,0,6,13],
+#             [-1,3.5,4,14,15],
+#             [-5,-1.5,6,7, 14],
+#             [-2,4.5,8,13,15],
+#             [1,2.5,6,12],]
+
+
 #Erstellt eine Matrix mit Listen als Elemente
 def uebersicht(measurements,Startzeit,N):
     uebersichtMatrix=[]
