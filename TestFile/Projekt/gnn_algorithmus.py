@@ -25,7 +25,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
         for i in range(n):
             P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
           
-        #total_cost = 0 #Kosten Data Assossiation 
+        
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
         k = 1   #Zeitschritt
@@ -38,7 +38,8 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
             
         ## Berechnung mit Messdaten/Testdaten
         while len(data)>0: #While: data nicht leer
-            measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt
+            measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt)
+            total_cost = 0 #Kosten Data Assossiation 
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
             L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
@@ -55,25 +56,26 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
             #Kostenmatrix erzeugen 
             # Theorie zur Kostenmatrix :https://www.youtube.com/watch?v=uwBVssiFpOg&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=17&t=0s
                 S = R+ multi_dot([H,P_i,np.transpose(H)]) #Inovation Kovarianz
+                S_skaliert = (2*math.pi*S).tolist() # Mit 2*pi skaliertes S
                 S = S.tolist() #Detreminate und Inverse von List sklara möglich (array skalar unmöglich)
                 z_hat = np.matmul(H,estimate_i) #Predicted detection
-                L_missdetection[i][i] = np.log(1-p_d)
+                L_missdetection[i][i] = -np.log(1-p_d)
                 
                 for j in range(m):
                     help_L_0 = []
                     help_L_0.append(measurement_k[j]-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
-                    help_L_1 = 0.5*(multi_dot([np.transpose(help_L_0),np.linalg.inv(S),help_L_0])) 
-                    help_L_2 = - 0.5*np.log(4*math.pi**2*np.linalg.det(S))
-                    help_L_3  =np.log(p_d/lambda_c)
-                    #L_detection[i][j] = np.log(p_d/lambda_c) - 0.5*np.log(abs(4*math.pi**2*np.linalg.det(S)))-0.5*(multi_dot([np.transpose(help_L),np.linalg.inv(S),help_L])) 
-                    L_detection[i][j] = help_L_3 + help_L_2+ help_L_1
+                    help_L_1 = -0.5*(multi_dot([np.transpose(help_L_0),np.linalg.inv(S),help_L_0])) 
+                    help_L_2 = - 0.5*np.log(np.linalg.det(S_skaliert))
+                    help_L_3  = np.log(p_d/lambda_c)
+                    L_detection[i][j] = -(help_L_3 + help_L_2+ help_L_1)
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen  
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
             L= np.concatenate((L_detection,L_missdetection),axis=1) #L_detection und L_missdetection zusammensetzen
             
             #Berechnen assignment Matrix A mit Hungarian Algorithmus
-            L_old = L[:,:] #Erste Kostenmatrix für die Berechnung von 'total_cost'
-            indexes_opt = hungarian.compute(L) #Assignment matrix indexes
+ 
+            indexes_opt = hungarian.compute(np.concatenate((L_detection,L_missdetection),axis=1)) #Assignment matrix indexes
+
            
             # Berechnung von Data Assossiation theta_k
             for i in range(n):
@@ -81,6 +83,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
 
                 #total_cost += L_old[i][indexes_opt[i][1]]
                 #weight_opt = np.exp(-total_cost)
+                total_cost += L[i][indexes_opt[i][1]]
 
                 #Fallunterscheidung: theta = index von Messung wenn die Detektion einem Objekt entspicht, theta = 0 wenn die Detektion einem Clutter entspricht
                 estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht 
@@ -102,8 +105,9 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-            print(estimate_all)
+   
             estimate_all.append(estimate.tolist())
+            weight_opt_k = np.exp(total_cost)
             k = k+1
         
         return estimate_all    
