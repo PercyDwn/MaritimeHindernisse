@@ -57,7 +57,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
             # Theorie zur Kostenmatrix :https://www.youtube.com/watch?v=uwBVssiFpOg&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=17&t=0s
                 S = R+ multi_dot([H,P_i,np.transpose(H)]) #Inovation Kovarianz
                 S_skaliert = (2*math.pi*S).tolist() # Mit 2*pi skaliertes S
-                S = S.tolist() #Detreminate und Inverse von List sklara möglich (array skalar unmöglich)
+                S = S.tolist() #Detreminate und Inverse von List sklara möglich  skalar unmöglich)
                 z_hat = np.matmul(H,estimate_i) #Predicted detection
                 L_missdetection[i][i] = -np.log(1-p_d)
                 

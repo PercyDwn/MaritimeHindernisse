@@ -22,8 +22,13 @@ def createTestDataSet():
              [4.5,16],
              [4,17],
              [3.5, 17]]
+        warmup_data =  [[-1,0,6,13],
+             [-1,3.5,4,14,15],
+             [-5,-2.5,6,7, 14],
+             [-2,4.5,8,13,15],
+             ]
         K= np.arange(len(measurements))
-        return measurements, objects,K
+        return measurements, objects,warmup_data,K
 
 def erwartungs_wert():
         pass
