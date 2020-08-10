@@ -4,32 +4,26 @@ import gnn_algorithmus
 from functions import gaussian 
 from functions import createTestDataSet
 from functions import get_position
+from functions import initialize_values
 import math
 from MN import mnLogic
 
 #Initialisierung
-p_d = 0.95 #Detektionsrate
+dimensions = 2
+p_d = 0.8 #Detektionsrate
 lambda_c =0.3 #Clutter Intensität
 V= 5 #Cluttering Volume
 T= 0.1 #Abtastzeit
-F = [[1,T],
-     [0,1]] #Systemmatrix
-H = [1,0] #Ausgangsmatrix 
-Q = [[100 ,0],[0 ,100]] #Varianz des Modellrauschens
-R = [[10]] #Varianz des Messrauschens
-init_x1 = -1
-init_x2 = 15 
-init_values =np.array([[init_x1,init_x2],[0, 0]])
-P_i_init = [[10,0],[0,10]]
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
 
-#Test Datensatz
-warmup_data, measurements, real_objects,K = createTestDataSet()
-#GNN Aufruf
+warmup_data, measurements,real_objects,K = createTestDataSet(dimensions) #Testdaten
 data = measurements[:]
 all_measurements = np.concatenate((warmup_data,measurements),axis=0).tolist()
-n = mnLogic(M,N,1,all_measurements) #Anzahl Objekte
+#n = mnLogic(M,N,1,all_measurements) #Anzahl Objekte
+n = 2 
+F,H,Q,R, init_values,P_i_init = initialize_values(dimensions,T,n,measurements[0]) #Initialisierung aller Anfangswerten 
+#GNN Aufruf
 estimate_gnn = gnn_algorithmus.gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init)
 position_gnn = get_position(estimate_gnn)
 print(position_gnn)

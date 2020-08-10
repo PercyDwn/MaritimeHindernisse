@@ -16,6 +16,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
          #Initialisierung
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
+        print(init_values)
         number_states = len(F) # Zuständezahl
         theta_k = np.zeros((1,n)) #Data Assossiation Vektor
         number_coordinates = int(number_states/2) # Zahl Koordinaten: 1 wenn z= x, 2 wenn z=[x;y]
@@ -63,8 +64,8 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
                 
                 for j in range(m):
                     help_L_0 = []
-                    help_L_0.append(measurement_k[j]-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
-                    help_L_1 = -0.5*(multi_dot([np.transpose(help_L_0),np.linalg.inv(S),help_L_0])) 
+                    help_L_0.append(np.array(measurement_k[j])-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
+                    help_L_1 = -0.5*(multi_dot([(help_L_0),np.linalg.inv(S),np.transpose(help_L_0)])) 
                     help_L_2 = - 0.5*np.log(np.linalg.det(S_skaliert))
                     help_L_3  = np.log(p_d/lambda_c)
                     L_detection[i][j] = -(help_L_3 + help_L_2+ help_L_1)
@@ -89,17 +90,19 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
                 estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht 
                 P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
                 index_opt = indexes_opt[i][1]
+                z_opt_assossiation = 0 #Initialisierung von : Messung der wahrscheinlichsten Hypothese
                 if index_opt< m :
                     theta_k[0][i] = index_opt +1
+
                     if number_coordinates ==1 :
                        z_opt_assossiation = measurement_k[index_opt] # Messung der wahrscheinlichsten Hypothese
                     else:
-                        z_opt_assossiation = measurement_k[0:number_coordinates,index_opt]
+                       z_opt_assossiation = measurement_k[index_opt]
                     
                 
                 else :
                     theta_k[0][i] = 0
-                    z_opt_assossiation = 0
+                    
                 
 
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
@@ -124,7 +127,7 @@ def kalman_filter_prediction(estimates_i, P_i,F,Q):
     return estimates_i, P_i
 
 def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,number_coordinates):
-     help_K_1 = np.transpose(np.matmul(P_i,np.transpose(H))) #Hilfsvariable für die Berechnung von K. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
+     help_K_1 =np.matmul(P_i,np.transpose(H)) #Hilfsvariable für die Berechnung von K. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
      help_K_2 = lin.inv(np.matmul(H,help_K_1)+R) #Hilfsvariable für die Berechnung von K
      if theta_i != 0: #Wenn Objekt detektiert wurde => Kalmanprediktion durchführen
          
@@ -134,10 +137,11 @@ def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,number_co
          if number_coordinates==1:
             K = help_K_1*help_K_2
             estimate_i = estimate_i +K*help_estimate #K Transponieren aufgrung Python und nicht der Theorie
+            help_P_1 =K*np.matmul(H,P_i)
          else:
              K = np.matmul(help_K_1,help_K_2)
-             estimate_i = estimate_i +np.matmul(np.transpose(K),help_estimate) #K Transponieren aufgrung Python und nicht der Theorie
-         help_P_1 = np.transpose(K)*np.transpose(np.matmul(H,P_i))
+             estimate_i = estimate_i +np.matmul(K,help_estimate) #K Transponieren aufgrung Python und nicht der Theorie
+             help_P_1 = multi_dot([K,H,P_i])
          P_i = P_i - help_P_1
          
      else:
