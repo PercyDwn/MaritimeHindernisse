@@ -6,7 +6,7 @@ from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
 
 
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
+def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
     #data Messung aller Zeitschritten
     #p_d =detection rate
     #lambda_c Clutter Intensität
@@ -42,6 +42,7 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init):
             measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt)
             total_cost = 0 #Kosten Data Assossiation 
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
+            lambda_c = 0.001 + 1-n/m  #Clutter Intensität
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
             L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
             L_missdetection[:,:] = np.inf # Alle Einträge gleich unendlich setzen 

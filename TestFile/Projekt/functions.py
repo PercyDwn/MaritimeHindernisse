@@ -14,13 +14,7 @@ def createTestDataSet(dimensions):
              [-5,-1.5,6,7, 14],
              [-2,4.5,8,13,15],
              ]
-        objects = [[2.5,12],
-             [3.5,13],
-             [4.5, 14],
-             [4.5 ,15],
-             [4.5,16],
-             [4,17],
-             [3.5, 17]]
+        
         if dimensions ==1:
            measurements = [[1,2.5,6,12],
                  [3,3.5,4,13,13.5],
@@ -29,6 +23,13 @@ def createTestDataSet(dimensions):
                  [4,4.5,5,6,16],
                  [4,4.5,16,17,17.5,18],
                  [1,2,3.5,3.6,15,15.5, 17,18]]
+           objects = [[2.5,12],
+             [3.5,13],
+             [4.5, 14],
+             [4.5 ,15],
+             [4.5,16],
+             [4,17],
+             [3.5, 17]]
         else:
        
             measurements = [[[1,5],[2.5,10],[6,50],[12,70]],
@@ -39,6 +40,13 @@ def createTestDataSet(dimensions):
                            [[4,25],[5,50],[17,45],[17.5 ,25],[18,75]],
                            [[1,100],[3.5,30],[3.6,20],[15,10],[15.5,10],[17,40],[18,40]]
                            ]
+            objects = [[[2.5,10], [12,70]],
+                       [[3.5,15],[13,65]],
+                       [[4.5,20],[14,60]],
+                       [[4.5,25],[15,55]],
+                       [[4.5,25],[16,50]],
+                       [[4,25],[17,45]],
+                       [[3.5,30],[17,40]]]
         K= np.arange(len(measurements))
         return warmup_data,measurements, objects,K
 
@@ -95,7 +103,7 @@ def initialize_values(dimensions,T,n,measurements_0):
 
 
 
-def get_position(estimate):
+def get_position(estimate): #Extraiert die Position der Objekten aus der Zustandsschätzung
     position = [None] * len(estimate)
     for i in range(len(estimate)):
         position[i] = estimate[i][0]
