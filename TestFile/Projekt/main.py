@@ -10,8 +10,8 @@ from MN import mnLogic
 
 #Initialisierung
 dimensions = 2
-p_d = 0.9999 #Detektionsrate
-T= 0.1 #Abtastzeit
+p_d = 0.97 #Detektionsrate
+T= 0.5 #Abtastzeit
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
 
@@ -23,17 +23,17 @@ n = 2
 F,H,Q,R, init_values,P_i_init = initialize_values(dimensions,T,n,measurements[0]) #Initialisierung aller Anfangswerten 
 #GNN Aufruf
 estimate_gnn = gnn_algorithmus.gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init)
+#print('............................................')
 #print(estimate_gnn)
-position_gnn = get_position(estimate_gnn)
+position_gnn = get_position(estimate_gnn,dimensions)
+#print('............................................')
 #print(position_gnn)
 
-#print('............................................')
-#print(real_objects)
 
 
 
 #Plots
-if dimensions ==1:
+if dimensions == 1:
 
     for i in K:
         for j in range(len(measurements[i])): #Plot Clutter
@@ -55,13 +55,23 @@ else:
     fig.suptitle('Performance GNN')
     for i in K:
         for j in range(len(measurements[i])): #Plot Clutter
-            print(measurements)
-            print(measurements[i])
             meas_k = measurements[i][j]
-            print(meas_k)
             axs[0].plot(meas_k[0],K[i]+1,'ro',color='black')
             axs[1].plot(meas_k[1],K[i]+1,'ro',color='black')
-    axs[0].axis([-15,30,-1,len(K)+1])
+        for j in range(n):
+            real_objects_ij = real_objects[i][j]
+            x_coordinates =  position_gnn[i][0]
+            y_coordinates = position_gnn[i][1]
+            x_end_position = position_gnn[-1][0]
+            y_end_position = position_gnn[-1][1]
+            axs[0].plot(real_objects_ij[0],K[i]+1,'ro',color='green') #x Koordinaten, echte Objekte
+            axs[1].plot(real_objects_ij[1],K[i]+1,'ro',color='green') #y Koordinaten, echte Objekte
+            axs[0].plot(x_coordinates[j],K[i],'ro',color= 'orange') #x Koordinaten, gnn
+            axs[1].plot(y_coordinates[j],K[i],'ro',color= 'orange') #y Koordinaten, gnn
+            axs[0].plot(x_end_position[j],K[-1]+1,'ro',color= 'orange') #letzter x punkt, gnn
+            axs[1].plot(y_end_position[j],K[-1]+1,'ro',color= 'orange') #letzter y punkt, gnn
+    axs[0].axis([0,21,-1,len(K)+1])
+    axs[1].axis([0,100,-1,len(K)+1])
     axs[0].set_xlabel('x')
     axs[0].set_ylabel('k')
     axs[1].set_xlabel('y')

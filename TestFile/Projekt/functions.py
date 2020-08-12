@@ -55,12 +55,9 @@ def erwartungs_wert():
 def initialize_values(dimensions,T,n,measurements_0):
     #Test Datensatz
     m = len(measurements_0) #Anzahl der Messungen pro Zeitschritt
-    init_values = np.zeros((2*dimensions,n)) #Initialisierung der Anfagnswerten 
+    init_values = np.zeros((2*dimensions,n)) + 1#Initialisierung der Anfagnswerten 
     #Anfangswertgenerator: Nimmt als Anfangswert einen zufälligen Wert aus dem ersten Zeitschritt der Messungen plus einen Abweichungsfaktor
-    #for d in range(dimensions):
-    #    for i in range(n):
-    #        random_meas_index = random.randint(0, m-1) #Zufälliger Wert zwischen 0 und m-1
-    #        init_values[2*d,i] = measurements_0[random_meas_index]+  measurements_0[random_meas_index]/30
+
 
     
     if dimensions ==1:
@@ -82,29 +79,37 @@ def initialize_values(dimensions,T,n,measurements_0):
               [0,0,0,1]] #Systemmatrix 
         H =[[1,0,0,0],
             [0,0,1,0]]#Ausgangsmatrix
-        Q = [[100,0,0,0],
-             [0,100,0,0],
-             [0,0,100,0],
-             [0,0,0,100]] #Varianz des Modellrauschens 2D
-        R = [[10,0],
-             [0,10]] #Varianz des Messrauschens
+        Q = [[10,0,0,0],
+             [0,10,0,0],
+             [0,0,10,0],
+             [0,0,0,10]] #Varianz des Modellrauschens 2D
+        R = [[1,0],
+             [0,1]] #Varianz des Messrauschens
         for i in range(n):
             random_meas_index = random.randint(0, m-1) #Zufälliger Wert zwischen 0 und m-1
             random_meas_coordinates = measurements_0[random_meas_index] #Zufällige Koordinaten aus der ersten Messung
             init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
             init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
-        #init_x1 = [-1,5]
-        #init_x2 = [15,60]
-        #init_values = np.array([init_x1,init_x2],[0,0])
-        #init_values =np.array([[init_x1,init_x2],[[0,0], [0,0]]])
+        
         P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]] 
         
     return F,H,Q,R, init_values,P_i_init
 
 
 
-def get_position(estimate): #Extraiert die Position der Objekten aus der Zustandsschätzung
-    position = [None] * len(estimate)
-    for i in range(len(estimate)):
-        position[i] = estimate[i][0]
+def get_position(estimate,dimensions): #Extraiert die Position der Objekten aus der Zustandsschätzung
+    
+    if dimensions ==1:
+        position = [None] * len(estimate)
+        for i in range(len(estimate)):
+            position[i] = estimate[i][0]
+    else:
+        position = estimate[:]
+        for j in range(len(estimate)):
+            estimate_k = estimate[j]
+            position_k = [None]*int(len(estimate_k)/2)
+            for i in range(int(len(estimate_k)/2)):
+                position_k[i] = estimate_k[2*i]
+            position[j] = position_k
+            
     return position

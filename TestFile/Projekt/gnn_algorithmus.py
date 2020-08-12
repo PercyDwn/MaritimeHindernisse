@@ -67,10 +67,10 @@ def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
                     help_L_0 = []
                     help_L_0.append(np.array(measurement_k[j])-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
                     help_L_1 = -0.5*(multi_dot([(help_L_0),np.linalg.inv(S),np.transpose(help_L_0)])) 
-                    help_L_2 = - 0.5*np.log(np.linalg.det(S_skaliert))
+                    help_L_2 = - 0.5*np.log(np.linalg.det(S))
                     help_L_3  = np.log(p_d/lambda_c)
                     L_detection[i][j] = -(help_L_3 + help_L_2+ help_L_1)
-                estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen  
+                estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen   
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
             L= np.concatenate((L_detection,L_missdetection),axis=1) #L_detection und L_missdetection zusammensetzen
             
@@ -109,7 +109,7 @@ def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-   
+                
             estimate_all.append(estimate.tolist())
             weight_opt_k = np.exp(total_cost)
             k = k+1
@@ -123,7 +123,7 @@ def kalman_filter_prediction(estimates_i, P_i,F,Q):
    #Theorie Kalman Filter bei GNN: https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=20 
     estimates_i = np.matmul(F,estimates_i) #Kalman Prädiktion estimates
     P_i =multi_dot([F,P_i,np.transpose(F)]) +Q #Kalman Prädiktion 
-    
+    a = multi_dot([F,P_i,np.transpose(F)])
     
     return estimates_i, P_i
 
