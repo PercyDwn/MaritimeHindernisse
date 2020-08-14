@@ -42,7 +42,6 @@ class ObjectHandler:
 
                     States = []
                     for obs in obstacles:
-                        # print(obs.x,',',obs.y)
                         States.append([obs.x, obs.y])
                     self.ObjectStates = States
 
@@ -63,6 +62,12 @@ class ObjectHandler:
                 horizon_lines, votes, seps = detector.detect_horizon(img)
                 if horizon_lines:
                     obstacles = detector.find_obstacles(img, horizon=horizon_lines[0])
+
+                    States = []
+                    for obs in obstacles:
+                        States.append([obs.x, obs.y])
+                    self.ObjectStates.append(States)
+
                 else:
                     obstacles = None
                 detector.plot_img(img, obstacles=obstacles, 
