@@ -9,11 +9,12 @@ def gaussian(x,my,var): #Funktion berechnet die Gaß sche Verteilung in abhängi
     return gaussian
 
 def createTestDataSet(dimensions):
-        warmup_data =  [[-1,0,6,13],
-             [-1,3.5,4,14,15],
-             [-5,-1.5,6,7, 14],
-             [-2,4.5,8,13,15],
-             ]
+        warmup_data =  [[1,12],
+                        [-1,0,6,13],
+                         [-1,3.5,4,14,15],
+                         [-5,-1.5,6,7, 14],
+                         [-2,4.5,8,13,15],
+                         ]
         
         if dimensions ==1:
            measurements = [[1,2.5,6,12],
@@ -23,6 +24,11 @@ def createTestDataSet(dimensions):
                  [4,4.5,5,6,16],
                  [4,4.5,16,17,17.5,18],
                  [1,2,3.5,3.6,15,15.5, 17,18]]
+           warmup_data =  [[-1,0,6,13],
+             [-1,3.5,4,14,15],
+             [-5,-1.5,6,7, 14],
+             [-2,4.5,8,13,15],
+             ]
            objects = [[2.5,12],
              [3.5,13],
              [4.5, 14],
@@ -47,6 +53,7 @@ def createTestDataSet(dimensions):
                        [[4.5,25],[16,50]],
                        [[4,25],[17,45]],
                        [[3.5,30],[17,40]]]
+            
         K= np.arange(len(measurements))
         return warmup_data,measurements, objects,K
 

@@ -3,10 +3,10 @@ from numpy import linalg as lin
 import math
 from munkres import Munkres
 from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
-
-
+from functions import initialize_values
+from MN import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
+def gnn(data,p_d,warmup_data,M,N,dimensions,T):
     #data Messung aller Zeitschritten
     #p_d =detection rate
     #lambda_c Clutter Intensität
@@ -15,11 +15,14 @@ def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
     #R,Q,P_i_init Kovarianz Matrizen
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
          #Initialisierung
+        mn_data = warmup_data[:] #Daten für M/N Algorithmus
+        n = 2
+        #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+        F,H,Q,R, init_values,P_i_init = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
+
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
-        print(init_values)
         number_states = len(F) # Zuständezahl
         theta_k = np.zeros((1,n)) #Data Assossiation Vektor
-        number_coordinates = int(number_states/2) # Zahl Koordinaten: 1 wenn z= x, 2 wenn z=[x;y]
         estimate = np.zeros((number_states,n)) # Zustände geschätz 
         estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
         P = np.zeros((number_states,n*number_states))
@@ -30,15 +33,14 @@ def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
         k = 1   #Zeitschritt
-
-        
-
+       
 
         
         
             
         ## Berechnung mit Messdaten/Testdaten
         while len(data)>0: #While: data nicht leer
+            
             measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt)
             total_cost = 0 #Kosten Data Assossiation 
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
@@ -95,7 +97,7 @@ def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
                 if index_opt< m :
                     theta_k[0][i] = index_opt +1
 
-                    if number_coordinates ==1 :
+                    if dimensions ==1 :
                        z_opt_assossiation = measurement_k[index_opt] # Messung der wahrscheinlichsten Hypothese
                     else:
                        z_opt_assossiation = measurement_k[index_opt]
@@ -106,15 +108,20 @@ def gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init):
                     
                 
 
-                estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
+                estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,dimensions) #Update P und estimate_i mit Kalman-Korrekturschritt
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
                 
             estimate_all.append(estimate.tolist())
             weight_opt_k = np.exp(total_cost)
             k = k+1
-        
-        return estimate_all    
+            
+            mn_data.pop(0) #Löschen ältestes Element
+            mn_data.append(measurement_k) #Aktuelle Messung einfügen
+            n = 2
+            #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+           
+        return estimate_all ,n   
             
      
 #!nicht einheitlich mit estimateS_i! -> Fehler ??
@@ -127,7 +134,7 @@ def kalman_filter_prediction(estimates_i, P_i,F,Q):
     
     return estimates_i, P_i
 
-def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,number_coordinates):
+def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,dimensions):
      help_K_1 =np.matmul(P_i,np.transpose(H)) #Hilfsvariable für die Berechnung von K. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
      help_K_2 = lin.inv(np.matmul(H,help_K_1)+R) #Hilfsvariable für die Berechnung von K
      if theta_i != 0: #Wenn Objekt detektiert wurde => Kalmanprediktion durchführen
@@ -135,7 +142,7 @@ def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,number_co
          help_estimate = z_opt_assossiation - np.matmul(H,estimate_i)
 
 
-         if number_coordinates==1:
+         if dimensions==1:
             K = help_K_1*help_K_2
             estimate_i = estimate_i +K*help_estimate #K Transponieren aufgrung Python und nicht der Theorie
             help_P_1 =K*np.matmul(H,P_i)

@@ -7,27 +7,22 @@ from functions import get_position
 from functions import initialize_values
 import math
 from MN import mnLogic
-
+from ObjectHandler import *
 #Initialisierung
 dimensions = 2
 p_d = 0.97 #Detektionsrate
 T= 0.5 #Abtastzeit
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
-
+ObjectHandler = ObjectHandler()
+print(ObjectHandler.getObjectStates())
 warmup_data, measurements,real_objects,K = createTestDataSet(dimensions) #Testdaten
 data = measurements[:]
-all_measurements = np.concatenate((warmup_data,measurements),axis=0).tolist()
-#n = mnLogic(M,N,1,all_measurements) #Anzahl Objekte
-n = 2 
-F,H,Q,R, init_values,P_i_init = initialize_values(dimensions,T,n,measurements[0]) #Initialisierung aller Anfangswerten 
+
 #GNN Aufruf
-estimate_gnn = gnn_algorithmus.gnn(data,p_d,F,H,n,R,Q,init_values,P_i_init)
-#print('............................................')
-#print(estimate_gnn)
+estimate_gnn,n = gnn_algorithmus.gnn(data,p_d,warmup_data,M,N,dimensions,T)
 position_gnn = get_position(estimate_gnn,dimensions)
-#print('............................................')
-#print(position_gnn)
+
 
 
 
