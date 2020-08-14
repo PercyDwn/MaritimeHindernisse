@@ -12,7 +12,7 @@
     <Name>Projekt</Name>
     <RootNamespace>Projekt</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>Three Boats/0001.png</CommandLineArguments>
+    <CommandLineArguments>C:\Users\teteu\source\repos\PercyDwn\MaritimeHindernisse\TestFile\Projekt\Bilder</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

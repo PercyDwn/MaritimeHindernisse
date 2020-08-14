@@ -14,8 +14,12 @@ p_d = 0.97 #Detektionsrate
 T= 0.5 #Abtastzeit
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
+print('...........')
 ObjectHandler = ObjectHandler()
+ObjectHandler.updateObjectStates()
 print(ObjectHandler.getObjectStates())
+print(ObjectHandler.updateObjectStates())
+cv2.waitKey(0)
 warmup_data, measurements,real_objects,K = createTestDataSet(dimensions) #Testdaten
 data = measurements[:]
 
