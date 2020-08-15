@@ -12,7 +12,7 @@
     <Name>Projekt</Name>
     <RootNamespace>Projekt</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>Bilder/list1/</CommandLineArguments>
+    <CommandLineArguments>Bilder</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

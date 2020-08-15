@@ -1,4 +1,5 @@
 import numpy as np
+import  matplotlib.pyplot as plt
 from numpy import linalg as lin
 import math
 from munkres import Munkres
@@ -6,7 +7,7 @@ from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
 from functions import initialize_values
 from MN import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(data,p_d,warmup_data,M,N,dimensions,T):
+def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
     #data Messung aller Zeitschritten
     #p_d =detection rate
     #lambda_c Clutter Intensität
@@ -33,7 +34,7 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T):
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
         k = 1   #Zeitschritt
-       
+        fig = plt.figure()
 
         
         
@@ -109,18 +110,30 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T):
                 
 
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,dimensions) #Update P und estimate_i mit Kalman-Korrekturschritt
+                position_i = np.matmul(H,estimate_i) #Position eines Objekts aus den Zuständen 
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
+                print(position_i)
+                
+
+                #Echtzeit Plots 
+                plt.plot(position_i[0],position_i[1],"x",color= 'orange')
+                   
+                plt.title('Geschätze Position')
+                plt.xlabel('x_koordinate')
+                plt.ylabel('y_kordinate')
+                
                 
             estimate_all.append(estimate.tolist())
             weight_opt_k = np.exp(total_cost)
             k = k+1
             
+            
             mn_data.pop(0) #Löschen ältestes Element
             mn_data.append(measurement_k) #Aktuelle Messung einfügen
             n = 2
             #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-           
+        plt.show()   
         return estimate_all ,n   
             
      
@@ -130,7 +143,7 @@ def kalman_filter_prediction(estimates_i, P_i,F,Q):
    #Theorie Kalman Filter bei GNN: https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=20 
     estimates_i = np.matmul(F,estimates_i) #Kalman Prädiktion estimates
     P_i =multi_dot([F,P_i,np.transpose(F)]) +Q #Kalman Prädiktion 
-    a = multi_dot([F,P_i,np.transpose(F)])
+    
     
     return estimates_i, P_i
 
