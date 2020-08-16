@@ -1,34 +1,22 @@
 import  matplotlib.pyplot as plt
 import numpy as np
 import gnn_algorithmus
-from functions import gaussian 
-from functions import createTestDataSet
-from functions import get_position
-from functions import initialize_values
+from functions import *
 import math
 from MN import mnLogic
 from ObjectHandler import *
 #Initialisierung
 dimensions = 2
-real_data = False #True falls echte Daten, false falls Testdaten
+real_data = True #True falls echte Daten, false falls Testdaten
 p_d = 0.97 #Detektionsrate
 T= 0.5 #Abtastzeit
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
 ObjectHandler = ObjectHandler()
 
-#cv2.waitKey(0)
-if real_data == True:
-    detection = ObjectHandler.getObjectStates() #Daten der Detektion über alle Zeitschritten
-    warmup_data = detection[0:N]
-    data = detection[N:-1]
-    K = len(data)
-else:
-    warmup_data, measurements,real_objects,K = createTestDataSet(dimensions) #Testdaten
-    data = measurements[:]
     
 #GNN Aufruf
-estimate_gnn,n = gnn_algorithmus.gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data)
+estimate_gnn,n = gnn_algorithmus.gnn(p_d,M,N,dimensions,T,real_data,ObjectHandler)
 position_gnn = get_position(estimate_gnn,dimensions)
 
 

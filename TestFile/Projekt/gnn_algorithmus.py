@@ -6,8 +6,9 @@ from munkres import Munkres
 from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
 from functions import initialize_values
 from MN import *
+from ObjectHandler import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
+def gnn(p_d,M,N,dimensions,T,real_data,ObjectHandler):
     #data Messung aller Zeitschritten
     #p_d =detection rate
     #lambda_c Clutter Intensität
@@ -15,6 +16,14 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
     #n Anzahl Objekten
     #R,Q,P_i_init Kovarianz Matrizen
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
+        warmup_data = []
+        for i in range(N):   
+            if real_data == True:
+               warmup_data.append(ObjectHandler.getObjectStates(i)) #Daten der Detektion über alle Zeitschritten
+            else:
+                 data = createTestDataSet(dimensions)
+                 warmup_data.append(data) #Testdaten
+                 
          #Initialisierung
         mn_data = warmup_data[:] #Daten für M/N Algorithmus
         n = 2
@@ -33,7 +42,7 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
         
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
-        k = 1   #Zeitschritt
+        k = 0   #Zeitschritt
         fig = plt.figure()
 
         
@@ -41,7 +50,11 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
             
         ## Berechnung mit Messdaten/Testdaten
         while len(data)>0: #While: data nicht leer
-            
+            if real_data == True:
+               measurement_k = ObjectHandler.getObjectStates(k+N) #Daten der Detektion über alle Zeitschritten
+            else:
+                
+               measurement_k = data[k]
             measurement_k = data.pop(0)  #Erste Messung aus Datensatz (wird danach aus Datenliste entfernt)
             total_cost = 0 #Kosten Data Assossiation 
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
@@ -133,6 +146,7 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
             mn_data.append(measurement_k) #Aktuelle Messung einfügen
             n = 2
             #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+        plt.grid()
         plt.show()   
         return estimate_all ,n   
             
