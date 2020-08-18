@@ -9,6 +9,7 @@ import sys
 import os
 
 from obstacle_detect import *
+from CustomErrors import *
 
 
 class ObjectHandler:
@@ -16,11 +17,22 @@ class ObjectHandler:
     """This Class is used to retrieve the object states"""
 
     def __init__(self) -> None:
-
+        
+        self.DebugLevel = 0
         self.ObjectStates: List = []
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
+
+    def setDebugLevel(self, debugLevel: int = 0) -> None:
+        self.DebugLevel = debugLevel
+
+    # check, if set debug level is greater equal to given level
+    def printDebug(self, level: int) -> bool:
+        if(level <= self.DebugLevel):
+            return True
+        else:
+            return False
 
     def setImageFolder(self, folder: str) -> bool:
         self.ImageFolder = folder
@@ -44,8 +56,10 @@ class ObjectHandler:
 
     # return object states for a given time step t
     def getObjectStates(self, t: int) -> List:
+        if(t > self.getTimeStepCount()):
+            raise InvalidTimeStepError('time step is out of bound!')
 
-        return self.ObjectStates[t]
+        return self.ObjectStates[t-1]
 
     # return last item in object states list
     def getLastObjectStates(self) -> List:
@@ -60,7 +74,7 @@ class ObjectHandler:
 
         # get current max time step and add 1
         currentTimeStep = self.getTimeStepCount() + 1
-        print('current time step: ' + str(currentTimeStep))
+        if self.printDebug(2): print('current time step: ' + str(currentTimeStep))
 
         # check if folder and image base is set
         if type(self.ImageFolder) is str and type(self.ImageBaseName) is str:
@@ -68,13 +82,13 @@ class ObjectHandler:
             filepath = self.ImageFolder  + '/' + self.ImageBaseName + str(currentTimeStep) + self.ImageFileType
         else:
             # else, return false
-            print('image folder or base name is not set')
+            if self.printDebug(0): print('image folder or base name is not set')
             return False
 
         nextImage = Path(filepath)
         if nextImage.is_file():
             # file exists, run obstacle detect
-            print('file ' + filepath + ' is valid')
+            if self.printDebug(2): print('file ' + filepath + ' is valid')
             # read image
             img = cv2.imread(filepath)
             # check if image is valid
@@ -98,8 +112,10 @@ class ObjectHandler:
             # plot image with found obstacles
             if plot == True: detector.plot_img(img, obstacles=obstacles,horizon_lines=horizon_lines,plot_method='cv', wait_time=1)
 
+            return True
+
         else:
-            print(filepath + ' is not a valid file')
+            if self.printDebug(0): print(filepath + ' is not a valid file')
             return False
 
 
