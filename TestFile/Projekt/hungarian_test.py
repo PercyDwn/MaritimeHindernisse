@@ -4,12 +4,15 @@ from numpy import inf
 from numpy import concatenate
 import math
 from numpy.linalg import multi_dot
-
+import  matplotlib.pyplot as plt
 hungarian = Munkres()
 
-cost  = [[5, 9, 1,5,inf,inf],
-          [10, 3, 2,inf,1,inf],
-          [8, 7, 4,inf,inf,10]]
+plt.figure('test')
+k = 5
+for i in range(k):
+    y= i**2
+    plt.plot(i,y,"x",color= 'orange')
+    plt.show()
 
-print(np.log(np.exp(2)))
+
 
