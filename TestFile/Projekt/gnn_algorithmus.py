@@ -8,7 +8,7 @@ from functions import initialize_values
 from MN import *
 from ObjectHandler import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(p_d,M,N,dimensions,T,ObjectHandler):
+def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
     #data Messung aller Zeitschritten
     #p_d =detection rate
     #lambda_c Clutter Intensität
@@ -16,6 +16,12 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler):
     #n Anzahl Objekten
     #R,Q,P_i_init Kovarianz Matrizen
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
+        F = [[1,T,0,0],
+             [0,1,0,0],
+             [0,0,1,T],
+              [0,0,0,1]] #Systemmatrix 
+        H =[[1,0,0,0],
+            [0,0,1,0]]#Ausgangsmatrix
         warmup_data = []
         ObjectHandler.updateObjectStates()
         # Bereitet die Daten für den Aufruf vom M/N Algorithmus, indem die ersten N Zeitschritten als Warmlaufdaten genutz werden
@@ -28,7 +34,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler):
         mn_data = warmup_data[:] #Daten für M/N Algorithmus
         n = 2
         #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        F,H,Q,R, init_values,P_i_init = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
+        _,_,_,_, init_values,_ = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
 
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl

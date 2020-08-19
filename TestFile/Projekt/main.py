@@ -12,11 +12,17 @@ T= 0.5 #Abtastzeit
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
 ObjectHandler = ObjectHandler()
-
+Q = [[10,0,0,0],
+             [0,10,0,0],
+             [0,0,10,0],
+             [0,0,0,10]] #Varianz des Modellrauschens 2D
+R = [[1,0],
+    [0,1]] #Varianz des Messrauschens
+P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]] 
     
 #GNN Aufruf
-estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler)
-#estimate_gnn,n = gnn_testdaten(p_d,M,N,dimensions,T)
+#estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init)
+#estimate_gnn,n = gnn_testdaten(p_d,M,N,T,dimensions)
 position_gnn = get_position(estimate_gnn,dimensions)
 
 
