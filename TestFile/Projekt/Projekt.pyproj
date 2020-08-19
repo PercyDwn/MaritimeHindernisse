@@ -54,6 +54,7 @@
     <Compile Include="pyrate_sense_filters_gmphd.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test_1.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
