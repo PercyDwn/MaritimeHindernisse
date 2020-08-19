@@ -1,29 +1,36 @@
 import  matplotlib.pyplot as plt
 import numpy as np
-import gnn_algorithmus
+from gnn_algorithmus import *
 from functions import *
 import math
 from MN import mnLogic
 from ObjectHandler import *
 #Initialisierung
 dimensions = 2
-real_data = True #True falls echte Daten, false falls Testdaten
 p_d = 0.97 #Detektionsrate
 T= 0.5 #Abtastzeit
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
 ObjectHandler = ObjectHandler()
-
+Q = [[10,0,0,0],
+             [0,10,0,0],
+             [0,0,10,0],
+             [0,0,0,10]] #Varianz des Modellrauschens 2D
+R = [[1,0],
+    [0,1]] #Varianz des Messrauschens
+P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]] 
     
 #GNN Aufruf
-estimate_gnn,n = gnn_algorithmus.gnn(p_d,M,N,dimensions,T,real_data,ObjectHandler)
+#estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init)
+#estimate_gnn,n = gnn_testdaten(p_d,M,N,T,dimensions)
 position_gnn = get_position(estimate_gnn,dimensions)
 
 
 
 
 
-#Plots
+#Plots Testdaten
+_,measurements, real_objects,K = createTestDataSet(dimensions)
 if dimensions == 1:
 
     for i in K:
