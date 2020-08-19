@@ -17,9 +17,12 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
          #Initialisierung
         mn_data = warmup_data[:] #Daten für M/N Algorithmus
-        n = 2
-        #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        F,H,Q,R, init_values,P_i_init = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
+       
+        
+        #n = 2
+        
+        n,init_values = mnLogic(M,N,1,measurements) #Anzahl Objekte
+        F,H,Q,R, _,P_i_init = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
 
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl
@@ -34,7 +37,7 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
         k = 1   #Zeitschritt
-        fig = plt.figure()
+        #fig = plt.figure()
 
         
         
@@ -117,11 +120,11 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
                 
 
                 #Echtzeit Plots 
-                plt.plot(position_i[0],position_i[1],"x",color= 'orange')
+                #plt.plot(position_i[0],position_i[1],"x",color= 'orange')
                    
-                plt.title('Geschätze Position')
-                plt.xlabel('x_koordinate')
-                plt.ylabel('y_kordinate')
+                #plt.title('Geschätze Position')
+                #plt.xlabel('x_koordinate')
+                #plt.ylabel('y_kordinate')
                 
                 
             estimate_all.append(estimate.tolist())
@@ -133,7 +136,7 @@ def gnn(data,p_d,warmup_data,M,N,dimensions,T,real_data):
             mn_data.append(measurement_k) #Aktuelle Messung einfügen
             n = 2
             #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        plt.show()   
+        #plt.show()   
         return estimate_all ,n   
             
      
