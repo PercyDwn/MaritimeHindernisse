@@ -56,10 +56,18 @@ class ObjectHandler:
 
     # return object states for a given time step t
     def getObjectStates(self, t: int) -> List:
-        if(t > self.getTimeStepCount()):
-            raise InvalidTimeStepError('time step is out of bound!')
+        if(t <= self.getTimeStepCount()):
+            # return data for requested time step
+            return self.ObjectStates[t-1]
+        else:
+            # try and update object state data
+            for i in range(0,t - self.getTimeStepCount()):
+                # try to update
+                updated = self.updateObjectStates()
+                if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
 
-        return self.ObjectStates[t-1]
+            return self.ObjectStates[t-1]
+                
 
     # return last item in object states list
     def getLastObjectStates(self) -> List:
