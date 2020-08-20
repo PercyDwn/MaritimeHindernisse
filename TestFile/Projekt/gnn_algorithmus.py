@@ -7,6 +7,7 @@ from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
 from functions import initialize_values
 from MN import *
 from ObjectHandler import *
+from functions import createTestDataSet
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
 def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
     #data Messung aller Zeitschritten
@@ -16,6 +17,12 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
     #n Anzahl Objekten
     #R,Q,P_i_init Kovarianz Matrizen
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
+        ObjectHandler = ObjectHandler()
+        ObjectHandler.setImageFolder('Bilder/list1')
+        ObjectHandler.setImageBaseName('')
+        ObjectHandler.setImageFileType('.jpg')
+        ObjectHandler.setDebugLevel(0)
+
         F = [[1,T,0,0],
              [0,1,0,0],
              [0,0,1,T],
@@ -23,11 +30,13 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         H =[[1,0,0,0],
             [0,0,1,0]]#Ausgangsmatrix
         warmup_data = []
-        ObjectHandler.updateObjectStates()
+       
         # Bereitet die Daten für den Aufruf vom M/N Algorithmus, indem die ersten N Zeitschritten als Warmlaufdaten genutz werden
         for k in range(N):   
-            
-            warmup_data.append(ObjectHandler.getObjectStates(k)) #Daten der Detektion über alle Zeitschritten
+            try:
+               warmup_data.append(ObjectHandler.getObjectStates(i))
+            except InvalidTimeStepError as e:
+               print('Not enough Data. In order to start the algorithm at least'+ N + 'Frames needed')
            
                  
          #Initialisierung
@@ -49,15 +58,19 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
         k = 0   #Zeitschritt
+        pictures_availiable = True
         fig = plt.figure()
 
         
         
             
         ## Berechnung auf Messdaten
-        while ObjectHandler.getObjectStates(k+N) !=[]: #While: data nicht leer
-            
-            measurement_k = ObjectHandler.getObjectStates(k+N) #Daten der Detektion eines Zeitschrittes  
+        while pictures_availiable == True: #While: 
+            try:
+                measurement_k = ObjectHandler.getObjectStates(k+N) #Daten der Detektion eines Zeitschrittes 
+            except InvalidTimeStepError as e:
+                print(e.args[0])
+                pictures_availiable== False
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
             lambda_c = 0.001 + 1-n/m  #Clutter Intensität
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
@@ -145,9 +158,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         plt.grid()
         plt.show()   
         return estimate_all ,n   
-            
-     
-#!nicht einheitlich mit estimateS_i! -> Fehler ??
+           
         
 def kalman_filter_prediction(estimates_i, P_i,F,Q):
    #Theorie Kalman Filter bei GNN: https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=20 
@@ -196,9 +207,12 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
          #Initialisierung
         warmup_data,data,real_object,K = createTestDataSet(dimensions)
         mn_data = warmup_data[:] #Daten für M/N Algorithmus
-        n = 2
-        #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        F,H,Q,R, init_values,P_i_init = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
+        print('.....')
+        print(mn_data)
+        print('...')
+        #n = 2
+        n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+        F,H,Q,R,P_i_init = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
 
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl

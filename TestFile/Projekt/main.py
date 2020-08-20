@@ -22,7 +22,7 @@ P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]]
     
 #GNN Aufruf
 #estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init)
-#estimate_gnn,n = gnn_testdaten(p_d,M,N,T,dimensions)
+estimate_gnn,n = gnn_testdaten(p_d,M,N,T,dimensions)
 position_gnn = get_position(estimate_gnn,dimensions)
 
 

@@ -155,5 +155,5 @@ measurements=[[[1,1],[2,2],[3,3],[0,0]],
             [[0,0],[8,8],[3,3]],
             [[2,2],[3.5,3.5]]]
 
-print(mnLogic(4,5,1,measurements))
+#print(mnLogic(4,5,1,measurements))
 

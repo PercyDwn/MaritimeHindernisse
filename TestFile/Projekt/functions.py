@@ -9,12 +9,6 @@ def gaussian(x,my,var): #Funktion berechnet die Gaß sche Verteilung in abhängi
     return gaussian
 
 def createTestDataSet(dimensions):
-        warmup_data =  [[1,12],
-                        [-1,0,6,13],
-                         [-1,3.5,4,14,15],
-                         [-5,-1.5,6,7, 14],
-                         [-2,4.5,8,13,15],
-                         ]
         
         if dimensions ==1:
            measurements = [[1,2.5,6,12],
@@ -53,6 +47,14 @@ def createTestDataSet(dimensions):
                        [[4.5,25],[16,50]],
                        [[4,25],[17,45]],
                        [[3.5,30],[17,40]]]
+            warmup_data = [
+                           [[1,5],[2.5,10],[6,50],[12,70]],
+                           [[3,60],[3.5,15],[4,40],[13,65],[13.5, 10]],
+                           [[4.5,20],[6,70],[7,70],[14,60]],
+                           [[1,10],[4.5,25],[8,35],[13,55],[15,55]],
+                           [[4,0],[4.5,25],[5,35],[16,50]],
+                           
+                           ]
             
         K= np.arange(len(measurements))
         return warmup_data,measurements, objects,K
@@ -62,7 +64,7 @@ def erwartungs_wert():
 def initialize_values(dimensions,T,n,measurements_0):
     #Test Datensatz
     m = len(measurements_0) #Anzahl der Messungen pro Zeitschritt
-    init_values = np.zeros((2*dimensions,n)) + 1#Initialisierung der Anfagnswerten 
+    #init_values = np.zeros((2*dimensions,n)) + 1#Initialisierung der Anfagnswerten 
     #Anfangswertgenerator: Nimmt als Anfangswert einen zufälligen Wert aus dem ersten Zeitschritt der Messungen plus einen Abweichungsfaktor
 
 
@@ -95,12 +97,12 @@ def initialize_values(dimensions,T,n,measurements_0):
         for i in range(n):
             random_meas_index = random.randint(0, m-1) #Zufälliger Wert zwischen 0 und m-1
             random_meas_coordinates = measurements_0[random_meas_index] #Zufällige Koordinaten aus der ersten Messung
-            init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
-            init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
+           # init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
+            #init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
         
         P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]] 
         
-    return F,H,Q,R, init_values,P_i_init
+    return F,H,Q,R,P_i_init
 
 
 
