@@ -22,9 +22,10 @@ print('---------------------------------------')
 #print(ObjectHandler.getLastObjectStates())
 #print('---------------------------------------')
 
-i = 21
+i = 1
 try:
     print('get data for timestep ' + str(i) + ':')
+    
     print(ObjectHandler.getObjectStates(i))
 except InvalidTimeStepError as e:
     print(e.args[0])

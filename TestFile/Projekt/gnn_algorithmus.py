@@ -17,11 +17,11 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
     #n Anzahl Objekten
     #R,Q,P_i_init Kovarianz Matrizen
     #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
-        ObjectHandler = ObjectHandler()
+        #ObjectHandler = ObjectHandler()
         ObjectHandler.setImageFolder('Bilder/list1')
         ObjectHandler.setImageBaseName('')
         ObjectHandler.setImageFileType('.jpg')
-        ObjectHandler.setDebugLevel(0)
+        ObjectHandler.setDebugLevel(2)
 
         F = [[1,T,0,0],
              [0,1,0,0],
@@ -34,17 +34,19 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         # Bereitet die Daten für den Aufruf vom M/N Algorithmus, indem die ersten N Zeitschritten als Warmlaufdaten genutz werden
         for k in range(N):   
             try:
-               warmup_data.append(ObjectHandler.getObjectStates(i))
+               ObjectHandler.updateObjectStates()
+               warmup_data.append(ObjectHandler.getObjectStates(k))
             except InvalidTimeStepError as e:
                print('Not enough Data. In order to start the algorithm at least'+ N + 'Frames needed')
-           
+       
                  
          #Initialisierung
         mn_data = warmup_data[:] #Daten für M/N Algorithmus
+        
         n = 2
         #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        _,_,_,_, init_values,_ = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
-
+        _,_,_,_, init_values,_ = initialize_values(dimensions,T,n,mn_data[0]) #Initialisierung aller Anfangswerten 
+        
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl
         theta_k = np.zeros((1,n)) #Data Assossiation Vektor
@@ -67,10 +69,11 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         ## Berechnung auf Messdaten
         while pictures_availiable == True: #While: 
             try:
+                ObjectHandler.updateObjectStates()
                 measurement_k = ObjectHandler.getObjectStates(k+N) #Daten der Detektion eines Zeitschrittes 
             except InvalidTimeStepError as e:
                 print(e.args[0])
-                pictures_availiable== False
+                pictures_availiable = False
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
             lambda_c = 0.001 + 1-n/m  #Clutter Intensität
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
