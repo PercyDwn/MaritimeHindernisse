@@ -32,33 +32,33 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         warmup_data = []
        
         # Bereitet die Daten für den Aufruf vom M/N Algorithmus, indem die ersten N Zeitschritten als Warmlaufdaten genutz werden
-        for k in range(N):   
-            try:
-               ObjectHandler.updateObjectStates()
-               warmup_data.append(ObjectHandler.getObjectStates(k))
-            except InvalidTimeStepError as e:
-               print('Not enough Data. In order to start the algorithm at least'+ N + 'Frames needed')
+        #for k in range(N):   
+        #    try:
+        #       ObjectHandler.updateObjectStates()
+        #       warmup_data.append(ObjectHandler.getObjectStates(k))
+        #    except InvalidTimeStepError as e:
+        #       print('Not enough Data. In order to start the algorithm at least'+ N + 'Frames needed')
        
                  
          #Initialisierung
-        mn_data = warmup_data[:] #Daten für M/N Algorithmus
+        #mn_data = warmup_data[:] #Daten für M/N Algorithmus
         
-        n = 2
+        #n = 2
         #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
         _,_,_,_, init_values,_ = initialize_values(dimensions,T,n,mn_data[0]) #Initialisierung aller Anfangswerten 
         
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl
-        theta_k = np.zeros((1,n)) #Data Assossiation Vektor
-        estimate = np.zeros((number_states,n)) # Zustände geschätz 
-        estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
-        P = np.zeros((number_states,n*number_states))
-        for i in range(n):
-            P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
+        #theta_k = np.zeros((1,n)) #Data Assossiation Vektor
+        #estimate = np.zeros((number_states,n)) # Zustände geschätz pro Zeitschritt
+        #estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
+        #P = np.zeros((number_states,n*number_states))
+        #for i in range(n):
+        #    P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
           
         
-        estimate_all =[]
-        estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
+        #estimate_all =[]
+        #estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
         k = 0   #Zeitschritt
         pictures_availiable = True
         fig = plt.figure()
@@ -70,86 +70,101 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         while pictures_availiable == True: #While: 
             try:
                 ObjectHandler.updateObjectStates()
-                measurement_k = ObjectHandler.getObjectStates(k+N) #Daten der Detektion eines Zeitschrittes 
+                current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
             except InvalidTimeStepError as e:
                 print(e.args[0])
+                k = 0 
+                warmup_data = []
                 pictures_availiable = False
-            m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
-            lambda_c = 0.001 + 1-n/m  #Clutter Intensität
-            L_detection = np.zeros((n,m)) #Kostfunktion detektiert
-            L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
-            L_missdetection[:,:] = np.inf # Alle Einträge gleich unendlich setzen 
-            L = np.zeros((n,m+n)) #Gesamte Kostenmatrix
-            
-            
-            for i in range(n): 
-                estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
-                P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
-            #Prädiktion mit Kalmanfilter
-                estimate_i,P_i = kalman_filter_prediction(estimate_i, P_i,F,Q) 
+            if k < N: #warmup_data vorbereiten
+                warmup_data.append(current_measurement_k)
+                
+            elif k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
+                mn_data = warmup_data[:]
+                n = 2
+                #n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+                estimate = np.zeros((number_states,n)) # Zustände geschätz pro Zeitschritt
+                estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
+                estimate_all =[]
+                estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
+
+            elif k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
+                theta_k = np.zeros((1,n)) #Data Assossiation Vektor
+                P = np.zeros((number_states,n*number_states))
+                for i in range(n):
+                    P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
+          
+                measurement_k = current_measurement_k
+                m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
+                lambda_c = 0.001 + 1-n/m  #Clutter Intensität
+                L_detection = np.zeros((n,m)) #Kostfunktion detektiert
+                L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
+                L_missdetection[:,:] = np.inf # Alle Einträge gleich unendlich setzen 
+                L = np.zeros((n,m+n)) #Gesamte Kostenmatrix
+                for i in range(n): 
+                    estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
+                    P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
+                #Prädiktion mit Kalmanfilter
+                    estimate_i,P_i = kalman_filter_prediction(estimate_i, P_i,F,Q) 
          
-            #Kostenmatrix erzeugen 
-            # Theorie zur Kostenmatrix :https://www.youtube.com/watch?v=uwBVssiFpOg&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=17&t=0s
-                S = R+ multi_dot([H,P_i,np.transpose(H)]) #Inovation Kovarianz
-                S_skaliert = (2*math.pi*S).tolist() # Mit 2*pi skaliertes S
-                S = S.tolist() #Detreminate und Inverse von List sklara möglich (array skalar unmöglich)
-                z_hat = np.matmul(H,estimate_i) #Predicted detection
-                L_missdetection[i][i] = -np.log(1-p_d)
+                #Kostenmatrix erzeugen 
+                # Theorie zur Kostenmatrix :https://www.youtube.com/watch?v=uwBVssiFpOg&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=17&t=0s
+                    S = R+ multi_dot([H,P_i,np.transpose(H)]) #Inovation Kovarianz
+                    S_skaliert = (2*math.pi*S).tolist() # Mit 2*pi skaliertes S
+                    S = S.tolist() #Detreminate und Inverse von List sklara möglich (array skalar unmöglich)
+                    z_hat = np.matmul(H,estimate_i) #Predicted detection
+                    L_missdetection[i][i] = -np.log(1-p_d)
                 
-                for j in range(m):
-                    help_L_0 = []
-                    help_L_0.append(np.array(measurement_k[j])-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
-                    help_L_1 = -0.5*(multi_dot([(help_L_0),np.linalg.inv(S),np.transpose(help_L_0)])) 
-                    help_L_2 = - 0.5*np.log(np.linalg.det(S))
-                    help_L_3  = np.log(p_d/lambda_c)
-                    L_detection[i][j] = -(help_L_3 + help_L_2+ help_L_1)
-                estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen   
-                P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
-            L= np.concatenate((L_detection,L_missdetection),axis=1) #L_detection und L_missdetection zusammensetzen
-            
-            #Berechnen assignment Matrix A mit Hungarian Algorithmus
- 
-            indexes_opt = hungarian.compute(np.concatenate((L_detection,L_missdetection),axis=1)) #Assignment matrix indexes
-
-           
-            # Berechnung von Data Assossiation theta_k
-            for i in range(n):
+                    for j in range(m):
+                        help_L_0 = []
+                        help_L_0.append(np.array(measurement_k[j])-z_hat) #Hilfsvariable für die Berechnung von L (muss eine Liste StopAsyncIteration)
+                        help_L_1 = -0.5*(multi_dot([(help_L_0),np.linalg.inv(S),np.transpose(help_L_0)])) 
+                        help_L_2 = - 0.5*np.log(np.linalg.det(S))
+                        help_L_3  = np.log(p_d/lambda_c)
+                        L_detection[i][j] = -(help_L_3 + help_L_2+ help_L_1)
+                    estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen   
+                    P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
+                L= np.concatenate((L_detection,L_missdetection),axis=1) #L_detection und L_missdetection zusammensetzen
+                #Berechnen assignment Matrix A mit Hungarian Algorithmus
+                indexes_opt = hungarian.compute(np.concatenate((L_detection,L_missdetection),axis=1)) #Assignment matrix indexes
+                # Berechnung von Data Assossiation theta_k
+                for i in range(n):
             
 
                 
 
-                #Fallunterscheidung: theta = index von Messung wenn die Detektion einem Objekt entspicht, theta = 0 wenn die Detektion einem Clutter entspricht
-                estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht 
-                P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
-                index_opt = indexes_opt[i][1]
-                z_opt_assossiation = 0 #Initialisierung von : Messung der wahrscheinlichsten Hypothese
-                if index_opt< m :
-                    theta_k[0][i] = index_opt +1
+                    #Fallunterscheidung: theta = index von Messung wenn die Detektion einem Objekt entspicht, theta = 0 wenn die Detektion einem Clutter entspricht
+                    estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht 
+                    P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
+                    index_opt = indexes_opt[i][1]
+                    z_opt_assossiation = 0 #Initialisierung von : Messung der wahrscheinlichsten Hypothese
+                    if index_opt< m :
+                        theta_k[0][i] = index_opt +1
 
-                    if dimensions ==1 :
-                       z_opt_assossiation = measurement_k[index_opt] # Messung der wahrscheinlichsten Hypothese
-                    else:
-                       z_opt_assossiation = measurement_k[index_opt]
+                        if dimensions ==1 :
+                           z_opt_assossiation = measurement_k[index_opt] # Messung der wahrscheinlichsten Hypothese
+                        else:
+                           z_opt_assossiation = measurement_k[index_opt]
                     
                 
-                else :
-                    theta_k[0][i] = 0
+                    else :
+                        theta_k[0][i] = 0
                     
                 
 
-                estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,dimensions) #Update P und estimate_i mit Kalman-Korrekturschritt
-                position_i = np.matmul(H,estimate_i) #Position eines Objekts aus den Zuständen 
-                P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
-                estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-                print(position_i)
+                    estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,dimensions) #Update P und estimate_i mit Kalman-Korrekturschritt
+                    position_i = np.matmul(H,estimate_i) #Position eines Objekts aus den Zuständen 
+                    P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
+                    estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
+                    print(position_i)
                 
 
-                #Echtzeit Plots 
-                plt.plot(position_i[0],position_i[1],"x",color= 'orange')
+                    #Echtzeit Plots 
+                    plt.plot(position_i[0],position_i[1],"x",color= 'orange')
                    
-                plt.title('Geschätze Position')
-                plt.xlabel('x_koordinate')
-                plt.ylabel('y_kordinate')
+                    plt.title('Geschätze Position')
+                    plt.xlabel('x_koordinate')
+                    plt.ylabel('y_kordinate')
                 
                 
             estimate_all.append(estimate.tolist())
@@ -157,7 +172,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
             mn_data.pop(0) #Löschen ältestes Element
             mn_data.append(measurement_k) #Aktuelle Messung einfügen
             n = 2
-            #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+            #n,_ = mnLogic(M,N,1,mn_data) #Anzahl Objekte
         plt.grid()
         plt.show()   
         return estimate_all ,n   
