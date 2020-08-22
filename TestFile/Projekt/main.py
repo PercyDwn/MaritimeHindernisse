@@ -5,6 +5,7 @@ from functions import *
 import math
 from MN import mnLogic
 from ObjectHandler import *
+
 #Initialisierung
 dimensions = 2
 p_d = 0.97 #Detektionsrate
@@ -22,7 +23,7 @@ P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]]
     
 #GNN Aufruf
 estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init)
-#estimate_gnn,n = gnn_testdaten(p_d,M,N,T,dimensions)
+#estimate_gnn,n = gnn_testdaten(p_d,M,N,dimensions,T)
 position_gnn = get_position(estimate_gnn,dimensions)
 
 

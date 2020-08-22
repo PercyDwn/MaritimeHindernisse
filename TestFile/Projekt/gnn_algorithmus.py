@@ -8,6 +8,7 @@ from functions import initialize_values
 from MN import *
 from ObjectHandler import *
 from functions import createTestDataSet
+import random
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
 def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
     #data Messung aller Zeitschritten
@@ -45,7 +46,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         
         #n = 2
         #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        _,_,_,_, init_values,_ = initialize_values(dimensions,T,n,mn_data[0]) #Initialisierung aller Anfangswerten 
+        #_,_,_,_, init_values,_ = initialize_values(dimensions,T,n,mn_data[0]) #Initialisierung aller Anfangswerten 
         
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl
@@ -79,16 +80,22 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
             if k < N: #warmup_data vorbereiten
                 warmup_data.append(current_measurement_k)
                 
-            elif k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
+            if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 mn_data = warmup_data[:]
                 n = 2
+                init_values = np.zeros((2*dimensions,n)) 
+                for i in range(n):
+                    random_meas_index = random.randint(0, 8-1) #Zufälliger Wert zwischen 0 und m-1
+                    random_meas_coordinates = current_measurement_k[random_meas_index] #Zufällige Koordinaten aus der ersten Messung
+                    init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
+                    init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
                 #n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
                 estimate = np.zeros((number_states,n)) # Zustände geschätz pro Zeitschritt
                 estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
                 estimate_all =[]
                 estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
 
-            elif k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
+            if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 theta_k = np.zeros((1,n)) #Data Assossiation Vektor
                 P = np.zeros((number_states,n*number_states))
                 for i in range(n):
@@ -166,13 +173,14 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
                     plt.xlabel('x_koordinate')
                     plt.ylabel('y_kordinate')
                 
-                
-            estimate_all.append(estimate.tolist())
+            if k>=N:    
+                estimate_all.append(estimate.tolist())
+                mn_data.pop(0) #Löschen ältestes Element
+                mn_data.append(measurement_k) #Aktuelle Messung einfügen
+                n = 2
+                #n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
             k = k+1
-            mn_data.pop(0) #Löschen ältestes Element
-            mn_data.append(measurement_k) #Aktuelle Messung einfügen
-            n = 2
-            #n,_ = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+            
         plt.grid()
         plt.show()   
         return estimate_all ,n   
@@ -225,12 +233,10 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
          #Initialisierung
         warmup_data,data,real_object,K = createTestDataSet(dimensions)
         mn_data = warmup_data[:] #Daten für M/N Algorithmus
-        print('.....')
         print(mn_data)
-        print('...')
-        #n = 2
-        n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        F,H,Q,R,P_i_init = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
+        n = 2
+        #n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+        F,H,Q,R,P_i_init,init_values = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 
 
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl

@@ -64,7 +64,7 @@ def erwartungs_wert():
 def initialize_values(dimensions,T,n,measurements_0):
     #Test Datensatz
     m = len(measurements_0) #Anzahl der Messungen pro Zeitschritt
-    #init_values = np.zeros((2*dimensions,n)) + 1#Initialisierung der Anfagnswerten 
+    init_values = np.zeros((2*dimensions,n)) + 1 #Initialisierung der Anfagnswerten 
     #Anfangswertgenerator: Nimmt als Anfangswert einen zufälligen Wert aus dem ersten Zeitschritt der Messungen plus einen Abweichungsfaktor
 
 
@@ -97,12 +97,12 @@ def initialize_values(dimensions,T,n,measurements_0):
         for i in range(n):
             random_meas_index = random.randint(0, m-1) #Zufälliger Wert zwischen 0 und m-1
             random_meas_coordinates = measurements_0[random_meas_index] #Zufällige Koordinaten aus der ersten Messung
-           # init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
-            #init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
+            init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
+            init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
         
         P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]] 
         
-    return F,H,Q,R,P_i_init
+    return F,H,Q,R,P_i_init,init_values
 
 
 
