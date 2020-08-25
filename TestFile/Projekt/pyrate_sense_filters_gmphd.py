@@ -12,8 +12,8 @@ from numpy.linalg import inv
 from numpy import ndarray
 
 # Filter basis
-from pyrate.common.math import Gaussian
-
+#from pyrate.common.math import Gaussian
+from pyrate_common_math_gaussian import Gaussian
 
 class GaussianMixturePHD:
 

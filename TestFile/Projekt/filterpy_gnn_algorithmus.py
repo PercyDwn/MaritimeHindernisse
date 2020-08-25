@@ -2,6 +2,7 @@ import numpy as np
 from numpy import linalg as lin
 import math
 import filterpy
+from filterpy.kalman import KalmanFilter
 from munkres import Munkres
 
 
@@ -10,22 +11,22 @@ from munkres import Munkres
 def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values):
     #data Messung aller Zeitschritten
     #p_d =detection rate
-    #lambda_c Clutter Intensität
+    #lambda_c Clutter IntensitÃ¤t
     #F, H  System bzw Ausgangsmatrux
     #n Anzahl Objekten
     #R,Q Kovarianz Matrizen
-    #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
+    #Algorithmus eignet sich nur fÃ¼r GNN mit einem linearen und gauÃŸverteilten Modell 
          #Initialisierung
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
-        number_states = len(F) # Zuständezahl
+        number_states = len(F) # ZustÃ¤ndezahl
         theta_k = np.zeros((1,n)) #Data Assossiation Vektor
         number_coordinates = int(number_states/2) # Zahl Koordinaten: 1 wenn z= x, 2 wenn z=[x;y]
-        estimate = np.zeros((number_states,n)) # Zustände geschätz 
-        estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
-        P = np.zeros((number_states,n*number_states)) #Kovarianzmatrix des Schätzfehlers
+        estimate = np.zeros((number_states,n)) # ZustÃ¤nde geschÃ¤tz 
+        estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufÃ¼gen
+        P = np.zeros((number_states,n*number_states)) #Kovarianzmatrix des SchÃ¤tzfehlers
         #total_cost = 0 #Kosten Data Assossiation 
         estimate_all =[]
-        estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
+        estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen ZustÃ¤nden aller Objekten Ã¼ber alle Zeitschritten
         z_opt_assossiation= 0 # Messung der wahrscheinlichsten Hypothese
         
             
@@ -35,13 +36,13 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values):
             m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
             L_detection = np.zeros((n,m)) #Kostfunktion detektiert
             L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
-            L_missdetection[:,:] = np.inf # Alle Einträge gleich unendlich setzen 
+            L_missdetection[:,:] = np.inf # Alle EintrÃ¤ge gleich unendlich setzen 
             L = np.zeros((n,m+n)) #Gesamte Kostenmatrix
             
             for i in range(n):
-                estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
+                estimate_i = np.transpose(estimate[0:number_states,i] )   #ZustandÃ¤nde pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
                 P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
-            #Prädiktion mit Kalmanfilter
+            #PrÃ¤diktion mit Kalmanfilter
                 estimate_i,P_i = kalman_filter_prediction(estimate_i, P_i,F,Q) 
          
             #Kostenmatrix erzeugen 
@@ -82,8 +83,8 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values):
                 
 
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,number_coordinates) #Update P und estimate_i mit Kalman-Korrekturschritt
-                P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
-                estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
+                P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfÃ¼gen
+                estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfÃ¼gen
             
             estimate_all.append(estimate.tolist())
         
@@ -93,12 +94,12 @@ def gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values):
      
         
 def kalman_filter_prediction(estimates_i, P_i,F,Q):
-    estimates_i, P_i = filterpy.kalman.predict(estimates_i, P_i,F,Q) #Kalman Prädiktion estimates und P
+    estimates_i, P_i = filterpy.kalman.predict(estimates_i, P_i,F,Q) #Kalman PrÃ¤diktion estimates und P
     return estimates_i, P_i
 
 def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,number_coordinates):
-    if theta_i != 0: #Wenn Objekt detektiert wurde => Kalmanprediktion durchführen
-        estimate_i, P_i = filterpy.kalman.update(estimate_i, P_i,z_opt_assossiation,R, H) #Kalman Korrektur für estimates und P
+    if theta_i != 0: #Wenn Objekt detektiert wurde => Kalmanprediktion durchfÃ¼hren
+        estimate_i, P_i = filterpy.kalman.update(estimate_i, P_i,z_opt_assossiation,R, H) #Kalman Korrektur fÃ¼r estimates und P
     else: #Objekt nicht erkannt => Werte durchreichen
         P_i = P_i
         estimate_i = estimate_i

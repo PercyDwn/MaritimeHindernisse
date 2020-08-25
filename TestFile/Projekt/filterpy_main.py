@@ -8,7 +8,7 @@ import math
 
 #Initialisierung
 p_d = 0.97 #Detektionsrate
-lambda_c =0.3 #Clutter Intensit‰t
+lambda_c =0.3 #Clutter Intensit√§t
 V= 5 #Cluttering Volume
 T= 0.001 #Abtastzeit
 F = np.array([[1,T],
@@ -16,7 +16,7 @@ F = np.array([[1,T],
 H = np.array([1,0]) #Ausgangsmatrix
 n = 2 #Anzahl Objekte 
 Q = np.array([[0.25 ,0],[0 ,0.25]]) #Varianz des Modellrauschens
-R = np.array([[0.2]]) #Varianz des Messrauschens
+R = 0.2 #Varianz des Messrauschens
 variance_prior = 0.36
 init_x1 = 0
 init_x2 = 10
@@ -55,3 +55,4 @@ plt.xlabel('x')
 plt.ylabel('y')
 plt.axis([-15,30,-1,len(K)+1])
 plt.show()
+
