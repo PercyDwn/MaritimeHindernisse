@@ -2,6 +2,7 @@ import  matplotlib.pyplot as plt
 import numpy as np
 import pyrate_sense_filters_gmphd
 import gnn_algorithmus
+import random
 from functions import gaussian 
 from functions import createTestDataSet
 from functions import get_position
@@ -9,9 +10,12 @@ from pyrate_common_math_gaussian import Gaussian
 from pyrate_sense_filters_gmphd import GaussianMixturePHD
 from numpy import vstack
 from numpy import array
+from numpy import ndarray
 from numpy import eye
 import math
 from MN import mnLogic
+# Typing
+from typing import List
 
 #Initialisierung
 #------------------------------------------------------------------------
@@ -73,19 +77,19 @@ k = 1   #Zeitschritt
 F = array([[1.0, 1.0], 
            [0.0, 1.0]])
 H = array([[1.0, 0.0]])
-Q = 0.05*eye(2)
-R = 0.05*eye(1)
+Q = 0.1*eye(2)
+R = 1.*eye(1)
 
 #Def. Birth_belief
 mean1 = vstack([1.0, 0.0])
 covariance1 = array([[7.5, 0.0], [0.0, 1.0]])
-mean2 = vstack([20.0, 1.0])
-covariance2 = array([[7.5, 0.0], [0.0, 1.0]])
+mean2 = vstack([30.0, 1.0])
+covariance2 = array([[5., 0.0], [0.0, 1.0]])
 birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
 
-survival_rate = 0.99
-detection_rate = 0.99
-intensity = 0.01
+survival_rate = 0.999
+detection_rate = 0.8
+intensity = 0.04
 
 phd = GaussianMixturePHD(
                 birth_belief,
@@ -98,52 +102,112 @@ phd = GaussianMixturePHD(
                 R)
 
 
-phd.predict()
-phd.correct([array([5.]), array([10.]), array([20.]) ])
-position_phd = phd.extract()
-
-print(position_phd)
-print('--------------')
-
-phd.predict()
-phd.correct([array([6.]), array([21.]) ])
-position_phd = phd.extract()
-
-print(position_phd)
-print('--------------')
-
-phd.predict()
-phd.correct([array([7.]), array([15.]), array([22.]) ])
-position_phd = phd.extract()
-
-print(position_phd)
-print('--------------')
-
-phd.predict()
-phd.correct([array([8.]), array([23.]) ])
-position_phd = phd.extract()
-
-print(position_phd)
-print('--------------')
-
-phd.predict()
-phd.correct([array([9.]), array([13.]), array([25.]) ])
-phd.prune(array([0.05]), array([0.1]), 15)
-position_phd = phd.extract()
-
-print(position_phd)
-print('--------------')
-
-phd.predict()
-phd.correct([array([10.]), array([20.]), array([26.]) ])
-position_phd = phd.extract()
-
-print(position_phd)
-print('--------------')
+meas: List[ndarray] = []
+pos_phd: List[ndarray] = []
+meas.append([array([5.]), array([30.]), array([10.]), array([30.]), array([-10.]), array([50*random.random()]), array([50*random.random()]), array([-15*random.random()])])
+meas.append([array([6.]), array([31.]), array([9.]), array([15.]), array([30.]), array([50*random.random()]), array([50*random.random()]), array([-15*random.random()])])
+meas.append([array([7.]), array([32.]), array([15.]), array([25.]), array([50*random.random()]), array([50*random.random()]), array([-15*random.random()])])
+meas.append([array([8.]), array([33.]), array([40.]), array([45.]), array([-9.]), array([50*random.random()]), array([50*random.random()]), array([-15*random.random()])])
+meas.append([array([9.]), array([20.]), array([35.]), array([19.]), array([-7.]), array([50*random.random()]), array([50*random.random()]), array([-15*random.random()])])
+meas.append([array([10.]), array([21.]), array([36.]), array([-14.]), array([50*random.random()]), array([50*random.random()]), array([-15*random.random()])])
+meas.append([array([10.]), array([22.]), array([37.]), array([-6.]), array([50*random.random()]), array([50*random.random()]), array([-15*random.random()])])
+meas.append([array([12.]), array([20.]), array([38.]), array([26.]), array([-8.]), array([-9.]), array([50*random.random()]), array([50*random.random()])])
 
 
+for z in meas:
+    phd.predict()
+    phd.correct(z)
+    pos_phd.append(phd.extract())
+    #print(phd.extract())
+    #print('--------------')
+    #pruning
+    phd.prune(array([0.4]), array([3]), 10)
+
+#Plots
+# ------------------------
+K = np.arange(len(meas))
+real1 = np.arange(5., 13., 1.)
+real2 = np.arange(30., 38., 1.)
+plt.plot(real1, K, color= 'orange')
+plt.plot(real2, K, color= 'orange')
+
+for i in K:
+    #Messungen
+    for j in range(len(meas[i])):
+        plt.plot(meas[i][j],K[i],'ro',color='black')
+
+    #Schätzungen
+    for l in range(len(pos_phd[i])):
+        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
+        plt.plot(pos_phd[i][l][0],K[i],'ro',color= 'red', ms= 3)
+        
+plt.legend('Zk', 'phd')     
+plt.title('Messungen')
+plt.xlabel('x')
+plt.ylabel('k')
+plt.axis([-15,50,-1,len(K)+1])
+plt.show()
 
 
+
+
+
+#phd.predict()
+#phd.correct([array([5.]), array([10.]), array([20.])])
+#position_phd = phd.extract()
+
+##print(position_phd)
+#print('--------------')
+
+#phd.predict()
+#phd.correct([array([6.]), array([21.])])
+#position_phd = phd.extract()
+
+##print(position_phd)
+#print('--------------')
+
+#phd.predict()
+#phd.correct([array([7.]), array([15.]), array([22.])])
+#position_phd = phd.extract()
+
+##print(position_phd)
+#print('--------------')
+
+#phd.predict()
+#phd.correct([array([8.]), array([23.]) ])
+#position_phd = phd.extract()
+
+##print(position_phd)
+#print('--------------')
+
+#phd.predict()
+#phd.correct([array([9.]), array([20.]), array([25.]) ])
+#phd.prune(array([0.05]), array([0.1]), 15)
+#position_phd = phd.extract()
+
+##print(position_phd)
+#print('--------------')
+
+#phd.predict()
+#phd.correct([array([10.]), array([21.]), array([26.]) ])
+#position_phd = phd.extract()
+
+##print(position_phd)
+#print('--------------')
+
+#phd.predict()
+#phd.correct([array([10.]), array([22.]), array([27.]) ])
+#position_phd = phd.extract()
+##print(position_phd)
+#print('--------------')
+
+#phd.predict()
+#phd.correct([array([11.]), array([20.]), array([28.]) ])
+#position_phd = phd.extract()
+#phd.prune(array([0.05]), array([0.1]), 15)
+
+##print(position_phd)
+#print('--------------')
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -161,21 +225,4 @@ print('--------------')
 
 
 
-#Plots
-
-
-#for i in K:
-#    for j in range(len(measurements[i])):
-#        plt.plot(measurements[i][j],K[i]+1,'ro',color='black')
-        
-#    for j in range(n):
-#        plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
-#        plt.plot(position_gnn[i][j],K[i],'ro',color= 'orange')
-#        plt.plot(position_gnn[-1][j],K[-1]+1,'ro',color= 'orange')
-#plt.legend('Z_k','x_ist')     
-#plt.title('Messungen')
-#plt.xlabel('x')
-#plt.ylabel('k')
-#plt.axis([-15,30,-1,len(K)+1])
-#plt.show()
 

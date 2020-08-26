@@ -127,7 +127,8 @@ class GaussianMixturePHD:
         # Gaussian mixture model
         self.gmm: List[Gaussian] = []
 
-    def extract(self, threshold: float = 0.5) -> List[ndarray]:
+    'threshold geändert! vorher 0.5'
+    def extract(self, threshold: float = 0.3) -> List[ndarray]:
         """Extract a state representation based on spikes in the current GMM.
 
         Args:
