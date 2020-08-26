@@ -70,14 +70,18 @@ k = 1   #Zeitschritt
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 
-F = array([[1.0, 1.0], [0.0, 0.0]])
+F = array([[1.0, 1.0], 
+           [0.0, 1.0]])
 H = array([[1.0, 0.0]])
-Q = eye(2)
-R = eye(1)
+Q = 0.05*eye(2)
+R = 0.05*eye(1)
 
-mean = vstack([1.0, 0.0])
-covariance = array([[1.0, 0.0], [0.0, 1.0]])
-birth_belief = [Gaussian(mean, covariance)]
+#Def. Birth_belief
+mean1 = vstack([1.0, 0.0])
+covariance1 = array([[7.5, 0.0], [0.0, 1.0]])
+mean2 = vstack([20.0, 1.0])
+covariance2 = array([[7.5, 0.0], [0.0, 1.0]])
+birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
 
 survival_rate = 0.99
 detection_rate = 0.99
@@ -95,42 +99,43 @@ phd = GaussianMixturePHD(
 
 
 phd.predict()
-phd.correct([array([5.]), array([4.]), array([20.]) ])
+phd.correct([array([5.]), array([10.]), array([20.]) ])
 position_phd = phd.extract()
 
 print(position_phd)
 print('--------------')
 
 phd.predict()
-phd.correct([array([4.]), array([22.]) ])
+phd.correct([array([6.]), array([21.]) ])
 position_phd = phd.extract()
 
 print(position_phd)
 print('--------------')
 
 phd.predict()
-phd.correct([array([2.]), array([9.]), array([25.]) ])
+phd.correct([array([7.]), array([15.]), array([22.]) ])
 position_phd = phd.extract()
 
 print(position_phd)
 print('--------------')
 
 phd.predict()
-phd.correct([array([4.]), array([22.]) ])
+phd.correct([array([8.]), array([23.]) ])
 position_phd = phd.extract()
 
 print(position_phd)
 print('--------------')
 
 phd.predict()
-phd.correct([array([4.]), array([9.]), array([22.]) ])
+phd.correct([array([9.]), array([13.]), array([25.]) ])
+phd.prune(array([0.05]), array([0.1]), 15)
 position_phd = phd.extract()
 
 print(position_phd)
 print('--------------')
 
 phd.predict()
-phd.correct([array([4.]), array([5.]), array([20.]) ])
+phd.correct([array([10.]), array([20.]), array([26.]) ])
 position_phd = phd.extract()
 
 print(position_phd)

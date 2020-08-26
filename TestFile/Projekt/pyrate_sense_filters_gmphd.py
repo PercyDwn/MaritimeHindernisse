@@ -219,6 +219,9 @@ class GaussianMixturePHD:
         spawned: List[Gaussian] = []
 
         # Prediction for existing targets
+        # m_k|k-1 = F*m_k-1
+        # w_k|k-1 = p_s*w_k-1
+        # P_k|k-1 = F*P_k-1*F^T + Q_k-1
         for component in self.gmm:
             component.x = F @ component.x
             component.P = F @ component.P @ F.T + self.Q
@@ -242,18 +245,25 @@ class GaussianMixturePHD:
             H = H(**kwargs)
 
         # ######################################
-        # Construction of update components
+        # Construction of update components 
 
         mu: List[ndarray] = []  # Means mapped to measurement space
         S: List[ndarray] = []  # Residual covariance
         K: List[ndarray] = []  # Gains
         P: List[ndarray] = []  # Covariance
 
+        'Fragen!!'
+        # Wie ist J_k|k-1 definiert?
+        # warum zip ??
+        'Fragen!!'
         for i, component in zip(range(len(self.gmm)), self.gmm):
             mu.append(H @ component.x)
             S.append(self.R + H @ component.P @ H.T)
             K.append(component.P @ H.T @ inv(S[i]))
-            P.append(component.P - K[i] @ S[i] @ K[i].T)
+            'Fehler??'
+            P.append(component.P - K[i] @ S[i] @ K[i].T)  # [I-K*H]*P != P-K*H*K^T entspricht nicht der Gl. aus Paper Vo et al Nov2006
+            #P.append(component.P - K[i] @ S[i] @ component.P)
+            'Fehler??'
 
         # ######################################
         # Update
@@ -261,7 +271,7 @@ class GaussianMixturePHD:
         # Undetected assumption
         updated = deepcopy(self.gmm)
         for component in updated:
-            component.w *= 1 - self.detection_rate
+            component.w *= 1 - self.detection_rate # w_k = (1-p_d)*w_k|k-1
 
         # Measured assumption
         for z in measurements:
@@ -269,6 +279,10 @@ class GaussianMixturePHD:
             batch = []
 
             # Fill batch with corrected components
+            'Fragen!!'
+            # Warum keine laufvariable l nötig?
+            # Was mit indizes (l*Jk|k-1+j)
+            'Fragen!!'
             for i in range(len(self.gmm)):
                 batch.append(
                     Gaussian(
