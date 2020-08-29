@@ -32,34 +32,10 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
             [0,0,1,0]]#Ausgangsmatrix
         warmup_data = []
        
-        # Bereitet die Daten für den Aufruf vom M/N Algorithmus, indem die ersten N Zeitschritten als Warmlaufdaten genutz werden
-        #for k in range(N):   
-        #    try:
-        #       ObjectHandler.updateObjectStates()
-        #       warmup_data.append(ObjectHandler.getObjectStates(k))
-        #    except InvalidTimeStepError as e:
-        #       print('Not enough Data. In order to start the algorithm at least'+ N + 'Frames needed')
-       
-                 
-         #Initialisierung
-        #mn_data = warmup_data[:] #Daten für M/N Algorithmus
-        
-        #n = 2
-        #n = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-        #_,_,_,_, init_values,_ = initialize_values(dimensions,T,n,mn_data[0]) #Initialisierung aller Anfangswerten 
         
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl
-        #theta_k = np.zeros((1,n)) #Data Assossiation Vektor
-        #estimate = np.zeros((number_states,n)) # Zustände geschätz pro Zeitschritt
-        #estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
-        #P = np.zeros((number_states,n*number_states))
-        #for i in range(n):
-        #    P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
-          
-        
-        #estimate_all =[]
-        #estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
+        n = -1 #Initialisierung von Anzahl der Objekten
         k = 0   #Zeitschritt
         pictures_availiable = True
         fig = plt.figure()
@@ -77,6 +53,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
                 k = 0 
                 warmup_data = []
                 pictures_availiable = False
+                break
             if k < N: #warmup_data vorbereiten
                 warmup_data.append(current_measurement_k)
                 
@@ -163,7 +140,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
                     position_i = np.matmul(H,estimate_i) #Position eines Objekts aus den Zuständen 
                     P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                     estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-                    print(position_i)
+                   
                 
 
                     #Echtzeit Plots 
@@ -173,8 +150,9 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
                     plt.xlabel('x_koordinate')
                     plt.ylabel('y_kordinate')
                 
-            if k>=N:    
+               
                 estimate_all.append(estimate.tolist())
+                
                 mn_data.pop(0) #Löschen ältestes Element
                 mn_data.append(measurement_k) #Aktuelle Messung einfügen
                 n = 2
@@ -189,7 +167,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
 def kalman_filter_prediction(estimates_i, P_i,F,Q):
    #Theorie Kalman Filter bei GNN: https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=20 
     estimates_i = np.matmul(F,estimates_i) #Kalman Prädiktion estimates
-    P_i =multi_dot([F,P_i,np.transpose(F)]) +Q #Kalman Prädiktion 
+    P_i =  multi_dot([F,P_i,np.transpose(F)]) +Q #Kalman Prädiktion 
     
     
     return estimates_i, P_i
@@ -327,6 +305,9 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
                 
 
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,dimensions) #Update P und estimate_i mit Kalman-Korrekturschritt
+                print('.......')
+                print(estimate_i)
+                print('......')
                 
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
@@ -337,6 +318,7 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
                 
                 
             estimate_all.append(estimate.tolist())
+            
             weight_opt_k = np.exp(total_cost)
             k = k+1
             
