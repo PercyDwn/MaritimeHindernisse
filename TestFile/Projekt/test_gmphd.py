@@ -141,15 +141,12 @@ for i in K:
         #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
         plt.plot(pos_phd[i][l][0],K[i],'ro',color= 'red', ms= 3)
         
-plt.legend('Zk', 'phd')     
+plt.legend(['Z_k', 'phd_k'])     
 plt.title('Messungen')
 plt.xlabel('x')
 plt.ylabel('k')
 plt.axis([-15,50,-1,len(K)+1])
 plt.show()
-
-
-
 
 
 #phd.predict()
@@ -208,21 +205,4 @@ plt.show()
 
 ##print(position_phd)
 #print('--------------')
-
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-
-
-#---------------------------------
-#---------------------------------
-#n = mnLogic(M,N,1,all_measurements) #Anzahl Objekte
-#estimate_gnn = gnn_algorithmus.gnn(data,p_d,lambda_c,F,H,n,R,Q,init_values,P_i_init)
-#position_gnn = get_position(estimate_gnn)
-#print(position_gnn)
-
-#print('............................................')
-#print(real_objects)
-
-
-
 
