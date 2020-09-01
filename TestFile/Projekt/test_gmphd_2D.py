@@ -56,14 +56,14 @@ Q = 0.1*eye(4)
 R = 0.01*eye(2)
 
 #Def. Birth_belief
-mean1 = vstack([0.0, 0.0, 1.0, 1.0])
-covariance1 = array([[1, 0.0, 0.0, 0.0], 
+mean1 = vstack([0.0, 15.0, 1.0, 1.0])
+covariance1 = array([[5, 0.0, 0.0, 0.0], 
                      [0.0, 30.0, 0.0, 0.0],
                      [0.0, 0.0, 1.0, 0.0],
                      [0.0, 0.0, 0.0, 1.0]])
 
-mean2 = vstack([50.0, 0.0, -1.0, 1.0])
-covariance2 = array([[1, 0.0, 0.0, 0.0], 
+mean2 = vstack([50.0, 15.0, -1.0, 1.0])
+covariance2 = array([[5, 0.0, 0.0, 0.0], 
                      [0.0, 30.0, 0.0, 0.0],
                      [0.0, 0.0, 2.0, 0.0],
                      [0.0, 0.0, 0.0, 2.0]])
@@ -90,21 +90,21 @@ pos_phd: List[ndarray] = []
 #Objekte erstellen
 #-------------------------------
 for i in range(10):
-    objects.insert(i, [array([[0.+i], [0.+i]]), array([[50.-2*i], [0.]]), array([[50.-i], [1.+i]])] )
+    objects.insert(i, [array([[0.+i], [10.+i]]), array([[50.-2*i], [15.]]), array([[50.-i], [15.+i]])] )
    
 
-for i in range(10):
-    objects.insert(10+i, [array([[10.+i], [10.-1.5*i]]), array([[30.-2*i], [0.]]), array([[40.-i], [10.+i]])] )
+for i in range(20):
+    objects.insert(10+i, [array([[10.+1.5*i], [20.+i]]), array([[30.-2*i], [15.]]), array([[40.-i], [26.+i]])] )
     
 
 #Messdaten erstellen
 #-------------------------------
 for i in range(10):
-    meas.insert(i, [array([[0.+i], [0.+i]]), array([[50.-2*i], [0.]]), array([[50.-i], [1.+i]]), array([[50*random.random()], [20*random.random()]])] )
+    meas.insert(i, [array([[0.+i], [10.+i]]), array([[50.-2*i], [15.]]), array([[50.-i], [15.+i]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
   
 
-for i in range(10):
-    meas.insert(10+i, [array([[10.+i], [10.-1.5*i]]), array([[30.-2*i], [0.]]), array([[40.-i], [10.+i]]), array([[50*random.random()], [20*random.random()]])] )
+for i in range(20):
+    meas.insert(10+i, [ array([[10.+1.5*i], [20.+i]]), array([[30.-2*i], [15.]]), array([[40.-i], [26.+i]]), array([[50*random.random()], [50*random.random()]]),  array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
     
 
 
@@ -132,42 +132,51 @@ K = np.arange(len(meas))
 
 ## x-Koordinate
 ##------------------------------------
-#for i in K:
-#    #Messungen
-#    for j in range(len(meas[i])):
-#        plt.plot(meas[i][j][0],K[i],'ro',color='black')
+for i in K:
+    #Messungen
+    for j in range(len(meas[i])):
+        plt.plot(meas[i][j][0],K[i],'ro',color='black')
+    
+    #Objekte
+    for j in range(len(objects[i])):
+        plt.plot(objects[i][j][0],K[i],'ro',color='green')
 
-#    #Schätzungen
-#    for l in range(len(pos_phd[i])):
-#        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
-#        plt.plot(pos_phd[i][l][0],K[i],'ro',color= 'red', ms= 3)
+    #Schätzungen
+    for l in range(len(pos_phd[i])):
+        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
+        plt.plot(pos_phd[i][l][0],K[i],'ro',color= 'red', ms= 3)
         
-#plt.legend('Zk', 'phd')     
-#plt.title('x-Koordinate')
-#plt.xlabel('x')
-#plt.ylabel('k')
-#plt.axis([0,50,-1,len(K)+1])
-#plt.show()
+plt.legend('Zk', 'phd')     
+plt.title('x-Koordinate')
+plt.xlabel('x')
+plt.ylabel('k')
+plt.axis([-5,55,-1,len(K)+1])
+plt.show()
 
 
 ## y-Koordinate
 ##------------------------------------
-#for i in K:
-#    #Messungen
-#    for j in range(len(meas[i])):
-#        plt.plot(meas[i][j][1],K[i],'ro',color='black')
+for i in K:
+    #Messungen
+    for j in range(len(meas[i])):
+        plt.plot(meas[i][j][1],K[i],'ro',color='black')
 
-#    #Schätzungen
-#    for l in range(len(pos_phd[i])):
-#        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
-#        plt.plot(pos_phd[i][l][1],K[i],'ro',color= 'red', ms= 3)
+    
+    #Objekte
+    for j in range(len(objects[i])):
+        plt.plot(objects[i][j][1],K[i],'ro',color='green')
+
+    #Schätzungen
+    for l in range(len(pos_phd[i])):
+        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
+        plt.plot(pos_phd[i][l][1],K[i],'ro',color= 'red', ms= 3)
         
-#plt.legend(['Zk', 'phd'])     
-#plt.title('y-Koordinate')
-#plt.xlabel('y')
-#plt.ylabel('k')
-#plt.axis([0,50,-1,len(K)+1])
-#plt.show()
+plt.legend(['Zk', 'phd'])     
+plt.title('y-Koordinate')
+plt.xlabel('y')
+plt.ylabel('k')
+plt.axis([-5,55,-1,len(K)+1])
+plt.show()
 
 
 
@@ -192,6 +201,6 @@ plt.legend(['Zk', 'phd'])
 plt.title('x-y-Raum')
 plt.xlabel('x-Koord.')
 plt.ylabel('y-Koord.')
-plt.axis([0,50,-15,15])
+plt.axis([-5,55,-5,55])
 plt.show()
 
