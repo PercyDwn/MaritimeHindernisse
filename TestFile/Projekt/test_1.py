@@ -1,7 +1,8 @@
 from ObjectHandler import *
 
 ObjectHandler = ObjectHandler()
-ObjectHandler.setImageFolder('Bilder/list1')
+#Ordner evtl. anpassen!
+ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
@@ -22,7 +23,7 @@ print('---------------------------------------')
 #print(ObjectHandler.getLastObjectStates())
 #print('---------------------------------------')
 
-i = 1
+
 try:
     print('get data for timestep ' + str(i) + ':')
     

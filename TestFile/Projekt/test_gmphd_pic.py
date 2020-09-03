@@ -1,8 +1,23 @@
  ############test##################
 from ObjectHandler import *
 
+########
+import  matplotlib.pyplot as plt
+import numpy as np
+import pyrate_sense_filters_gmphd
+import random
+from pyrate_common_math_gaussian import Gaussian
+from pyrate_sense_filters_gmphd import GaussianMixturePHD
+from numpy import vstack
+from numpy import array
+from numpy import ndarray
+from numpy import eye
+import math
+# Typing
+from typing import List
+
 ObjectHandler = ObjectHandler()
-ObjectHandler.setImageFolder('Bilder/list1')
+ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
@@ -23,148 +38,110 @@ print('---------------------------------------')
 #print(ObjectHandler.getLastObjectStates())
 #print('---------------------------------------')
 
-i = 1
-try:
-    print('get data for timestep ' + str(i) + ':')
+for i in range(1,20):
+    try:
+        print('get data for timestep ' + str(i) + ':')
     
-    print(ObjectHandler.getObjectStates(i))
-except InvalidTimeStepError as e:
-    print(e.args[0])
-print('---------------------------------------')
+        print(ObjectHandler.getObjectStates(i))
+    except InvalidTimeStepError as e:
+        print(e.args[0])
+    print('---------------------------------------')
 
-#####################ObjektHaendler###########################
+# Messungen
+#------------------------------------------------------------------------
+meas: List[ndarray] = []
+for i in range(1,20):
+    meas.insert(i,  ObjectHandler.getObjectStates(i))
 
-# Typing
-from typing import List
+meas_v: List[ndarray] = []
+for i in range(len(meas)):
+    meas_vi: ndarray = []
 
-# pathlib module
-from pathlib import Path
-
-import sys
-import os
-
-from obstacle_detect import *
-from CustomErrors import *
+    for j in range(len(meas[i])):
+        meas_vi.append(array([[meas[i][j][0]], [meas[i][j][1]]]))
+        print('----')
+        print(meas_vi)
+    meas_v.insert(i, meas_vi)
 
 
-class ObjectHandler:
-    
-    """This Class is used to retrieve the object states"""
+#GM_PHD filter initialisieren
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#
+# x= [x, y, dx, dy]
 
-    def __init__(self) -> None:
+F = array([[1.0, 0.0, 1.0, 0.0], 
+           [0.0, 1.0, 0.0, 1.0], 
+           [0.0, 0.0, 1.0, 0.0], 
+           [0.0, 0.0, 0.0, 1.0]])
+H = array([[1.0, 0.0, 0.0, 0.0],
+           [0.0, 1.0, 0.0, 0.0]])
+Q = 1*eye(4)
+R = 0.1*eye(2)
+
+#Def. Birth_belief
+mean1 = vstack([0.0, 120.0, 10.0, 7.0])
+covariance1 = array([[30, 0.0, 0.0, 0.0], 
+                     [0.0, 5.0, 0.0, 0.0],
+                     [0.0, 0.0, 10.0, 0.0],
+                     [0.0, 0.0, 0.0, 10.0]])
+
+mean2 = vstack([600.0, 120.0, -1.0, 1.0])
+covariance2 = array([[5, 0.0, 0.0, 0.0], 
+                     [0.0, 30.0, 0.0, 0.0],
+                     [0.0, 0.0, 2.0, 0.0],
+                     [0.0, 0.0, 0.0, 2.0]])
+birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
+
+survival_rate = 0.9999
+detection_rate = 0.9
+intensity = 0.01
+p_d = 0.95 #Detektionsrate
+
+phd = GaussianMixturePHD(
+                birth_belief,
+                survival_rate,
+                p_d,
+                intensity,
+                F,
+                H,
+                Q,
+                R)
+
+
+
+# PHD-Filter auf DATA anwenden
+#------------------------------------------------------------------------
+pos_phd: List[ndarray] = []
+for z in meas_v:
+    phd.predict()
+    phd.correct(z)
+    pos_phd.append(phd.extract())
+    print(phd.extract())
+    print('--------------')
+    #pruning
+    phd.prune(array([0.3]), array([3]), 10)
+
+
+# Plott DATA
+#------------------------------------------------------------------------
+
+for i in range(19):
+    #Messungen
+    for j in range(len(meas_v[i])):
+        plt.plot(meas_v[i][j][0],meas_v[i][j][1],'ro',color='black')
+
+    #Schätzungen
+    for l in range(len(pos_phd[i])):
+        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
+        plt.plot(pos_phd[i][l][0],pos_phd[i][l][1],'ro',color= 'red', ms= 3)
         
-        self.DebugLevel = 0
-        self.ObjectStates: List = []
-        self.ImageFolder: str = None
-        self.ImageBaseName: str = None
-        self.ImageFileType: str = '.jpg'
-
-    def setDebugLevel(self, debugLevel: int = 0) -> None:
-        self.DebugLevel = debugLevel
-
-    # check, if set debug level is greater equal to given level
-    def printDebug(self, level: int) -> bool:
-        if(level <= self.DebugLevel):
-            return True
-        else:
-            return False
-
-    def setImageFolder(self, folder: str) -> bool:
-        self.ImageFolder = folder
-        return True
-
-    def setImageBaseName(self, baseName: str) -> bool:
-        self.ImageBaseName = baseName
-        return True
-
-    def setImageFileType(self, fileType: str) -> bool:
-        self.ImageFileType = fileType
-        return True
-
-    def getTimeStepCount(self) -> int:
-        return len(self.ObjectStates)
-
-    # return list with object states for all time stemps
-    def getObjectStatesList(self) -> List:
-
-        return self.ObjectStates
-
-    # return object states for a given time step t
-    def getObjectStates(self, t: int) -> List:
-        if(t <= self.getTimeStepCount()):
-            # return data for requested time step
-            return self.ObjectStates[t-1]
-        else:
-            # try and update object state data
-            for i in range(0,t - self.getTimeStepCount()):
-                # try to update
-                updated = self.updateObjectStates()
-                if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
-
-            return self.ObjectStates[t-1]
-                
-
-    # return last item in object states list
-    def getLastObjectStates(self) -> List:
-
-        return self.ObjectStates[-1]
-
-    # update the object states for the next time step
-    def updateObjectStates(self, plot: bool = False) -> bool:
-
-        detector = ObstacleDetector()
-        img, folder = None, '.'
-
-        # get current max time step and add 1
-        currentTimeStep = self.getTimeStepCount() + 1
-        if self.printDebug(2): print('current time step: ' + str(currentTimeStep))
-
-        # check if folder and image base is set
-        if type(self.ImageFolder) is str and type(self.ImageBaseName) is str:
-            # if so, concat with current time step to next image name
-            filepath = self.ImageFolder  + '/' + self.ImageBaseName + str(currentTimeStep) + self.ImageFileType
-        else:
-            # else, return false
-            if self.printDebug(0): print('image folder or base name is not set')
-            return False
-
-        nextImage = Path(filepath)
-        if nextImage.is_file():
-            # file exists, run obstacle detect
-            if self.printDebug(2): print('file ' + filepath + ' is valid')
-            # read image
-            img = cv2.imread(filepath)
-            # check if image is valid
-            assert img is not None, 'file ' + filepath + ' could not be read'
-            # plot if plot setting is true
-            if plot == True: cv2.imshow('orig', img)
-            # detect horizon
-            horizon_lines, votes, seps = detector.detect_horizon(img)
-            # if horizon lines found
-            if horizon_lines:
-                # find obstacles
-                obstacles = detector.find_obstacles(img, horizon=horizon_lines[0])
-                # write found obstacles in list
-                ObstacleStates = []
-                for obs in obstacles:
-                    ObstacleStates .append([obs.x, obs.y])
-                # add list to list with obstacles over all time steps
-                self.ObjectStates.append(ObstacleStates)
-            else:
-                obstacles = None
-            # plot image with found obstacles
-            if plot == True: detector.plot_img(img, obstacles=obstacles,horizon_lines=horizon_lines,plot_method='cv', wait_time=1)
-
-            return True
-
-        else:
-            if self.printDebug(0): print(filepath + ' is not a valid file')
-            return False
-
-
-
-
-
+plt.legend(['Zk', 'phd'])     
+plt.title('x-y-Raum')
+plt.xlabel('x-Koord.')
+plt.ylabel('y-Koord.')
+plt.axis([-5,650,-5,650])
+plt.show()
 
 
 
