@@ -1,0 +1,4 @@
+class InvalidTimeStepError(Exception):
+    pass
+
+
