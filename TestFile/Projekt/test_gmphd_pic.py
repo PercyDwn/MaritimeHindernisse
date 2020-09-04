@@ -13,6 +13,8 @@ from numpy import array
 from numpy import ndarray
 from numpy import eye
 import math
+from mpl_toolkits.mplot3d import Axes3D
+
 # Typing
 from typing import List
 
@@ -76,32 +78,31 @@ F = array([[1.0, 0.0, 1.0, 0.0],
            [0.0, 0.0, 0.0, 1.0]])
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
-Q = 1*eye(4)
-R = 0.1*eye(2)
+Q = .1*eye(4)
+R = 0.001*eye(2)
 
 #Def. Birth_belief
-mean1 = vstack([0.0, 120.0, 10.0, 7.0])
-covariance1 = array([[30, 0.0, 0.0, 0.0], 
+mean1 = vstack([1.0, 120.0, 10.0, 2.0])
+covariance1 = array([[10, 0.0, 0.0, 0.0], 
                      [0.0, 5.0, 0.0, 0.0],
                      [0.0, 0.0, 10.0, 0.0],
                      [0.0, 0.0, 0.0, 10.0]])
 
-mean2 = vstack([600.0, 120.0, -1.0, 1.0])
-covariance2 = array([[5, 0.0, 0.0, 0.0], 
+mean2 = vstack([1.0, 120.0, 17.0, 2.0])
+covariance2 = array([[15, 0.0, 0.0, 0.0], 
                      [0.0, 30.0, 0.0, 0.0],
-                     [0.0, 0.0, 2.0, 0.0],
+                     [0.0, 0.0, 5.0, 0.0],
                      [0.0, 0.0, 0.0, 2.0]])
 birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
 
-survival_rate = 0.9999
-detection_rate = 0.9
-intensity = 0.01
-p_d = 0.95 #Detektionsrate
+survival_rate = 0.99
+detection_rate = 0.999
+intensity = 0.005
 
 phd = GaussianMixturePHD(
                 birth_belief,
                 survival_rate,
-                p_d,
+                detection_rate,
                 intensity,
                 F,
                 H,
@@ -143,7 +144,54 @@ plt.ylabel('y-Koord.')
 plt.axis([-5,650,-5,650])
 plt.show()
 
+K = np.arange(len(meas_v))
+# x Achse
+for i in K:
+    #Messungen
+    for j in range(len(meas_v[i])):
+        plt.plot(meas_v[i][j][0],K[i],'ro',color='black')
 
+    #Schätzungen
+    for l in range(len(pos_phd[i])):
+        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
+        plt.plot(pos_phd[i][l][0],K[i],'ro',color= 'red', ms= 3)
+        
+plt.legend(['Zk', 'phd'])     
+plt.title('x-Raum')
+plt.xlabel('x-Koord.')
+plt.ylabel('zeitpunkt k')
+plt.axis([-5,650,-5,20])
+plt.show()
 
+# y-Achse
 
+for i in K:
+    #Messungen
+    for j in range(len(meas_v[i])):
+        plt.plot(meas_v[i][j][1],K[i],'ro',color='black')
 
+    #Schätzungen
+    for l in range(len(pos_phd[i])):
+        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
+        plt.plot(pos_phd[i][l][1],K[i],'ro',color= 'red', ms= 3)
+        
+plt.legend(['Zk', 'phd'])     
+plt.title('y-Raum')
+plt.xlabel('y-Koord.')
+plt.ylabel('zeitpunkt k')
+plt.axis([-5,650,-5,20])
+plt.show()
+
+# Scater plot 3D
+
+fig = plt.figure()
+ax = Axes3D(fig)
+
+for i in K:
+    for j in range(len(meas_v[i])):
+        ax.scatter(meas_v[i][j][0],meas_v[i][j][1],K[i])
+
+ax.set_xlabel('X Axis')
+ax.set_ylabel('Y Axis')
+ax.set_zlabel('k')
+plt.show()
