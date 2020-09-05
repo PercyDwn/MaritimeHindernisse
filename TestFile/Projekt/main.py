@@ -3,15 +3,15 @@ import numpy as np
 from gnn_algorithmus import *
 from functions import *
 import math
-from MN import mnLogic
+from MN import*
 from ObjectHandler import *
 
 #Initialisierung
 dimensions = 2
 p_d = 0.97 #Detektionsrate
 T= 0.5 #Abtastzeit
-M = 4 #Anzahl der benoetigten Detektionen
-N= 5 #Anzahl der Scans
+M = 3 #Anzahl der benoetigten Detektionen
+N= 4 #Anzahl der Scans
 ObjectHandler = ObjectHandler()
 Q = [[10,0,0,0],
              [0,10,0,0],
@@ -20,11 +20,12 @@ Q = [[10,0,0,0],
 R = [[1,0],
     [0,1]] #Varianz des Messrauschens
 P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]] 
-    
+trachhold = 0.1  
 #GNN Aufruf
-#estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init)
-estimate_gnn,n = gnn_testdaten(p_d,M,N,dimensions,T)
+estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,trachhold)
+#estimate_gnn,n = gnn_testdaten(p_d,M,N,dimensions,T)
 position_gnn = get_position(estimate_gnn,dimensions)
+trashhold = 0.03
 
 
 

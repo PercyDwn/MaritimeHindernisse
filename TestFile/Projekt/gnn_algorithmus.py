@@ -10,7 +10,7 @@ from ObjectHandler import *
 from functions import createTestDataSet
 import random
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
+def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,trashhold):
     #data Messung aller Zeitschritten
     #p_d =detection rate
     #lambda_c Clutter Intensität
@@ -37,6 +37,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
         number_states = len(F) # Zuständezahl
         n = -1 #Initialisierung von Anzahl der Objekten
         k = 0   #Zeitschritt
+        estimate = np.zeros((4,1))
         pictures_availiable = True
         fig = plt.figure()
 
@@ -57,21 +58,23 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
             if k < N: #warmup_data vorbereiten
                 warmup_data.append(current_measurement_k)
                 
+                
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 mn_data = warmup_data[:]
-                n = 2
-                init_values = np.zeros((2*dimensions,n)) 
-                for i in range(n):
-                    random_meas_index = random.randint(0, 8-1) #Zufälliger Wert zwischen 0 und m-1
-                    random_meas_coordinates = current_measurement_k[random_meas_index] #Zufällige Koordinaten aus der ersten Messung
-                    init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
-                    init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
-                #n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
-                estimate = np.zeros((number_states,n)) # Zustände geschätz pro Zeitschritt
-                estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
+                #n = 2
+                #init_values = np.zeros((2*dimensions,n)) 
+                #for i in range(n):
+                #    random_meas_index = random.randint(0, 8-1) #Zufälliger Wert zwischen 0 und m-1
+                #    random_meas_coordinates = current_measurement_k[random_meas_index] #Zufällige Koordinaten aus der ersten Messung
+                #    init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
+                #    init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
+                
+                n,estimate = initMnLogic(M,N,mn_data,T, estimate,trashhold,n) #Anzahl Objekte
+                #estimate = np.zeros((number_states,n)) # Zustände geschätz pro Zeitschritt
+                #estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
                 estimate_all =[]
-                estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
-
+                #estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
+                estimate:all.append(estimate.tolist())
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 theta_k = np.zeros((1,n)) #Data Assossiation Vektor
                 P = np.zeros((number_states,n*number_states))
@@ -113,10 +116,6 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
                 indexes_opt = hungarian.compute(np.concatenate((L_detection,L_missdetection),axis=1)) #Assignment matrix indexes
                 # Berechnung von Data Assossiation theta_k
                 for i in range(n):
-            
-
-                
-
                     #Fallunterscheidung: theta = index von Messung wenn die Detektion einem Objekt entspicht, theta = 0 wenn die Detektion einem Clutter entspricht
                     estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht 
                     P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
@@ -150,13 +149,12 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init):
                     plt.xlabel('x_koordinate')
                     plt.ylabel('y_kordinate')
                 
-               
-                estimate_all.append(estimate.tolist())
-                
                 mn_data.pop(0) #Löschen ältestes Element
                 mn_data.append(measurement_k) #Aktuelle Messung einfügen
-                n = 2
-                #n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
+                #n = 2
+                estimate_all.append(estimate.tolist())
+                n, estimate = initMnLogic(M,N,mn_data,T, estimate,trashhold,n) #Anzahl Objekte
+                
             k = k+1
             
         plt.grid()
@@ -305,13 +303,13 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
                 
 
                 estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,dimensions) #Update P und estimate_i mit Kalman-Korrekturschritt
-                print('.......')
-                print(estimate_i)
-                print('......')
+               
                 
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-                
+                print('.......')
+                print(estimate)
+                print('......')
                 
 
               

@@ -1,55 +1,5 @@
 import math
-def betrag(vektor):
-    sum=0
-    for i in range(len(vektor)):
-        sum=sum+vektor[i]*vektor[i]
-    return math.sqrt(sum)
-'''
-def summe(vektorA, vektorB):
-    vektorC=[]
-    for i in range(len(vektorA)):
-        vektorC.append(0)
-        vektorC[i]=vektorA[i]+vektorB[i]
-    return vektorC
-
-def matrixMalVektor(matrix,vektor):
-    ergebnis=[]
-    for i in range(len(matrix)):
-        if len (matrix[i]) is not len(vektor):
-            #print("Dimensionsfehler")
-            ergebnis=["Dimensionsfehler"]
-            break
-        else:
-            vektorKomponente=0
-            for j in range(len(matrix[i])):
-                vektorKomponente+=(matrix[i][j]*vektor[j])
-        ergebnis.append(vektorKomponente)
-    print(ergebnis)
-    return ergebnis
-
-def matrixMalMatrix(matrixA,matrixB):
-    ergebnis=[]
-    for i in range(len(matrixA)):
-        ergebnis.append([])
-        for l in range(len(matrixB[0])):
-            if len (matrixA[i]) is not len(matrixB):
-                #print("Dimensionsfehler")
-                ergebnis=["Dimensionsfehler"]
-                break
-            else:
-                matrixElement=0
-                for j in range(len(matrixA[i])):
-                    matrixElement+=(matrixA[i][j]*matrixB[j][l])
-            ergebnis[i].append(matrixElement)
-        print(ergebnis[i])
-    return ergebnis
-'''    
-def differenz(vektorA, vektorB):
-    vektorC=[]
-    for i in range(len(vektorA)):
-        vektorC.append(0)
-        vektorC[i]=vektorA[i]-vektorB[i]
-    return betrag(vektorC)
+import numpy
 
 def duplikateloeschen(liste):
     o=[]
@@ -57,103 +7,186 @@ def duplikateloeschen(liste):
         if e not in o:
             o.append(e)
     return o    
+def betrag(vektor):
+    sum=0
+    for i in range(len(vektor)):
+        sum=sum+vektor[i]*vektor[i]
+    return math.sqrt(sum)
+
+def differenz(vektorA, vektorB):
+    vektorC=[]
+    for i in range(len(vektorA)):
+        vektorC.append(0)
+        vektorC[i]=vektorA[i]-vektorB[i]
+    return betrag(vektorC)
+
+def norm(data):
+    data_x=[]
+    data_y=[]
+    min_x=[]
+    min_y=[]
+    max_x=[]
+    max_y=[]
+    normed_x=[]
+    normed_y=[]
+    normed_data=[]
+    for i in range(len(data)):
+        data_x_temp=[]
+        data_y_temp=[]
+        for j in range(len(data[i])):
+            data_x_temp.append(data[i][j][0])
+            data_y_temp.append(data[i][j][1])
+        data_x+=[data_x_temp]
+        data_y+=[data_y_temp]
+        min_x.append(min(data_x_temp))
+        min_y.append(min(data_y_temp))
+        max_x.append(max(data_x_temp))
+        max_y.append(max(data_y_temp))
+    min_x=min(min_x)
+    min_y=min(min_y)
+    max_x=max(max_x)
+    max_y=max(max_y)
+
+        
+    for k in range(len(data)):
+        data_x_temp=[]
+        data_y_temp=[]
+        for l in range(len(data[k])):
+            data_x_temp.append((data_x[k][l]-min_x)/(max_x-min_x))
+            data_y_temp.append((data_y[k][l]-min_y)/(max_y-min_y))
+        normed_x+=[data_x_temp]
+        normed_y+=[data_y_temp]
+    
+       
+    for m in range(len(data)):
+        data_points_temp=[]
+        for n in range(len(data[m])):
+            data_points_temp+=[[normed_x[m][n],normed_y[m][n]]]
+        normed_data+=[data_points_temp]    
+    
+    return min_x, min_y, max_x, max_y, normed_data
     
 #Erstellt eine Matrix mit Listen als Elemente
-def uebersicht(measurements,Startzeit,N):
+def uebersicht(measurements,N):
     uebersichtMatrix=[]
     for i in range(N):
         uebersichtMatrix.append([])
-        for j in range(len(measurements[Startzeit-1])):
+        for j in range(len(measurements[len(measurements)-1])):
             uebersichtMatrix[i].append([])
     return uebersichtMatrix
 #Prueft ob Werte in kandidaten schon mal in uebersichtMatrix zur Zeit i aufgetaucht sind,
 #wenn nicht dann wird die Werte in uebersichtMatrixgespeichert.    
-def checkAndAdd(uebersichtMatrix,kandidaten,i,j):
-    temp=kandidaten.copy()
-    for a in temp:
-        for b in range(len(uebersichtMatrix[i])):
-            if a in uebersichtMatrix[i][b]:
-                kandidaten.remove(a)
-                break
-                
-    uebersichtMatrix[i][j].extend(kandidaten)
-    return uebersichtMatrix
 
-def mnLogic(M,N,Startzeit,measurements):                            #(Anzahl der benoetigten Detektionen, Anzahl der Scans, Startzeitpunkt, Messdaten)  
+def initMnLogic(M,N,measurements,T, est,trashhold,n_old):                  #(Anzahl der benoetigten Detektionen, Anzahl der Scans, Startzeitpunkt, Messdaten)  
+    min_x, min_y, max_x, max_y, normed_data=norm(measurements)
+    #normed_data=measurements
     n=0                                                             #Anzahl der geschaetzten Objekte
-    uebersichtMatrix=uebersicht(measurements,Startzeit,N)
+    AnfangsWerteGNN=[]
+    uebersichtMatrix=uebersicht(measurements,len(measurements))
     
-    if Startzeit+N-1>(len(measurements)) or Startzeit<1:            #Ueberpruefung ob genug Messungen fuer den gewaehlten Startpunkt da sind
-        return "Keine weiteren Messungen vorhanden"
-    else:    
-        for j in range (len(measurements[Startzeit-1])):            #Duch die erste Zeile von measurements iterieren
-            kandidaten=[measurements[Startzeit-1][j]]               #moegliches Objekt Speichern
-            m=1                                                     #erste Messung zaehlt als erste Detektion                          
-            m_bar=0                                                 #Anzahl der Fehldetektionen
-            s=1                                                     #Aktueller Scan
-            #############################################################Durch die Zeilen/Zeit von measurements iterieren
-            for i in range(Startzeit-1,Startzeit-1+N-1):
-                z=checkAndAdd(uebersichtMatrix,kandidaten,i-Startzeit+1,j)
-                alteAnzahl=len(kandidaten)             
-                s+=1
-                #########################################################wird ausgefuehrt wenn man sich am Startzeitpunkt befindet
-                if i==Startzeit-1:                          #
-                    for k in measurements[i+1]:             #       fuer alle measurements in der i+1-ten Zeile Messpunkte suchen,
-                        if differenz(kandidaten[0],k)<=1:         #       die die Bedingungen als Kandidat erfuellen 
-                            kandidaten.append(k)            #       und zur Kandidatenliste hinzufuegen  
+    for j in range (len(normed_data[len(normed_data)-1])):          #Duch die erste Zeile von measurements iterieren
+        kandidaten=[normed_data[len(normed_data)-1][j]]             #moegliches Objekt Speichern
+        uebersichtMatrix[len(measurements)-1][j]=kandidaten
+        m=1                                                         #erste Messung zaehlt als erste Detektion                          
+        m_bar=0                                                     #Anzahl der Fehldetektionen
+        #############################################################Durch die Zeilen/Zeit von measurements iterieren
+        for i in range(len(measurements)-1,len(measurements)-N,-1):
+            alteAnzahl=len(kandidaten)             
+            
+            
+            newKandidaten=kandidaten.copy()             #           Kandidatenzwischenspeicher
+            for l in kandidaten:                        #           fuer alle Kandidaten in der Kandidatenliste pruefen
+                if l not in normed_data[i]:             #           ob Kandidat nicht in der aktuellen i-ten Messung vorkommt,
+                    for k in normed_data[i-1]:          #           wenn Kandidat nicht in der aktuellen i-ten Messung steht,
+                        list1 = [x for x in uebersichtMatrix[i-1] if x != []]
+                        list2=[e for sl in list1 for e in sl]
+                        if (abs(l[0]-k[0])<=2*trashhold)and(abs(l[1]-k[1])<=2*trashhold) and k not in list2:                 #       andere Bedingung fuer Kandidatenzugehoerigkeit pruefen
+                            uebersichtMatrix[i-1][j].append(k)
+                            newKandidaten.append(k)     #       und zu Kandidatenzwischenspeicher hinzufuegen
+                else:                                   #
+                    for k in normed_data[i-1]:          #       fuer alle measurements in der i+1-ten Zeile Messpunkte suchen,
+                        list1 = [x for x in uebersichtMatrix[i-1] if x != []]
+                        list2=[e for sl in list1 for e in sl]
+                        if (abs(l[0]-k[0])<=trashhold)and(abs(l[1]-k[1])<=trashhold) and k not in list2:                 #       die die Bedingungen als Kandidat erfuellen 
+                            uebersichtMatrix[i-1][j].append(k)
+                            newKandidaten.append(k)     #       und zur Kandidatenliste hinzufuegen  
+                                                        #    
+            if len(newKandidaten)>alteAnzahl:           #       wenn neue Kandidaten im Naechsten Zeitschritt gefunden wurden,        
+                del newKandidaten[0:alteAnzahl]         #       loesche die Kandidaten aus dem vorherigen Zeitschritt,
+                m+=1                                    #       erhoehe die Anzahl der erfolgreichen Detektionen um 1
+            else:                                       #
+                m_bar+=1                                #       keine neue Kandidaten-> Anzahl der Fehldetektionen erhoehen
+                                                        #
+            kandidaten=duplikateloeschen(newKandidaten) #       Kandidatenliste aktualisieren 
                                                             #
-                    if len(kandidaten)>alteAnzahl:          #       wenn neue Kandidaten im Naechsten Zeitschritt gefunden wurden,            
-                        del kandidaten[0:alteAnzahl]        #       loesche die Kandidaten aus dem Vorherigen Zeitschritt,
-                        m+=1                                #       erhoehe die Anzahl der erfolgreichen Detektionen um 1
-                    else:                                   #
-                        m_bar+=1                            #       keine neue Kandidaten-> Anzahl der Fehldetektionen erhoehen
-                #############################################
-                #########################################################wird ausgefuehrt wenn man sich NICHT am Startzeitpunkt befindet
-                else:                                           #   
-                    newKandidaten=kandidaten.copy()             #       Kandidatenzwischenspeicher
-                    for l in kandidaten:                        #       fuer alle Kandidaten in der Kandidatenliste pruefen
-                        if l not in measurements[i]:            #       ob Kandidat nicht in der aktuellen i-ten Messung vorkommt,
-                            for k in measurements[i+1]:         #       wenn Kandidat nicht in der aktuellen i-ten Messung steht,
-                                if differenz(l,k)<=2:                 #       andere Bedingung fuer Kandidatenzugehoerigkeit pruefen
-                                    newKandidaten.append(k)     #       und zu Kandidatenzwischenspeicher hinzufuegen
-                                                                #
-                        else:                                   #
-                            for k in measurements[i+1]:         #       fuer alle measurements in der i+1-ten Zeile Messpunkte suchen,
-                                if differenz(l,k)<=1:                 #       die die Bedingungen als Kandidat erfuellen 
-                                    newKandidaten.append(k)     #       und zur Kandidatenliste hinzufuegen  
-                                                                #
-                                                                #
-                                                                #    
-                    if len(newKandidaten)>alteAnzahl:           #       wenn neue Kandidaten im Naechsten Zeitschritt gefunden wurden,        
-                        del newKandidaten[0:alteAnzahl]         #       loesche die Kandidaten aus dem vorherigen Zeitschritt,
-                        m+=1                                    #       erhoehe die Anzahl der erfolgreichen Detektionen um 1
-                    else:                                       #
-                        m_bar+=1                                #       keine neue Kandidaten-> Anzahl der Fehldetektionen erhoehen
-                                                                #
-                    kandidaten=duplikateloeschen(newKandidaten) #       Kandidatenliste aktualisieren 
-                                                                #
-                #################################################
+            #################################################
 
-                #########################################################Abbruchbedingungen    
-                if m_bar>(N-M):                             #       wenn die zuviele Fehldetektionen
-                    kandidaten=[]
-                    break                                   #       Abbruch und neue Iteration bei measurements[0][j+1]
-            if m>=M:                                        #       wenn die benoetigte Anzahl an Detektionen erreicht,
-                n+=1                                        #       erhoehe die Anzahl der geschaetzten Objekte
-                #############################################
-            z[N-1][j]=kandidaten    
-    for x in range(len(z)):
-        print(z[x])
-    list2 = [x for x in z[N-1] if x != []]
-    return n,list2
+            #########################################################Abbruchbedingungen    
+            if m_bar>(N-M):                             #       wenn die zuviele Fehldetektionen
+                #kandidaten=[]
+                break                                   #       Abbruch und neue Iteration bei measurements[0][j+1]
+        if m>=M:                                        #       wenn die benoetigte Anzahl an Detektionen erreicht,
+            AnfangsWerteGNN.append([(max_x-min_x)*normed_data[len(measurements)-1][j][0]+min_x,(max_y-min_y)*normed_data[len(measurements)-1][j][1]+min_y])
+            n+=1                                        #       erhoehe die Anzahl der geschaetzten Objekte
+            #############################################
+        kandidaten=[]   
+    for x in range(len(uebersichtMatrix)):
+        print(uebersichtMatrix[x])
+    #return n, AnfangsWerteGNN
+    return deathsBirths(n,AnfangsWerteGNN,est,n_old)
 
-#testecke
-   
-measurements=[[[1,1],[2,2],[3,3],[0,0]],
-            [[1.5,1.5],[2.5,2.5],[6,6],[5,5]],
-            [[2,2],[3,3],[0,0],[1,1]],
-            [[0,0],[8,8],[3,3]],
-            [[2,2],[3.5,3.5]]]
+def deathsBirths(n_new,anfangsWerte,est,n_old):
+   # n_old = 2 #Alte Objekt Anzahl
+    H= numpy.array([[1,0,0,0],[0,0,1,0]]) #Ausgangsmatrix
+    H_velocity = numpy.array([[0,1,0,0],[0,0,0,1]])
+    #est = np.array([[1,2],[0.5,0.1],[10,8],[0.4,0.2]]) # Zustände (Eingang MN). Erste Spalte sind die Zustände des ersten Objekts. Die zweite des zweiten
+    vel_old = numpy.matmul(H_velocity,est) #Geschwindigkeit alt
+    pos_old = numpy.matmul(H,est) #Positionen alt (Eingangs des MN)
+    pos_new = numpy.transpose(numpy.array(anfangsWerte))
+    #pos_new = np.array([[0.8,1.5,3,4],[9.5,8.2,10,12]]) #Neue Positionen aus dem M/N Algorithmus (List). Im Fall von Births  
+    #pos_new = np.array([[1.5],[8.5]]) #Neue Positionen aus dem M/N Algorithmus (List). Im Fall von Deaths
+    #n_new = pos_new.shape[1] #neue Objektanzahl
+    est_updated = numpy.zeros((4,n_new))
+    
+    #Initialisierung 
+    if n_old < 1:
+        est_updated[0,:] = pos_new[0,:]
+        est_updated[2,:] = pos_new[1,:]
 
-#print(mnLogic(4,5,1,measurements))
+    #Erweiterung : nur im Fall, dass Deaths oder Births auftreten n_alt != n_new.
+    elif n_new > n_old: #Births: Die Koordinaten die die minimale Abstände von den alten Objekten aufweisen, werden als "schon vorhandetes Objekt" betrachtet und daher werden als neues Objekt ausgeschlossen
+        vel_new = numpy.zeros((n_new-n_old)) #Geschwinigkeit neu. Erstmal als 0 annehmen. Später können wir dies erweitern 
+        for i in range(n_old):
+            distances = [] #Liste mit Abständen zu den alten koordinaten
+            for j in range(pos_new.shape[1]):
+                distances.append(differenz(pos_old[:,i],pos_new[:,j])) #Vektorbetrag hinzufügen
+            index_min = min(range(len(distances)), key=distances.__getitem__) #minimalen index ausrechnen
+            pos_new = numpy.delete(pos_new,index_min,1)
+        est_updated[0,:] = numpy.concatenate((pos_old[0],pos_new[0]),0)
+        est_updated[1,:] = numpy.concatenate((vel_old[0],vel_new),0)
+        est_updated[2,:] = numpy.concatenate((pos_old[1],pos_new[1]),0)
+        est_updated[3,:] = numpy.concatenate((vel_old[1],vel_new),0)
+        
+        print('....')
+        print(est_updated)
+        print('.....')
+    
+    elif n_new < n_old: #Deaths: Die Koordinaten die die maximale Abstände von den alten Objekten aufweisen, werden als "sterbende Objekte" betrachtet und daher werden von den Zuständen gelöscht 
+        for i in range(n_new):
+            distances = [] #Liste mit Abständen zu den alten koordinaten
+            for j in range(n_old):
+                distances.append(differenz(pos_old[:,j],pos_new[:,i])) #Vektorbetrag hinzufügen
+            index_min =  min(range(len(distances)), key=distances.__getitem__) #maximalen index ausrechnen
+            est_updated[0,i] = pos_old[0,index_min]
+            est_updated[1,i] = vel_old[0,index_min]
+            est_updated[2,i] = pos_old[1,index_min]
+            est_updated[3,i] = vel_old[1,index_min]
+            print('....')
+            print(est_updated)
+            print('.....')
+    elif n_new == n_old:
+        est_updated = est
+     
 
+
+    return n_new, est_updated
