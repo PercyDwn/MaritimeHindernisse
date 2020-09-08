@@ -387,7 +387,10 @@ def main():
     import sys
 
     detector = ObstacleDetector()
-    img, folder = None, '.'
+    #################################
+    #Dateipfad individuell anpassen!!
+    #################################
+    img, folder = None, 'C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1'
     if len(sys.argv) > 1 and type(sys.argv[1]) is str:
         if '.jpg' in sys.argv[1]:
             try: 

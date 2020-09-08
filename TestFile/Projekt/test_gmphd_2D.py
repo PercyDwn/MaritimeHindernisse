@@ -36,8 +36,6 @@ P_i_init = [[10,0],[0,10]]
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
 
-#Test Datensatz
-warmup_data, measurements, real_objects,K = createTestDataSet()
 
 
 #GM_PHD filter erzeugen

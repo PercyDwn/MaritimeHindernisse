@@ -14,11 +14,14 @@ from numpy import ndarray
 from numpy import eye
 import math
 from mpl_toolkits.mplot3d import Axes3D
+import cv2
 
 # Typing
-from typing import List
+from typing import List, Tuple
 
 ObjectHandler = ObjectHandler()
+#Dateipfad individuell anpassen!!
+#################################
 ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
@@ -38,7 +41,6 @@ for i in range(1,20):
 print('---------------------------------------')
 #print('current time step: ' + str(ObjectHandler.getTimeStepCount()))
 #print(ObjectHandler.getLastObjectStates())
-#print('---------------------------------------')
 
 for i in range(1,20):
     try:
@@ -49,6 +51,7 @@ for i in range(1,20):
         print(e.args[0])
     print('---------------------------------------')
 
+#------------------------------------------------------------------------
 # Messungen
 #------------------------------------------------------------------------
 meas: List[ndarray] = []
@@ -61,11 +64,11 @@ for i in range(len(meas)):
 
     for j in range(len(meas[i])):
         meas_vi.append(array([[meas[i][j][0]], [meas[i][j][1]]]))
-        print('----')
-        print(meas_vi)
+        #print('----')
+        #print(meas_vi)
     meas_v.insert(i, meas_vi)
 
-
+#------------------------------------------------------------------------
 #GM_PHD filter initialisieren
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -79,7 +82,7 @@ F = array([[1.0, 0.0, 1.0, 0.0],
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
 Q = .1*eye(4)
-R = 0.001*eye(2)
+R = 0.1*eye(2)
 
 #Def. Birth_belief
 mean1 = vstack([1.0, 120.0, 10.0, 2.0])
@@ -96,8 +99,8 @@ covariance2 = array([[15, 0.0, 0.0, 0.0],
 birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
 
 survival_rate = 0.99
-detection_rate = 0.999
-intensity = 0.005
+detection_rate = 0.9
+intensity = 0.01
 
 phd = GaussianMixturePHD(
                 birth_belief,
@@ -110,7 +113,7 @@ phd = GaussianMixturePHD(
                 R)
 
 
-
+#------------------------------------------------------------------------
 # PHD-Filter auf DATA anwenden
 #------------------------------------------------------------------------
 pos_phd: List[ndarray] = []
@@ -123,10 +126,13 @@ for z in meas_v:
     #pruning
     phd.prune(array([0.3]), array([3]), 10)
 
-
+#------------------------------------------------------------------------
 # Plott DATA
 #------------------------------------------------------------------------
+#------------------------------------------------------------------------
 
+#x-y Raum
+#------------------------------------------------------------------------
 for i in range(19):
     #Messungen
     for j in range(len(meas_v[i])):
@@ -134,18 +140,19 @@ for i in range(19):
 
     #Schätzungen
     for l in range(len(pos_phd[i])):
-        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
         plt.plot(pos_phd[i][l][0],pos_phd[i][l][1],'ro',color= 'red', ms= 3)
         
-plt.legend(['Zk', 'phd'])     
+#plt.legend(['Zk', 'phd'])     
 plt.title('x-y-Raum')
 plt.xlabel('x-Koord.')
 plt.ylabel('y-Koord.')
 plt.axis([-5,650,-5,650])
 plt.show()
 
-K = np.arange(len(meas_v))
 # x Achse
+#------------------------------------------------------------------------
+K = np.arange(len(meas_v))
+
 for i in K:
     #Messungen
     for j in range(len(meas_v[i])):
@@ -153,10 +160,9 @@ for i in K:
 
     #Schätzungen
     for l in range(len(pos_phd[i])):
-        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
         plt.plot(pos_phd[i][l][0],K[i],'ro',color= 'red', ms= 3)
         
-plt.legend(['Zk', 'phd'])     
+#plt.legend(['Zk', 'phd'])     
 plt.title('x-Raum')
 plt.xlabel('x-Koord.')
 plt.ylabel('zeitpunkt k')
@@ -164,7 +170,7 @@ plt.axis([-5,650,-5,20])
 plt.show()
 
 # y-Achse
-
+#------------------------------------------------------------------------
 for i in K:
     #Messungen
     for j in range(len(meas_v[i])):
@@ -172,10 +178,9 @@ for i in K:
 
     #Schätzungen
     for l in range(len(pos_phd[i])):
-        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
         plt.plot(pos_phd[i][l][1],K[i],'ro',color= 'red', ms= 3)
         
-plt.legend(['Zk', 'phd'])     
+#plt.legend(['Zk', 'phd'])     
 plt.title('y-Raum')
 plt.xlabel('y-Koord.')
 plt.ylabel('zeitpunkt k')
@@ -183,15 +188,24 @@ plt.axis([-5,650,-5,20])
 plt.show()
 
 # Scater plot 3D
+#------------------------------------------------------------------------
+#fig = plt.figure()
+#ax = Axes3D(fig)
 
-fig = plt.figure()
-ax = Axes3D(fig)
+#for i in K:
+#    for j in range(len(meas_v[i])):
+#        ax.scatter(meas_v[i][j][0],meas_v[i][j][1],K[i])
 
-for i in K:
-    for j in range(len(meas_v[i])):
-        ax.scatter(meas_v[i][j][0],meas_v[i][j][1],K[i])
+#ax.set_xlabel('X Axis')
+#ax.set_ylabel('Y Axis')
+#ax.set_zlabel('k')
+#plt.show()
 
-ax.set_xlabel('X Axis')
-ax.set_ylabel('Y Axis')
-ax.set_zlabel('k')
-plt.show()
+
+#------------------------------------------------------------------------
+# Plott DATA in Image
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#for i in range(1,20):
+#    ObjectHandler.updateObjectStates(True)
+#    cv2.drawMarker(img, obst.bottom_center, (0, 255, 0), cv2.MARKER_CROSS, 10, thickness=2)

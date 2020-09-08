@@ -36,8 +36,6 @@ P_i_init = [[10,0],[0,10]]
 M = 4 #Anzahl der benoetigten Detektionen
 N= 5 #Anzahl der Scans
 
-#Test Datensatz
-warmup_data, measurements, real_objects,K = createTestDataSet()
 
 
 #GM_PHD filter erzeugen
@@ -56,11 +54,7 @@ intensity = 0.01
 #GM-PHD Aufruf
 #------------------------------------------------------------------------
 
-data = measurements[:]
-all_measurements = np.concatenate((warmup_data,measurements),axis=0).tolist()
-estimate_all =[]
-estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
-k = 1   #Zeitschritt
+
 
 
 #while len(data)>0: #While: data nicht leer
@@ -121,7 +115,7 @@ for z in meas:
     #print(phd.extract())
     #print('--------------')
     #pruning
-    phd.prune(array([0.4]), array([3]), 10)
+    phd.prune(array([0.4]), array([300]), 10)
 
 #Plots
 # ------------------------
