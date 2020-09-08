@@ -9,8 +9,9 @@ from MN import *
 from ObjectHandler import *
 from functions import createTestDataSet
 import random
+from plot import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,trashhold):
+def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
     #data Messung aller Zeitschritten
     #p_d =detection rate
     #lambda_c Clutter Intensität
@@ -39,10 +40,10 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,trashhold):
         k = 0   #Zeitschritt
         estimate = np.zeros((4,1))
         pictures_availiable = True
-        fig = plt.figure()
-
+        fig, axs = plt.subplots(3)
         
-        
+        measurements_all = [] #Liste mit den Messungen aller Zeitschriten
+        estimate_all =[]
             
         ## Berechnung auf Messdaten
         while pictures_availiable == True: #While: 
@@ -61,20 +62,8 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,trashhold):
                 
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 mn_data = warmup_data[:]
-                #n = 2
-                #init_values = np.zeros((2*dimensions,n)) 
-                #for i in range(n):
-                #    random_meas_index = random.randint(0, 8-1) #Zufälliger Wert zwischen 0 und m-1
-                #    random_meas_coordinates = current_measurement_k[random_meas_index] #Zufällige Koordinaten aus der ersten Messung
-                #    init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
-                #    init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
-                
-                n,estimate = initMnLogic(M,N,mn_data,T, estimate,trashhold,n) #Anzahl Objekte
-                #estimate = np.zeros((number_states,n)) # Zustände geschätz pro Zeitschritt
-                #estimate[0:number_states,0:n] = init_values #Anfangswerte hinzufügen
-                estimate_all =[]
-                #estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
-                estimate:all.append(estimate.tolist())
+                n,estimate = initMnLogic(M,N,mn_data,T, estimate,treshhold,n) #Anzahl Objekte
+                estimate_all.append(estimate.tolist())
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 theta_k = np.zeros((1,n)) #Data Assossiation Vektor
                 P = np.zeros((number_states,n*number_states))
@@ -142,23 +131,22 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,trashhold):
                    
                 
 
-                    #Echtzeit Plots 
-                    plt.plot(position_i[0],position_i[1],"x",color= 'orange')
-                   
-                    plt.title('Geschätze Position')
-                    plt.xlabel('x_koordinate')
-                    plt.ylabel('y_kordinate')
+                    
                 
                 mn_data.pop(0) #Löschen ältestes Element
                 mn_data.append(measurement_k) #Aktuelle Messung einfügen
-                #n = 2
+                positionen_k = multi_dot([H,estimate])
+                plot_GNN(positionen_k,current_measurement_k,fig, axs,k,ObjectHandler)
+                plot_GNN_realpic(ObjectHandler,positionen_k,k)
                 estimate_all.append(estimate.tolist())
-                n, estimate = initMnLogic(M,N,mn_data,T, estimate,trashhold,n) #Anzahl Objekte
+                n, estimate = initMnLogic(M,N,mn_data,T, estimate,treshhold,n) #Anzahl Objekte
                 
+                
+            #measurements_all.append(current_measurement_k)    
             k = k+1
-            
-        plt.grid()
-        plt.show()   
+        plt_GNN_settings(fig,axs)    
+        
+        
         return estimate_all ,n   
            
         

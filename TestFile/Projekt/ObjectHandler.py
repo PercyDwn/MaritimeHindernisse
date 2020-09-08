@@ -23,6 +23,7 @@ class ObjectHandler:
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
+        self.img: ndarray 
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -67,7 +68,8 @@ class ObjectHandler:
                 if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
 
             return self.ObjectStates[t-1]
-                
+    def getImg(self) :
+       return self.img
 
     # return last item in object states list
     def getLastObjectStates(self) -> List:
@@ -99,6 +101,7 @@ class ObjectHandler:
             if self.printDebug(2): print('file ' + filepath + ' is valid')
             # read image
             img = cv2.imread(filepath)
+            self.img = img
             # check if image is valid
             assert img is not None, 'file ' + filepath + ' could not be read'
             # plot if plot setting is true

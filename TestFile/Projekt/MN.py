@@ -77,7 +77,7 @@ def uebersicht(measurements,N):
 #Prueft ob Werte in kandidaten schon mal in uebersichtMatrix zur Zeit i aufgetaucht sind,
 #wenn nicht dann wird die Werte in uebersichtMatrixgespeichert.    
 
-def initMnLogic(M,N,measurements,T, est,trashhold,n_old):                  #(Anzahl der benoetigten Detektionen, Anzahl der Scans, Startzeitpunkt, Messdaten)  
+def initMnLogic(M,N,measurements,T, est,treshhold,n_old):                  #(Anzahl der benoetigten Detektionen, Anzahl der Scans, Startzeitpunkt, Messdaten)  
     min_x, min_y, max_x, max_y, normed_data=norm(measurements)
     #normed_data=measurements
     n=0                                                             #Anzahl der geschaetzten Objekte
@@ -100,14 +100,14 @@ def initMnLogic(M,N,measurements,T, est,trashhold,n_old):                  #(Anz
                     for k in normed_data[i-1]:          #           wenn Kandidat nicht in der aktuellen i-ten Messung steht,
                         list1 = [x for x in uebersichtMatrix[i-1] if x != []]
                         list2=[e for sl in list1 for e in sl]
-                        if (abs(l[0]-k[0])<=2*trashhold)and(abs(l[1]-k[1])<=2*trashhold) and k not in list2:                 #       andere Bedingung fuer Kandidatenzugehoerigkeit pruefen
+                        if (abs(l[0]-k[0])<=2*treshhold)and(abs(l[1]-k[1])<=2*treshhold) and k not in list2:                 #       andere Bedingung fuer Kandidatenzugehoerigkeit pruefen
                             uebersichtMatrix[i-1][j].append(k)
                             newKandidaten.append(k)     #       und zu Kandidatenzwischenspeicher hinzufuegen
                 else:                                   #
                     for k in normed_data[i-1]:          #       fuer alle measurements in der i+1-ten Zeile Messpunkte suchen,
                         list1 = [x for x in uebersichtMatrix[i-1] if x != []]
                         list2=[e for sl in list1 for e in sl]
-                        if (abs(l[0]-k[0])<=trashhold)and(abs(l[1]-k[1])<=trashhold) and k not in list2:                 #       die die Bedingungen als Kandidat erfuellen 
+                        if (abs(l[0]-k[0])<=treshhold)and(abs(l[1]-k[1])<=treshhold) and k not in list2:                 #       die die Bedingungen als Kandidat erfuellen 
                             uebersichtMatrix[i-1][j].append(k)
                             newKandidaten.append(k)     #       und zur Kandidatenliste hinzufuegen  
                                                         #    
@@ -136,16 +136,11 @@ def initMnLogic(M,N,measurements,T, est,trashhold,n_old):                  #(Anz
     return deathsBirths(n,AnfangsWerteGNN,est,n_old)
 
 def deathsBirths(n_new,anfangsWerte,est,n_old):
-   # n_old = 2 #Alte Objekt Anzahl
     H= numpy.array([[1,0,0,0],[0,0,1,0]]) #Ausgangsmatrix
     H_velocity = numpy.array([[0,1,0,0],[0,0,0,1]])
-    #est = np.array([[1,2],[0.5,0.1],[10,8],[0.4,0.2]]) # Zustände (Eingang MN). Erste Spalte sind die Zustände des ersten Objekts. Die zweite des zweiten
     vel_old = numpy.matmul(H_velocity,est) #Geschwindigkeit alt
     pos_old = numpy.matmul(H,est) #Positionen alt (Eingangs des MN)
     pos_new = numpy.transpose(numpy.array(anfangsWerte))
-    #pos_new = np.array([[0.8,1.5,3,4],[9.5,8.2,10,12]]) #Neue Positionen aus dem M/N Algorithmus (List). Im Fall von Births  
-    #pos_new = np.array([[1.5],[8.5]]) #Neue Positionen aus dem M/N Algorithmus (List). Im Fall von Deaths
-    #n_new = pos_new.shape[1] #neue Objektanzahl
     est_updated = numpy.zeros((4,n_new))
     
     #Initialisierung 

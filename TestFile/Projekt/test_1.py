@@ -13,6 +13,11 @@ for i in range(1,20):
         print('updated states for time step ' + str(i))
     else:
         print('could not update states for time step ' + str(i))
+    #img = ObjectHandler.getImg()
+    #plt.imshow(img)
+    #plt.plot(400,400,'r+')
+    #plt.show()
+    #a=1
     #print('last object states:')
     #print(ObjectHandler.getLastObjectStates())
     #cv2.waitKey(1000)
@@ -30,3 +35,5 @@ try:
 except InvalidTimeStepError as e:
     print(e.args[0])
 print('---------------------------------------')
+
+
