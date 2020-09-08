@@ -25,6 +25,8 @@ def plot_PHD_realpic(ObjectHandler,pos_phd,k):
 
     cwd = os.getcwd()
     pfad = cwd +'\ObjektDetektion'
+    pfad = 'C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/ObjektDetektion'
+
    
     name = '\Bild_'+ str(k)+'.png'
     real_pic = plt.figure()
