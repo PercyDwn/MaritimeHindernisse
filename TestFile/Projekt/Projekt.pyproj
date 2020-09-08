@@ -4,16 +4,13 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a5991899-4c7b-44b3-9bde-f781b3ed1a3a</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>hungarian_test.py</StartupFile>
+    <StartupFile>test_gmphd_pic.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Projekt</Name>
     <RootNamespace>Projekt</RootNamespace>
-    <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>Bilder/list1</CommandLineArguments>
-    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,19 +39,16 @@
     <Compile Include="MN.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ObjectHandler.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="obstacle_detect.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="ObjectHandler.py" />
+    <Compile Include="obstacle_detect.py" />
     <Compile Include="pyrate_common_math_gaussian.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="pyrate_sense_filters_gmphd.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="test_1.py" />
+    <Compile Include="test_gmphd_2D.py" />
+    <Compile Include="test_gmphd_pic.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
