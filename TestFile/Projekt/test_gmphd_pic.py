@@ -16,6 +16,8 @@ import math
 from mpl_toolkits.mplot3d import Axes3D
 import cv2
 
+from phd_plot import *
+
 # Typing
 from typing import List, Tuple
 
@@ -171,14 +173,14 @@ plt.show()
 
 # y-Achse
 #------------------------------------------------------------------------
-for i in K:
+for k in K:
     #Messungen
-    for j in range(len(meas_v[i])):
-        plt.plot(meas_v[i][j][1],K[i],'ro',color='black')
+    for j in range(len(meas_v[k])):
+        plt.plot(meas_v[k][j][1],K[k],'ro',color='black')
 
     #Schätzungen
-    for l in range(len(pos_phd[i])):
-        plt.plot(pos_phd[i][l][1],K[i],'ro',color= 'red', ms= 3)
+    for l in range(len(pos_phd[k])):
+        plt.plot(pos_phd[k][l][1],K[k],'ro',color= 'red', ms= 3)
         
 #plt.legend(['Zk', 'phd'])     
 plt.title('y-Raum')
@@ -209,3 +211,6 @@ plt.show()
 #for i in range(1,20):
 #    ObjectHandler.updateObjectStates(True)
 #    cv2.drawMarker(img, obst.bottom_center, (0, 255, 0), cv2.MARKER_CROSS, 10, thickness=2)
+
+for k in range(1,20):
+    plot_PHD_realpic(ObjectHandler, pos_phd, k)

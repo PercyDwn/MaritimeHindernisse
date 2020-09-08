@@ -8,6 +8,8 @@ from pathlib import Path
 import sys
 import os
 
+from numpy import ndarray
+
 from obstacle_detect import *
 from CustomErrors import *
 
@@ -23,6 +25,7 @@ class ObjectHandler:
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
+        self.Img: ndarray 
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -48,6 +51,9 @@ class ObjectHandler:
 
     def getTimeStepCount(self) -> int:
         return len(self.ObjectStates)
+
+    def getImg(self) -> ndarray:
+        return self.Img
 
     # return list with object states for all time stemps
     def getObjectStatesList(self) -> List:
@@ -99,6 +105,7 @@ class ObjectHandler:
             if self.printDebug(2): print('file ' + filepath + ' is valid')
             # read image
             img = cv2.imread(filepath)
+            self.Img = img
             # check if image is valid
             assert img is not None, 'file ' + filepath + ' could not be read'
             # plot if plot setting is true
