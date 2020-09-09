@@ -26,6 +26,8 @@ class ObjectHandler:
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
         self.Img: ndarray 
+        #self.image_height: int
+        #self.image_width: int
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -54,6 +56,9 @@ class ObjectHandler:
 
     def getImg(self) -> ndarray:
         return self.Img
+
+    #def getImgHeight(self) -> int:
+
 
     # return list with object states for all time stemps
     def getObjectStatesList(self) -> List:

@@ -21,6 +21,9 @@ from phd_plot import *
 # Typing
 from typing import List, Tuple
 
+#------------------------------------------------------------------------
+# ObjectHandler initialisieren
+#------------------------------------------------------------------------
 ObjectHandler = ObjectHandler()
 #Dateipfad individuell anpassen!!
 #################################
@@ -29,49 +32,8 @@ ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
 
-for i in range(1,20):
-    print('---------------------------------------')
-    success = ObjectHandler.updateObjectStates()
-    if success == True:
-        print('updated states for time step ' + str(i))
-    else:
-        print('could not update states for time step ' + str(i))
-    #print('last object states:')
-    #print(ObjectHandler.getLastObjectStates())
-    #cv2.waitKey(1000)
-
-print('---------------------------------------')
-#print('current time step: ' + str(ObjectHandler.getTimeStepCount()))
-#print(ObjectHandler.getLastObjectStates())
-
-for i in range(1,20):
-    try:
-        print('get data for timestep ' + str(i) + ':')
-    
-        print(ObjectHandler.getObjectStates(i))
-    except InvalidTimeStepError as e:
-        print(e.args[0])
-    print('---------------------------------------')
-
 #------------------------------------------------------------------------
-# Messungen
-#------------------------------------------------------------------------
-meas: List[ndarray] = []
-for i in range(1,20):
-    meas.insert(i,  ObjectHandler.getObjectStates(i))
-
-meas_v: List[ndarray] = []
-for i in range(len(meas)):
-    meas_vi: ndarray = []
-
-    for j in range(len(meas[i])):
-        meas_vi.append(array([[meas[i][j][0]], [meas[i][j][1]]]))
-        #print('----')
-        #print(meas_vi)
-    meas_v.insert(i, meas_vi)
-
-#------------------------------------------------------------------------
-#GM_PHD filter initialisieren
+# GM_PHD filter initialisieren
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 #
@@ -114,11 +76,105 @@ phd = GaussianMixturePHD(
                 Q,
                 R)
 
+#number_states = len(F) # Zuständezahl
+#k = 0   #Zeitschritt
+#pictures_availiable = True
+#fig = plt.figure()
+
+#for i in range(1,20):
+#    print('---------------------------------------')
+#    success = ObjectHandler.updateObjectStates()
+#    if success == True:
+#        print('updated states for time step ' + str(i))
+#    else:
+#        print('could not update states for time step ' + str(i))
+#    #print('last object states:')
+#    #print(ObjectHandler.getLastObjectStates())
+#    #cv2.waitKey(1000)
+
+#print('---------------------------------------')
+##print('current time step: ' + str(ObjectHandler.getTimeStepCount()))
+##print(ObjectHandler.getLastObjectStates())
+
+#for i in range(1,20):
+#    try:
+#        print('get data for timestep ' + str(i) + ':')
+    
+#        print(ObjectHandler.getObjectStates(i))
+#    except InvalidTimeStepError as e:
+#        print(e.args[0])
+#    print('---------------------------------------')
+
+def gm_phd(phd, ObjectHandler) -> ndarray:
+    k = 0   #Zeitschritt
+    pictures_availiable = True
+    fig = plt.figure()
+    est_phd: ndarray = []
+
+    while pictures_availiable == True: #While: 
+        try:
+            ObjectHandler.updateObjectStates()
+            current_measurement_k = ObjectHandler.getObjectStates(k+1) #Daten der Detektion eines Zeitschrittes 
+            #print(current_measurement_k)
+            #print([current_measurement_k[0][0]])
+        except InvalidTimeStepError as e:
+            print(e.args[0])
+            k = 0                
+            pictures_availiable = False
+            break
+        #current_measurement_k = ObjectHandler.getObjectStates(k+1) #Daten der Detektion eines Zeitschrittes 
+        meas_vk: ndarray = []
+        for j in range(len(current_measurement_k)):
+            meas_vk.append(array([[current_measurement_k[j][0]], [current_measurement_k[j][1]]]))
+        #meas_v.insert(k, meas_vk)
+        phd.predict()
+        phd.correct(meas_vk)
+        est_phd.append(phd.extract())
+        #print(phd.extract())
+        #print('--------------')
+        #pruning
+        phd.prune(array([0.3]), array([3]), 10)
+        plot_PHD_realpic(ObjectHandler, est_phd, meas_vk, k)
+        k = k+1
+            
+    plt.grid()
+    plt.show()   
+    return est_phd 
+
+
+pos_phd = gm_phd(phd, ObjectHandler)
+#------------------------------------------------------------------------
+# Messungen
+#------------------------------------------------------------------------
+meas: List[ndarray] = []
+for k in range(1,20):
+    meas.insert(k,  ObjectHandler.getObjectStates(k))
+
+meas_v: List[ndarray] = []
+for k in range(len(meas)):
+    meas_vk: ndarray = []
+
+    for j in range(len(meas[k])):
+        meas_vk.append(array([[meas[k][j][0]], [meas[k][j][1]]]))
+        #print('----')
+        #print(meas_vi)
+    meas_v.insert(k, meas_vk)
+
+
+
 
 #------------------------------------------------------------------------
 # PHD-Filter auf DATA anwenden
 #------------------------------------------------------------------------
 pos_phd: List[ndarray] = []
+'Versuch mit plot_PHD_realpic'
+#for k in range(len(meas_v)):
+#    phd.predict()
+#    phd.correct(meas_v[k])
+#    plot_PHD_realpic(ObjectHandler, phd.correct(meas_v[k]), k)
+#    pos_phd.append(phd.extract())
+#    phd.prune(array([0.3]), array([3]), 10)
+
 for z in meas_v:
     phd.predict()
     phd.correct(z)
@@ -212,5 +268,5 @@ plt.show()
 #    ObjectHandler.updateObjectStates(True)
 #    cv2.drawMarker(img, obst.bottom_center, (0, 255, 0), cv2.MARKER_CROSS, 10, thickness=2)
 
-for k in range(1,20):
-    plot_PHD_realpic(ObjectHandler, pos_phd, k)
+#for k in range(1,20):
+#    plot_PHD_realpic(ObjectHandler, pos_phd, k)
