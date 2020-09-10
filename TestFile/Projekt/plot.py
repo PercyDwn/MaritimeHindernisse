@@ -17,20 +17,31 @@ def plot_GNN(pos_k,meas_k,fig, axs,k,ObjectHandler):
          axs[2].plot(absolute_value_gnn,k,'r+')
          
 
-def plot_GNN_realpic(ObjectHandler,pos_k,k):
+def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k):
 
-    cwd = os.getcwd()
-    pfad = cwd +'\ObjektDetektion'
-   
+    cwd = os.getcwd() 
+    pfad = cwd +'\ObjektDetektion' #Aktueller pfad
+    if k == N: #Bei dem ersten Zeitscchritt indem neue Bilder gespeichert werden, alle Bilder im Ordner löschen
+        filelist = [ f for f in os.listdir(pfad) if f.endswith(".png") ]
+        for f in filelist:
+            os.remove(os.path.join(pfad, f))   
     name = '\Bild_'+ str(k)+'.png'
-    real_pic = plt.figure()
     img = ObjectHandler.getImg()
+    #img_height, img_width,_ = img.shape
+    #obj_h = ObjectHandler.getImgHeight()
+    #obj_w = ObjectHandler.getImgWidth()
+    #height,width = ObjectHandler.getHeight_Width()
     plt.imshow(img)
     n = len(pos_k[0])
+    #Plot aller Messungen
+    for m in range(len(meas_k)):
+        
+        plt.plot(meas_k[m][0],meas_k[m][1],'ro',color='black')
+    #Plot Objektdetektion
     for i in range(n):
         plt.plot(pos_k[0,i],pos_k[1,i],'r+')
     real_pic.savefig(pfad + name)
-    a = 1
+    
 
     
     

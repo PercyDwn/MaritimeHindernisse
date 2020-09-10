@@ -24,6 +24,7 @@ class ObjectHandler:
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
         self.img: ndarray 
+        
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -70,7 +71,7 @@ class ObjectHandler:
             return self.ObjectStates[t-1]
     def getImg(self) :
        return self.img
-
+    
     # return last item in object states list
     def getLastObjectStates(self) -> List:
 

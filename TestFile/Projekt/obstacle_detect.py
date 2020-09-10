@@ -47,6 +47,8 @@ class ImageObstacle(object):
         Returns:
             Tuple[int]: x, y of bottom center pixel
         """
+        
+        
         return self.x + self.width // 2, self.y + self.height
 
     

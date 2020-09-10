@@ -24,6 +24,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         ObjectHandler.setImageBaseName('')
         ObjectHandler.setImageFileType('.jpg')
         ObjectHandler.setDebugLevel(2)
+        safe_pic = True
 
         F = [[1,T,0,0],
              [0,1,0,0],
@@ -36,11 +37,12 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl
-        n = -1 #Initialisierung von Anzahl der Objekten
+        n = -1 #Initialisierung der Anzahl der Objekten
         k = 0   #Zeitschritt
         estimate = np.zeros((4,1))
         pictures_availiable = True
         fig, axs = plt.subplots(3)
+        real_pic = plt.figure()
         
         measurements_all = [] #Liste mit den Messungen aller Zeitschriten
         estimate_all =[]
@@ -129,15 +131,12 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                     P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                     estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
                    
-                
-
-                    
-                
                 mn_data.pop(0) #Löschen ältestes Element
                 mn_data.append(measurement_k) #Aktuelle Messung einfügen
                 positionen_k = multi_dot([H,estimate])
                 plot_GNN(positionen_k,current_measurement_k,fig, axs,k,ObjectHandler)
-                plot_GNN_realpic(ObjectHandler,positionen_k,k)
+                if safe_pic == True:
+                    plot_GNN_realpic(ObjectHandler,positionen_k,k,N, real_pic,current_measurement_k)
                 estimate_all.append(estimate.tolist())
                 n, estimate = initMnLogic(M,N,mn_data,T, estimate,treshhold,n) #Anzahl Objekte
                 
@@ -295,9 +294,7 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
                 
                 P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                 estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
-                print('.......')
-                print(estimate)
-                print('......')
+                
                 
 
               
