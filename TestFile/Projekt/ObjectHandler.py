@@ -26,8 +26,8 @@ class ObjectHandler:
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
         self.Img: ndarray 
-        #self.image_height: int
-        #self.image_width: int
+        self.image_height: int
+        self.image_width: int
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -57,8 +57,11 @@ class ObjectHandler:
     def getImg(self) -> ndarray:
         return self.Img
 
-    #def getImgHeight(self) -> int:
+    def getImgHeight(self) -> int:
+        return self.image_height
 
+    def getImgWidth(self) -> int:
+        return self.image_width
 
     # return list with object states for all time stemps
     def getObjectStatesList(self) -> List:
@@ -86,10 +89,13 @@ class ObjectHandler:
         return self.ObjectStates[-1]
 
     # update the object states for the next time step
-    def updateObjectStates(self, plot: bool = False) -> bool:
+    def updateObjectStates(self, plot: bool = True) -> bool:
 
         detector = ObstacleDetector()
         img, folder = None, '.'
+
+        self.image_height = detector._h
+        self.image_width = detector._w
 
         # get current max time step and add 1
         currentTimeStep = self.getTimeStepCount() + 1

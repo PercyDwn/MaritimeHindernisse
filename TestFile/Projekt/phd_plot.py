@@ -25,6 +25,7 @@ def plot_PHD_realpic(ObjectHandler,pos_phd,meas_k,k) -> None:
 
     cwd = os.getcwd()
     pfad = cwd +'\ObjektDetektion'
+    # Anpassung für Lukas
     pfad = 'C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/ObjektDetektion/GM_PHD'
 
     if k == 0:
@@ -33,13 +34,21 @@ def plot_PHD_realpic(ObjectHandler,pos_phd,meas_k,k) -> None:
             os.remove(os.path.join(pfad, f))   
     name = '\Bild_'+ str(k)+'.png'
     real_pic = plt.figure()
+
     img = ObjectHandler.getImg()
+    img_h, img_w,_  = img.shape
+    obj_h = ObjectHandler.getImgHeight()
+    obj_w = ObjectHandler.getImgWidth()
+
+    #obj_h = 480
+    #obj_w = 640
+
     plt.imshow(img)
     for m in range(len(meas_k)):       
-        plt.plot(meas_k[m][0],meas_k[m][1],'ro',color='black')
+        plt.plot(meas_k[m][0]*img_w/obj_w, meas_k[m][1]*img_h/obj_h,'ro',color='black')
     n = len(pos_phd[k-1])
     for i in range(n):
-        plt.plot(pos_phd[k-1][i][0],pos_phd[k-1][i][1],'r+')
+        plt.plot(pos_phd[k-1][i][0]*img_w/obj_w,pos_phd[k-1][i][1]*img_h/obj_h,'r+')
     real_pic.savefig(pfad + name)
     
     #def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k):

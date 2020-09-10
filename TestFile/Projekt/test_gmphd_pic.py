@@ -88,8 +88,8 @@ phd = GaussianMixturePHD(
 #        print('updated states for time step ' + str(i))
 #    else:
 #        print('could not update states for time step ' + str(i))
-#    #print('last object states:')
-#    #print(ObjectHandler.getLastObjectStates())
+#    print('last object states:')
+#    print(ObjectHandler.getLastObjectStates())
 #    #cv2.waitKey(1000)
 
 #print('---------------------------------------')
@@ -106,7 +106,7 @@ phd = GaussianMixturePHD(
 #    print('---------------------------------------')
 
 def gm_phd(phd, ObjectHandler) -> ndarray:
-    k = 0   #Zeitschritt
+    k = 1   #Zeitschritt
     pictures_availiable = True
     fig = plt.figure()
     est_phd: ndarray = []
@@ -114,7 +114,7 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
     while pictures_availiable == True: #While: 
         try:
             ObjectHandler.updateObjectStates()
-            current_measurement_k = ObjectHandler.getObjectStates(k+1) #Daten der Detektion eines Zeitschrittes 
+            current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
             #print(current_measurement_k)
             #print([current_measurement_k[0][0]])
         except InvalidTimeStepError as e:

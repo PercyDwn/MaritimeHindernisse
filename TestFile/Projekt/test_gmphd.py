@@ -111,11 +111,12 @@ meas.append([array([12.]), array([20.]), array([38.]), array([26.]), array([-8.]
 for z in meas:
     phd.predict()
     phd.correct(z)
+    phd.prune(array([0.4]), array([5]), 10)
     pos_phd.append(phd.extract())
     #print(phd.extract())
     #print('--------------')
     #pruning
-    phd.prune(array([0.4]), array([300]), 10)
+    
 
 #Plots
 # ------------------------
