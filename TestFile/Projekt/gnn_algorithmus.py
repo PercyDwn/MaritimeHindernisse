@@ -24,7 +24,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         ObjectHandler.setImageBaseName('')
         ObjectHandler.setImageFileType('.jpg')
         ObjectHandler.setDebugLevel(2)
-        safe_pic = True
+        safe_pic = True  
 
         F = [[1,T,0,0],
              [0,1,0,0],
@@ -32,6 +32,8 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
               [0,0,0,1]] #Systemmatrix 
         H =[[1,0,0,0],
             [0,0,1,0]]#Ausgangsmatrix
+        H_velocity =[[0,1,0,0],
+                     [0,0,0,1]]
         warmup_data = []
        
         
@@ -46,7 +48,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         
         measurements_all = [] #Liste mit den Messungen aller Zeitschriten
         estimate_all =[]
-            
+        velocity_all = []   
         ## Berechnung auf Messdaten
         while pictures_availiable == True: #While: 
             try:
@@ -64,7 +66,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 mn_data = warmup_data[:]
-                n,estimate = initMnLogic(M,N,mn_data,T, estimate,treshhold,n) #Anzahl Objekte
+                n,estimate = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n) #Anzahl Objekte
                 estimate_all.append(estimate.tolist())
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 theta_k = np.zeros((1,n)) #Data Assossiation Vektor
@@ -137,8 +139,14 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 plot_GNN(positionen_k,current_measurement_k,fig, axs,k,ObjectHandler)
                 if safe_pic == True:
                     plot_GNN_realpic(ObjectHandler,positionen_k,k,N, real_pic,current_measurement_k)
+                
                 estimate_all.append(estimate.tolist())
-                n, estimate = initMnLogic(M,N,mn_data,T, estimate,treshhold,n) #Anzahl Objekte
+                velocity_k = np.transpose(multi_dot([H_velocity,estimate])).tolist()
+                velocity_all.append(velocity_k)
+                print('.....')
+                print(velocity_k)
+                print('.....')
+                n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
                 
                 
             #measurements_all.append(current_measurement_k)    

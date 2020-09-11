@@ -77,7 +77,7 @@ def uebersicht(measurements,N):
 #Prueft ob Werte in kandidaten schon mal in uebersichtMatrix zur Zeit i aufgetaucht sind,
 #wenn nicht dann wird die Werte in uebersichtMatrixgespeichert.    
 
-def initMnLogic(M,N,measurements,T, est,treshhold,n_old):                  #(Anzahl der benoetigten Detektionen, Anzahl der Scans, Startzeitpunkt, Messdaten)  
+def initMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):                  #(Anzahl der benoetigten Detektionen, Anzahl der Scans, Startzeitpunkt, Messdaten)  
     min_x, min_y, max_x, max_y, normed_data=norm(measurements)
     #normed_data=measurements
     n=0                                                             #Anzahl der geschaetzten Objekte

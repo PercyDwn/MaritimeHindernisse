@@ -1,5 +1,3 @@
-
-# Typing
 from typing import List
 
 # pathlib module
@@ -7,6 +5,8 @@ from pathlib import Path
 
 import sys
 import os
+
+from numpy import ndarray
 
 from obstacle_detect import *
 from CustomErrors import *
@@ -23,8 +23,9 @@ class ObjectHandler:
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
-        self.img: ndarray 
-        
+        self.Img: ndarray 
+        self.image_height: int
+        self.image_width: int
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -51,6 +52,15 @@ class ObjectHandler:
     def getTimeStepCount(self) -> int:
         return len(self.ObjectStates)
 
+    def getImg(self) -> ndarray:
+        return self.Img
+
+    def getImgHeight(self) -> int:
+        return self.image_height
+
+    def getImgWidth(self) -> int:
+        return self.image_width
+
     # return list with object states for all time stemps
     def getObjectStatesList(self) -> List:
 
@@ -69,19 +79,21 @@ class ObjectHandler:
                 if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
 
             return self.ObjectStates[t-1]
-    def getImg(self) :
-       return self.img
-    
+                
+
     # return last item in object states list
     def getLastObjectStates(self) -> List:
 
         return self.ObjectStates[-1]
 
     # update the object states for the next time step
-    def updateObjectStates(self, plot: bool = False) -> bool:
+    def updateObjectStates(self, plot: bool = True) -> bool:
 
         detector = ObstacleDetector()
         img, folder = None, '.'
+
+        self.image_height = detector._h
+        self.image_width = detector._w
 
         # get current max time step and add 1
         currentTimeStep = self.getTimeStepCount() + 1
@@ -102,7 +114,7 @@ class ObjectHandler:
             if self.printDebug(2): print('file ' + filepath + ' is valid')
             # read image
             img = cv2.imread(filepath)
-            self.img = img
+            self.Img = img
             # check if image is valid
             assert img is not None, 'file ' + filepath + ' could not be read'
             # plot if plot setting is true
@@ -129,11 +141,3 @@ class ObjectHandler:
         else:
             if self.printDebug(0): print(filepath + ' is not a valid file')
             return False
-
-
-
-
-
-
-
-
