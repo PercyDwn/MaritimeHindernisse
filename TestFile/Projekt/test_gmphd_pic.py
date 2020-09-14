@@ -1,4 +1,5 @@
  ############test##################
+#from ObjectHandler import ObjectHandler
 from ObjectHandler import *
 
 ########
@@ -49,6 +50,9 @@ Q = .1*eye(4)
 R = 0.1*eye(2)
 
 #Def. Birth_belief
+
+#birth_belief = phd_BirthModels(ObjectHandler, 4, 3)
+
 mean1 = vstack([1.0, 120.0, 10.0, 2.0])
 covariance1 = array([[10, 0.0, 0.0, 0.0], 
                      [0.0, 5.0, 0.0, 0.0],
@@ -61,6 +65,69 @@ covariance2 = array([[15, 0.0, 0.0, 0.0],
                      [0.0, 0.0, 5.0, 0.0],
                      [0.0, 0.0, 0.0, 2.0]])
 birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
+
+def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
+    """
+     Args:
+            ObjectHandler: ObjectHandler          
+            num_w: number of fields on width
+            num_h: number of Fields on height
+            
+    """
+
+    # ObjectHandler updaten
+    #--------------------------
+    #k = 1   #Zeitschritt
+    #pictures_availiable = True
+    #fig = plt.figure()
+    #est_phd: ndarray = []
+
+    #while pictures_availiable == True: #While: 
+    #    try:
+    #        ObjectHandler.updateObjectStates()
+    #        current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
+    #        #print(current_measurement_k)
+    #        #print([current_measurement_k[0][0]])
+    #    except InvalidTimeStepError as e:
+    #        print(e.args[0])
+    #        k = 0                
+    #        pictures_availiable = False
+    #        break
+    #    k = k+1
+    ## Bild höhe und breite Abrufen
+    #obj_h = ObjectHandler.getImgHeight()
+    #obj_w = ObjectHandler.getImgWidth()
+
+    obj_h = 480
+    obj_w = 640
+
+    birth_belief: List[Gaussian] = []
+
+    # Birthmodelle Rand links
+    #--------------------------
+    b_leftside: List[Gaussian] = [] 
+    cov_edge = array([[15, 0.0,         0.0, 0.0], 
+                     [0.0, obj_h/(4*num_h), 0.0, 0.0],
+                     [0.0, 0.0,         5.0, 0.0],
+                     [0.0, 0.0,         0.0, 5.0]])
+    for i in range(1,num_h):
+        mean = vstack([0, i*obj_h/(num_h+1), 10.0, 2.0])
+        b_leftside.append(Gaussian(mean, cov_edge))
+    
+    # Birthmodelle Rand rechts
+    #--------------------------
+    b_rightside: List[Gaussian] = [] 
+    for i in range(1,num_h):
+        mean = vstack([obj_w, i*obj_h/(num_h+1), -10.0, 2.0])
+        b_rightside.append(Gaussian(mean, cov_edge))
+
+    birth_belief.extend(b_leftside)
+    birth_belief.extend(b_rightside)
+
+    return birth_belief
+
+
+birth_belief = phd_BirthModels(64, 24)
 
 survival_rate = 0.99
 detection_rate = 0.9
@@ -105,6 +172,8 @@ phd = GaussianMixturePHD(
 #        print(e.args[0])
 #    print('---------------------------------------')
 
+
+
 def gm_phd(phd, ObjectHandler) -> ndarray:
     k = 1   #Zeitschritt
     pictures_availiable = True
@@ -141,8 +210,14 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
     plt.show()   
     return est_phd 
 
-
+#------------------------------------------------------------------------
 pos_phd = gm_phd(phd, ObjectHandler)
+#------------------------------------------------------------------------
+
+
+
+
+
 #------------------------------------------------------------------------
 # Messungen
 #------------------------------------------------------------------------
@@ -204,7 +279,7 @@ for i in range(19):
 plt.title('x-y-Raum')
 plt.xlabel('x-Koord.')
 plt.ylabel('y-Koord.')
-plt.axis([-5,650,-5,650])
+plt.axis([-5,645,-5,485])
 plt.show()
 
 # x Achse
@@ -224,7 +299,7 @@ for i in K:
 plt.title('x-Raum')
 plt.xlabel('x-Koord.')
 plt.ylabel('zeitpunkt k')
-plt.axis([-5,650,-5,20])
+plt.axis([-5,645,-1,20])
 plt.show()
 
 # y-Achse
@@ -242,7 +317,7 @@ for k in K:
 plt.title('y-Raum')
 plt.xlabel('y-Koord.')
 plt.ylabel('zeitpunkt k')
-plt.axis([-5,650,-5,20])
+plt.axis([-5,485,-1,20])
 plt.show()
 
 # Scater plot 3D
