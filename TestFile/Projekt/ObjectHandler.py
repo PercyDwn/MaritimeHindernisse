@@ -8,6 +8,8 @@ from pathlib import Path
 import sys
 import os
 
+from numpy import ndarray
+
 from obstacle_detect import *
 from CustomErrors import *
 
@@ -23,6 +25,8 @@ class ObjectHandler:
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
+        self.Img: ndarray 
+        self.HorizonData: List = []
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -48,6 +52,17 @@ class ObjectHandler:
 
     def getTimeStepCount(self) -> int:
         return len(self.ObjectStates)
+
+    def getImg(self) -> ndarray:
+        return self.Img
+
+    def getHorizonData(self, t: int) -> Tuple:
+        
+        try:
+            return self.HorizonData[t-1]
+        except IndexError:
+            raise InvalidTimeStepError('time step is out of bound!')
+
 
     # return list with object states for all time stemps
     def getObjectStatesList(self) -> List:
@@ -99,12 +114,15 @@ class ObjectHandler:
             if self.printDebug(2): print('file ' + filepath + ' is valid')
             # read image
             img = cv2.imread(filepath)
+            self.Img = img
             # check if image is valid
             assert img is not None, 'file ' + filepath + ' could not be read'
             # plot if plot setting is true
             if plot == True: cv2.imshow('orig', img)
             # detect horizon
             horizon_lines, votes, seps = detector.detect_horizon(img)
+            # set horizon data
+            self.HorizonData.append( (horizon_lines, votes,seps) )
             # if horizon lines found
             if horizon_lines:
                 # find obstacles
@@ -112,7 +130,7 @@ class ObjectHandler:
                 # write found obstacles in list
                 ObstacleStates = []
                 for obs in obstacles:
-                    ObstacleStates .append([obs.x, obs.y])
+                    ObstacleStates.append([obs.x, obs.y])
                 # add list to list with obstacles over all time steps
                 self.ObjectStates.append(ObstacleStates)
             else:

@@ -2,7 +2,7 @@ from ObjectHandler import *
 
 ObjectHandler = ObjectHandler()
 #Ordner evtl. anpassen!
-ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1')
+ObjectHandler.setImageFolder('Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
@@ -12,6 +12,10 @@ for i in range(1,20):
     success = ObjectHandler.updateObjectStates()
     if success == True:
         print('updated states for time step ' + str(i))
+        print('___')
+        print('horizon data:')
+        print(ObjectHandler.getHorizonData(i))
+        print('___')
     else:
         print('could not update states for time step ' + str(i))
     #print('last object states:')
