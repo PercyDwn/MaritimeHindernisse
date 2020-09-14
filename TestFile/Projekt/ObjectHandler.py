@@ -26,6 +26,7 @@ class ObjectHandler:
         self.Img: ndarray 
         self.image_height: int
         self.image_width: int
+        self.HorizonData: List = []
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -60,6 +61,14 @@ class ObjectHandler:
 
     def getImgWidth(self) -> int:
         return self.image_width
+
+    def getHorizonData(self, t: int) -> Tuple:
+        
+        try:
+            return self.HorizonData[t-1]
+        except IndexError:
+            raise InvalidTimeStepError('time step is out of bound!')
+
 
     # return list with object states for all time stemps
     def getObjectStatesList(self) -> List:
@@ -121,6 +130,8 @@ class ObjectHandler:
             if plot == True: cv2.imshow('orig', img)
             # detect horizon
             horizon_lines, votes, seps = detector.detect_horizon(img)
+            # set horizon data
+            self.HorizonData.append( (horizon_lines, votes,seps) )
             # if horizon lines found
             if horizon_lines:
                 # find obstacles
@@ -128,7 +139,7 @@ class ObjectHandler:
                 # write found obstacles in list
                 ObstacleStates = []
                 for obs in obstacles:
-                    ObstacleStates .append([obs.x, obs.y])
+                    ObstacleStates.append([obs.x, obs.y])
                 # add list to list with obstacles over all time steps
                 self.ObjectStates.append(ObstacleStates)
             else:
