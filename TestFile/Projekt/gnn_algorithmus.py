@@ -4,10 +4,11 @@ from numpy import linalg as lin
 import math
 from munkres import Munkres
 from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
-from functions import initialize_values
+#from functions import initialize_values
 from MN import *
 from ObjectHandler import *
-from functions import createTestDataSet
+#from functions import createTestDataSet
+from horizont_modell import horizonState_gnn
 import random
 from plot import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
@@ -34,6 +35,16 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
             [0,0,1,0]]#Ausgangsmatrix
         H_velocity =[[0,1,0,0],
                      [0,0,0,1]]
+        Q_horizon = [[0.1,0],
+            [0,0.1]] ##Varianz des Modellrauschens Horizont
+        R_horizon = 1 
+        P_horizon = [[1,0],
+            [0,1]]
+
+        H_horizon = [[1,0],
+            [0,1]]#Ausgangsmatrix Horizont
+        F_horizon = [[1,0],
+            [0,1]] #Systemmatrix Horizont
         warmup_data = []
        
         
@@ -49,11 +60,17 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         measurements_all = [] #Liste mit den Messungen aller Zeitschriten
         estimate_all =[]
         velocity_all = []   
+        horizon_list = []
+        est_hor_k = np.zeros((1,2))
+        state_hor_meas = np.zeros((1,2))
         ## Berechnung auf Messdaten
         while pictures_availiable == True: #While: 
             try:
                 ObjectHandler.updateObjectStates()
                 current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
+                HORIZON = ObjectHandler.getHorizonData(k) #3 Horizont Kandidaten
+                horizon_lines_k = HORIZON[0]
+                heightsDiff_horizon = np.zeros((len(horizon_lines_k)))
             except InvalidTimeStepError as e:
                 print(e.args[0])
                 k = 0 
@@ -62,13 +79,34 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 break
             if k < N: #warmup_data vorbereiten
                 warmup_data.append(current_measurement_k)
+                horizon_list.append(horizon_lines_k)
                 
                 
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 mn_data = warmup_data[:]
                 n,estimate = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n) #Anzahl Objekte
                 estimate_all.append(estimate.tolist())
+                #MN Horizont aufrufen, um nur eine Linie von drei zu erhalten als Horizont-Kandidat
+                est_hor_k[0,0] = horizon_lines_k[0].height #vorübergehend
+                est_hor_k[0,1] = horizon_lines_k[0].angle #vorübergehend
+                #est_hor_k = mn_horizon(horizon_list,N,M) #Estimate horizon am Zeitschritt k
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
+                #Horizontfilterung
+                #est_hor_k,P_horizon = kalman_filter_prediction(np.transpose(est_hor_k), P_horizon,F_horizon,Q_horizon) # Kalman Prädiktion
+                #for horizon in range(len(horizon_lines_k)):
+                #    heightsDiff_horizon[horizon] = abs(horizon_lines_k[horizon].height -est_hor_k[0])#Liste von Höhendifferenz verglichen mit der Höhe des Zustandsvektors
+     
+                #state_hor_meas[0,0] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].height #Höhe des nahligenden Horizonts
+                #state_hor_meas[0,1] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].angle  #Winkel des nahligenden Horizonts
+                #if len(horizon_lines_k) == 0:# Analysieren ob Horizon detektiert wurde
+                #    theta_k = 0
+                #else:
+                #    theta_k =1
+                #est_hor_k,P_horizon = kalman_filter_update(est_hor_k,P_horizon,H_horizon,np.transpose(state_hor_meas),theta_k,R_horizon,2)#Kalmann Update
+                #est_hor_k = np.transpose(est_hor_k)
+                est_hor_k,P_horizon = horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,est_hor_k,horizon_lines_k)
+                ################
+                #Zustände
                 theta_k = np.zeros((1,n)) #Data Assossiation Vektor
                 P = np.zeros((number_states,n*number_states))
                 for i in range(n):
