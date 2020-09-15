@@ -1,6 +1,7 @@
 from ObjectHandler import *
 
 ObjectHandler = ObjectHandler()
+#Ordner evtl. anpassen!
 ObjectHandler.setImageFolder('Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
@@ -11,13 +12,12 @@ for i in range(1,20):
     success = ObjectHandler.updateObjectStates()
     if success == True:
         print('updated states for time step ' + str(i))
+        print('___')
+        print('horizon data:')
+        print(ObjectHandler.getHorizonData(i))
+        print('___')
     else:
         print('could not update states for time step ' + str(i))
-    #img = ObjectHandler.getImg()
-    #plt.imshow(img)
-    #plt.plot(400,400,'r+')
-    #plt.show()
-    #a=1
     #print('last object states:')
     #print(ObjectHandler.getLastObjectStates())
     #cv2.waitKey(1000)
@@ -27,7 +27,7 @@ print('---------------------------------------')
 #print(ObjectHandler.getLastObjectStates())
 #print('---------------------------------------')
 
-i = 1
+
 try:
     print('get data for timestep ' + str(i) + ':')
     
@@ -35,5 +35,3 @@ try:
 except InvalidTimeStepError as e:
     print(e.args[0])
 print('---------------------------------------')
-
-

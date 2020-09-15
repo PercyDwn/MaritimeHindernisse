@@ -187,6 +187,7 @@ class ObstacleDetector(object):
             List[float]: separation factor of lines
         """
         img = self._preprocess(img)
+        
         return self._detect_lines(img, min_visibility, N_max, canny_threshold)
 
     def _detect_lines(self, img: np.ndarray, 
@@ -206,6 +207,7 @@ class ObstacleDetector(object):
             return [], [], []
         lines = [ImageLine(self._shape, polar=l[0]) for l in lines[: N_max]]
         line_lengths, separations = self._evaluate_lines(img, edges, lines)
+        
 
         return lines, line_lengths, separations
         

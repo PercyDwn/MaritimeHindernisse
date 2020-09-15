@@ -143,9 +143,6 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 estimate_all.append(estimate.tolist())
                 velocity_k = np.transpose(multi_dot([H_velocity,estimate])).tolist()
                 velocity_all.append(velocity_k)
-                print('.....')
-                print(velocity_k)
-                print('.....')
                 n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
                 
                 
@@ -189,6 +186,18 @@ def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,dimension
          estimate_i = estimate_i
      
      return estimate_i,P_i
+
+def kalmann_filter_horizon(estimate_horizon_k,P_horizon_k,Q_horizon,R_horizon,horizon_k):
+     #Kalmannfilter für die Filterung des Horizonts. Basiert auf ein Constant-Position Model (F_horizon =1,H_horinzon = 1)
+     #Prädiktion
+     estimate_horizon_k = estimate_horizon_k
+     P_horizon_k = P_horizon_k + Q_horizon
+     #Update
+     K = P_horizon_k/(P_horizon_k+R_horizon)
+     estimate_horizon_k = estimate_horizon_k +K*(horizon_k-estimate_horizon_k)
+     P_horizon_k = P_horizon_k*(1-K)
+     return estimate_horizon_k, P_horizon_k
+
 
 
 

@@ -30,6 +30,9 @@
     <Compile Include="gnn_algorithmus.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="horizont_modell.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="KalmanFilter.py">
       <SubType>Code</SubType>
     </Compile>

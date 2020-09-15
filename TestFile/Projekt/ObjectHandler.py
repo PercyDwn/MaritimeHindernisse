@@ -26,6 +26,8 @@ class ObjectHandler:
         self.Img: ndarray 
         self.image_height: int
         self.image_width: int
+        self.HorizonData: List = []
+        self.PlotOnUpdate: bool = False
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -36,6 +38,9 @@ class ObjectHandler:
             return True
         else:
             return False
+
+    def setPlotOnUpdate(self, plot: bool) -> None:
+        self.PlotOnUpdate = plot
 
     def setImageFolder(self, folder: str) -> bool:
         self.ImageFolder = folder
@@ -60,6 +65,14 @@ class ObjectHandler:
 
     def getImgWidth(self) -> int:
         return self.image_width
+
+    def getHorizonData(self, t: int) -> Tuple:
+        
+        try:
+            return self.HorizonData[t-1]
+        except IndexError:
+            raise InvalidTimeStepError('time step is out of bound!')
+
 
     # return list with object states for all time stemps
     def getObjectStatesList(self) -> List:
@@ -87,7 +100,7 @@ class ObjectHandler:
         return self.ObjectStates[-1]
 
     # update the object states for the next time step
-    def updateObjectStates(self, plot: bool = True) -> bool:
+    def updateObjectStates(self) -> bool:
 
         detector = ObstacleDetector()
         img, folder = None, '.'
@@ -118,9 +131,11 @@ class ObjectHandler:
             # check if image is valid
             assert img is not None, 'file ' + filepath + ' could not be read'
             # plot if plot setting is true
-            if plot == True: cv2.imshow('orig', img)
+            # if self.PlotOnUpdate == True: cv2.imshow('orig', img)
             # detect horizon
             horizon_lines, votes, seps = detector.detect_horizon(img)
+            # set horizon data
+            self.HorizonData.append( (horizon_lines, votes,seps) )
             # if horizon lines found
             if horizon_lines:
                 # find obstacles
@@ -128,13 +143,16 @@ class ObjectHandler:
                 # write found obstacles in list
                 ObstacleStates = []
                 for obs in obstacles:
-                    ObstacleStates .append([obs.x, obs.y])
+                    ObstacleStates .append([obs.x + obs.width // 2, obs.y + obs.height])
                 # add list to list with obstacles over all time steps
                 self.ObjectStates.append(ObstacleStates)
             else:
                 obstacles = None
             # plot image with found obstacles
-            if plot == True: detector.plot_img(img, obstacles=obstacles,horizon_lines=horizon_lines,plot_method='cv', wait_time=1)
+            #print('obstacles:')
+            #for obs in obstacles:
+            #    print('[' + str(obs.x) + ', ' + str(obs.y) + ']')
+            if self.PlotOnUpdate == True: detector.plot_img(img, obstacles=obstacles,horizon_lines=horizon_lines,plot_method='cv', wait_time=1)
 
             return True
 
