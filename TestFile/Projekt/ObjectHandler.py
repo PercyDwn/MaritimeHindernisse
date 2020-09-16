@@ -28,7 +28,7 @@ class ObjectHandler:
         self.Img: ndarray 
         self.image_height: int
         self.image_width: int
-        self.PlotOnUpdate: bool = False
+        self.PlotOnUpdate: bool = True
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -124,7 +124,7 @@ class ObjectHandler:
             # check if image is valid
             assert img is not None, 'file ' + filepath + ' could not be read'
             # plot if plot setting is true
-            # if self.PlotOnUpdate == True: cv2.imshow('orig', img)
+            if self.PlotOnUpdate == True: cv2.imshow('orig', img)
             # detect horizon
             horizon_lines, votes, seps = detector.detect_horizon(img)
             # if horizon lines found

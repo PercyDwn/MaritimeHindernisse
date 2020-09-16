@@ -67,6 +67,48 @@ covariance2 = array([[5, 0.0, 0.0, 0.0],
                      [0.0, 0.0, 0.0, 2.0]])
 birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
 
+def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
+    """
+     Args:
+            ObjectHandler: ObjectHandler          
+            num_w: number of fields on width
+            num_h: number of Fields on height
+            
+    """
+
+    
+
+    obj_h = 50
+    obj_w = 50
+
+    birth_belief: List[Gaussian] = []
+
+    # Birthmodelle Rand links
+    #--------------------------
+    b_leftside: List[Gaussian] = [] 
+    cov_edge = array([[15, 0.0,         0.0, 0.0], 
+                     [0.0, obj_h/(4*num_h), 0.0, 0.0],
+                     [0.0, 0.0,         5.0, 0.0],
+                     [0.0, 0.0,         0.0, 5.0]])
+    for i in range(1,num_h):
+        mean = vstack([0, i*obj_h/(num_h+1), 1.0, 1.0])
+        b_leftside.append(Gaussian(mean, cov_edge))
+    
+    # Birthmodelle Rand rechts
+    #--------------------------
+    b_rightside: List[Gaussian] = [] 
+    for i in range(1,num_h):
+        mean = vstack([obj_w, i*obj_h/(num_h+1), -1.0, 1.0])
+        b_rightside.append(Gaussian(mean, cov_edge))
+
+    birth_belief.extend(b_leftside)
+    birth_belief.extend(b_rightside)
+
+    return birth_belief
+
+
+birth_belief = phd_BirthModels(10, 10)
+
 survival_rate = 0.999
 detection_rate = 0.9
 intensity = 0.01
@@ -112,11 +154,12 @@ for i in range(20):
 for z in meas:
     phd.predict()
     phd.correct(z)
+    #pruning
+    phd.prune(array([0.1]), array([3]), 10)
     pos_phd.append(phd.extract())
     print(phd.extract())
     print('--------------')
-    #pruning
-    phd.prune(array([0.3]), array([3]), 10)
+    
 
 #Plots
 # ------------------------

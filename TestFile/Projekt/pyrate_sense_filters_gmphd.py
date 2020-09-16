@@ -225,6 +225,11 @@ class GaussianMixturePHD:
         # P_k|k-1 = F*P_k-1*F^T + Q_k-1
         for component in self.gmm:
             component.x = F @ component.x
+            # ZUM DEBUGGEN
+            # ---------------------
+            #print(component.x)
+            #print('-----------')
+            #-------------------
             component.P = F @ component.P @ F.T + self.Q
             component.w *= self.survival_rate
 
