@@ -8,7 +8,6 @@ from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
 from MN import *
 from ObjectHandler import *
 #from functions import createTestDataSet
-from horizont_modell import horizonState_gnn
 import random
 from plot import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
@@ -92,19 +91,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 #est_hor_k = mn_horizon(horizon_list,N,M) #Estimate horizon am Zeitschritt k
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 #Horizontfilterung
-                #est_hor_k,P_horizon = kalman_filter_prediction(np.transpose(est_hor_k), P_horizon,F_horizon,Q_horizon) # Kalman Prädiktion
-                #for horizon in range(len(horizon_lines_k)):
-                #    heightsDiff_horizon[horizon] = abs(horizon_lines_k[horizon].height -est_hor_k[0])#Liste von Höhendifferenz verglichen mit der Höhe des Zustandsvektors
-     
-                #state_hor_meas[0,0] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].height #Höhe des nahligenden Horizonts
-                #state_hor_meas[0,1] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].angle  #Winkel des nahligenden Horizonts
-                #if len(horizon_lines_k) == 0:# Analysieren ob Horizon detektiert wurde
-                #    theta_k = 0
-                #else:
-                #    theta_k =1
-                #est_hor_k,P_horizon = kalman_filter_update(est_hor_k,P_horizon,H_horizon,np.transpose(state_hor_meas),theta_k,R_horizon,2)#Kalmann Update
-                #est_hor_k = np.transpose(est_hor_k)
-                est_hor_k,P_horizon = horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,est_hor_k,horizon_lines_k)
+                est_hor_k,P_horizon = horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k,horizon_lines_k,heightsDiff_horizon,state_hor_meas) 
                 ################
                 #Zustände
                 theta_k = np.zeros((1,n)) #Data Assossiation Vektor
@@ -190,6 +177,21 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         
         
         return estimate_all ,n   
+
+def horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k,horizon_lines_k,heightsDiff_horizon,state_hor_meas):
+    est_hor_k,P_horizon = kalman_filter_prediction(np.transpose(est_hor_k), P_horizon,F_horizon,Q_horizon) # Kalman Prädiktion
+    for horizon in range(len(horizon_lines_k)):
+        heightsDiff_horizon[horizon] = abs(horizon_lines_k[horizon].height -est_hor_k[0])#Liste von Höhendifferenz verglichen mit der Höhe des Zustandsvektors
+     
+    state_hor_meas[0,0] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].height #Höhe des nahligenden Horizonts
+    state_hor_meas[0,1] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].angle  #Winkel des nahligenden Horizonts
+    if len(horizon_lines_k) == 0:# Analysieren ob Horizon detektiert wurde
+       theta_k = 0
+    else:
+       theta_k =1
+    est_hor_k,P_horizon = kalman_filter_update(est_hor_k,P_horizon,H_horizon,np.transpose(state_hor_meas),theta_k,R_horizon,2)#Kalmann Update
+    
+    return np.transpose(est_hor_k), P_horizon
            
         
 def kalman_filter_prediction(estimates_i, P_i,F,Q):
