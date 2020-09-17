@@ -17,7 +17,7 @@ def plot_GNN(pos_k,meas_k,fig, axs,k,ObjectHandler):
          axs[2].plot(absolute_value_gnn,k,'r+')
          
 
-def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k):
+def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k,height_hor):
 
     cwd = os.getcwd() 
     pfad = cwd +'\ObjektDetektion' #Aktueller pfad
@@ -30,6 +30,8 @@ def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k):
     img_h, img_w,_  = img.shape
     obj_h = ObjectHandler.getImgHeight()
     obj_w = ObjectHandler.getImgWidth()
+    hor_point_x = [0,img_w]
+    hor_point_y = [height_hor*img_h/obj_h, height_hor*img_h/obj_h]
     plt.imshow(img)
     n = len(pos_k[0])
     #Plot aller Messungen
@@ -39,6 +41,8 @@ def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k):
     #Plot Objektdetektion
     for i in range(n):
         plt.plot(pos_k[0,i]*img_w/obj_w,pos_k[1,i]*img_h/obj_h,'r+')
+    
+    plt.plot(hor_point_x, hor_point_y)
     real_pic.savefig(pfad + name)
     
 

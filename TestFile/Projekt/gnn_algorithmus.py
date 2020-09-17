@@ -24,7 +24,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         ObjectHandler.setImageBaseName('')
         ObjectHandler.setImageFileType('.jpg')
         ObjectHandler.setDebugLevel(2)
-        safe_pic = True  
+        safe_pic = True 
 
         F = [[1,T,0,0],
              [0,1,0,0],
@@ -86,8 +86,8 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 n,estimate = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n) #Anzahl Objekte
                 estimate_all.append(estimate.tolist())
                 #MN Horizont aufrufen, um nur eine Linie von drei zu erhalten als Horizont-Kandidat
-                est_hor_k[0,0] = horizon_lines_k[0].height #vorübergehend
-                est_hor_k[0,1] = horizon_lines_k[0].angle #vorübergehend
+                est_hor_k[0,0] = horizon_lines_k[1].height #vorübergehend
+                est_hor_k[0,1] = horizon_lines_k[1].angle #vorübergehend
                 #est_hor_k = mn_horizon(horizon_list,N,M) #Estimate horizon am Zeitschritt k
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 #Horizontfilterung
@@ -163,7 +163,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 positionen_k = multi_dot([H,estimate])
                 plot_GNN(positionen_k,current_measurement_k,fig, axs,k,ObjectHandler)
                 if safe_pic == True:
-                    plot_GNN_realpic(ObjectHandler,positionen_k,k,N, real_pic,current_measurement_k)
+                    plot_GNN_realpic(ObjectHandler,positionen_k,k,N, real_pic,current_measurement_k,est_hor_k[0,0])
                 
                 estimate_all.append(estimate.tolist())
                 velocity_k = np.transpose(multi_dot([H_velocity,estimate])).tolist()
