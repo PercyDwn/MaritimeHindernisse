@@ -1,4 +1,3 @@
- ############test##################
 #from ObjectHandler import ObjectHandler
 from ObjectHandler import *
 
@@ -38,33 +37,24 @@ ObjectHandler.setDebugLevel(2)
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 #
-# x= [x, y, dx, dy]
+# x= [x, y, dx, dy, ddx, ddy]
+T = 1
 
-F = array([[1.0, 0.0, 1.0, 0.0], 
-           [0.0, 1.0, 0.0, 1.0], 
-           [0.0, 0.0, 1.0, 0.0], 
-           [0.0, 0.0, 0.0, 1.0]])
-H = array([[1.0, 0.0, 0.0, 0.0],
-           [0.0, 1.0, 0.0, 0.0]])
-Q = 15*eye(4)
+F = array([[1.0, 0.0,   T,    0.0,    T**2/2,  0.0], 
+           [0.0, 1.0,   0.0,  T,      0.0,    T**2/2], 
+           [0.0, 0.0,   1.0,  0.0,    T,      0.0], 
+           [0.0, 0.0,   0.0,  1.0,    0.0,    T],
+           [0.0, 0.0,   0.0,  0.0,    1.0,    0.0],
+           [0.0, 0.0,   0.0,  0.0,    0.0,    1.0]])
+
+H = array([[1.0, 0.0, 0.0,  0.0, 0.0,  0.0],
+           [0.0, 1.0, 0.0,  0.0, 0.0,  0.0]])
+Q = 15*eye(6)
 R = 35*eye(2)
 
 #Def. Birth_belief
 
-#birth_belief = phd_BirthModels(ObjectHandler, 4, 3)
 
-mean1 = vstack([1.0, 120.0, 10.0, 2.0])
-covariance1 = array([[10, 0.0, 0.0, 0.0], 
-                     [0.0, 5.0, 0.0, 0.0],
-                     [0.0, 0.0, 10.0, 0.0],
-                     [0.0, 0.0, 0.0, 10.0]])
-
-mean2 = vstack([1.0, 120.0, 17.0, 2.0])
-covariance2 = array([[15, 0.0, 0.0, 0.0], 
-                     [0.0, 30.0, 0.0, 0.0],
-                     [0.0, 0.0, 5.0, 0.0],
-                     [0.0, 0.0, 0.0, 2.0]])
-birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
 
 def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     """
@@ -106,32 +96,36 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     # Birthmodelle Rand links
     #--------------------------
     b_leftside: List[Gaussian] = [] 
-    cov_edge = array([[20,  0.0,             0.0, 0.0], 
-                     [0.0,  obj_h/(num_h),   0.0, 0.0],
-                     [0.0,  0.0,             20.0, 0.0],
-                     [0.0,  0.0,             0.0, 20.0]])
+    cov_edge = array([[20, 0.0,             0.0,    0.0,    0.0,   0.0], 
+                     [0.0, obj_h/(num_h),   0.0,    0.0,    0.0,   0.0],
+                     [0.0, 0.0,             20.0,   0.0,    0.0,   0.0],
+                     [0.0, 0.0,             0.0,    20.0,   0.0,   0.0],
+                     [0.0, 0.0,             0.0,    0.0,    20.0,   0.0],
+                     [0.0, 0.0,             0.0,    0.0,    0.0,   20.0]])
     for i in range(1,num_h):
-        mean = vstack([20, i*obj_h/(num_h+1), 10.0, 0.0])
+        mean = vstack([20, i*obj_h/(num_h+1), 10.0, 0.0, 0, 0])
         b_leftside.append(Gaussian(mean, cov_edge))
     
     # Birthmodelle Rand rechts
     #--------------------------
     b_rightside: List[Gaussian] = [] 
     for i in range(1,num_h):
-        mean = vstack([obj_w-20, i*obj_h/(num_h+1), -10.0, 0.0])
+        mean = vstack([obj_w-20, i*obj_h/(num_h+1), -10.0, 0.0, 0, 0])
         b_rightside.append(Gaussian(mean, cov_edge))
 
  
     # Birthmodelle übers Bild
     #--------------------------
-    cov_area = array([[obj_w/num_w, 0.0,            0.0,    0.0], 
-                     [0.0,          obj_h/(num_h),  0.0,    0.0],
-                     [0.0,          0.0,            20.0,   0.0],
-                     [0.0,          0.0,            0.0,    20.0]])
+    cov_area = array([[obj_w/num_w, 0.0,            0.0,    0.0,    0.0,   0.0], 
+                     [0.0,          obj_h/(num_h),  0.0,    0.0,    0.0,   0.0],
+                     [0.0,          0.0,            20.0,   0.0,    0.0,   0.0],
+                     [0.0,          0.0,            0.0,    20.0,   0.0,   0.0],
+                     [0.0,          0.0,            0.0,    0.0,    20.0,  0.0],
+                     [0.0,          0.0,            0.0,    0.0,    0.0,   20.0]])
     b_area: List[Gaussian] = []
     for i in range(1,num_h):
         for j in range(1, num_w): 
-            mean = vstack([j*obj_w/(num_h+1), i*obj_h/(num_h+1), 0.0, 0.0])
+            mean = vstack([j*obj_w/(num_h+1), i*obj_h/(num_h+1), 0.0, 0.0, 0, 0])
             b_area.append(Gaussian(mean, cov_edge))
     
     
@@ -164,9 +158,6 @@ phd = GaussianMixturePHD(
                 H,
                 Q,
                 R)
-
-
-
 
 
 def gm_phd(phd, ObjectHandler) -> ndarray:
@@ -311,59 +302,3 @@ plt.ylabel('y-Koord.')
 plt.axis([-1,20,-5,485])
 plt.show()
 
-# Scater plot 3D
-#------------------------------------------------------------------------
-#fig = plt.figure()
-#ax = Axes3D(fig)
-
-#for i in K:
-#    for j in range(len(meas_v[i])):
-#        ax.scatter(meas_v[i][j][0],meas_v[i][j][1],K[i])
-
-#ax.set_xlabel('X Axis')
-#ax.set_ylabel('Y Axis')
-#ax.set_zlabel('k')
-#plt.show()
-
-
-#------------------------------------------------------------------------
-# Plott DATA in Image
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#for i in range(1,20):
-#    ObjectHandler.updateObjectStates(True)
-#    cv2.drawMarker(img, obst.bottom_center, (0, 255, 0), cv2.MARKER_CROSS, 10, thickness=2)
-
-#for k in range(1,20):
-#    plot_PHD_realpic(ObjectHandler, pos_phd, k)
-
-
-
-#number_states = len(F) # Zuständezahl
-#k = 0   #Zeitschritt
-#pictures_availiable = True
-#fig = plt.figure()
-
-#for i in range(1,20):
-#    print('---------------------------------------')
-#    success = ObjectHandler.updateObjectStates()
-#    if success == True:
-#        print('updated states for time step ' + str(i))
-#    else:
-#        print('could not update states for time step ' + str(i))
-#    print('last object states:')
-#    print(ObjectHandler.getLastObjectStates())
-#    #cv2.waitKey(1000)
-
-#print('---------------------------------------')
-##print('current time step: ' + str(ObjectHandler.getTimeStepCount()))
-##print(ObjectHandler.getLastObjectStates())
-
-#for i in range(1,20):
-#    try:
-#        print('get data for timestep ' + str(i) + ':')
-    
-#        print(ObjectHandler.getObjectStates(i))
-#    except InvalidTimeStepError as e:
-#        print(e.args[0])
-#    print('---------------------------------------')

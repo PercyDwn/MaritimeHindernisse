@@ -111,7 +111,7 @@ birth_belief = phd_BirthModels(10, 10)
 
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.01
+intensity = 0.05
 
 phd = GaussianMixturePHD(
                 birth_belief,
