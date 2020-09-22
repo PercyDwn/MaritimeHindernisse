@@ -20,7 +20,7 @@ Q = [[1000,0,0,0],
 R = [[10,0],
     [0,10]] #Varianz des Messrauschens
 P_i_init = [[100,0,0,0],[0,100,0,0],[0,0,100,0],[0,0,0,100]] 
-treshhold = 0.025 
+treshhold = 0.06
 #GNN Aufruf
 estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold)
 #estimate_gnn,n = gnn_testdaten(p_d,M,N,dimensions,T)

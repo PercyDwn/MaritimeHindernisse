@@ -138,10 +138,11 @@ def initMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):            
 def deathsBirths(n_new,anfangsWerte,est,n_old):
     H= numpy.array([[1,0,0,0],[0,0,1,0]]) #Ausgangsmatrix
     H_velocity = numpy.array([[0,1,0,0],[0,0,0,1]])
-    vel_old = numpy.matmul(H_velocity,est) #Geschwindigkeit alt
-    pos_old = numpy.matmul(H,est) #Positionen alt (Eingangs des MN)
     
-    if n_new !=0:
+    
+    try:
+        vel_old = numpy.matmul(H_velocity,est) #Geschwindigkeit alt
+        pos_old = numpy.matmul(H,est) #Positionen alt (Eingangs des MN)
         pos_new = numpy.transpose(numpy.array(anfangsWerte))
         est_updated = numpy.zeros((4,n_new))
     #Initialisierung 
@@ -181,7 +182,7 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
      
 
 
-        return n_new, est_updated
-    else:
-        est_updated = numpy.empty((4,1))
-        return n_new,est_updated
+        
+    except:
+        est_updated = numpy.array([])
+    return n_new,est_updated

@@ -3,18 +3,21 @@ import numpy as np
 import os
 
 def plot_GNN(pos_k,meas_k,fig, axs,k,ObjectHandler):
-    n = len(pos_k[0])
+    
     for m in range(len(meas_k)):
         axs[0].plot(meas_k[m][0],k,'ro',color='black')
         axs[1].plot(meas_k[m][1],k,'ro',color='black')
         absolute_value = (meas_k[m][0]**2+meas_k[m][1]**2)**0.5
         axs[2].plot(absolute_value, k,'ro',color='black')
-    
-    for i in range(n):
-         axs[0].plot(pos_k[0,i],k,'r+')
-         axs[1].plot(pos_k[1,i],k,'r+')
-         absolute_value_gnn = (pos_k[0,i]**2+pos_k[1,i]**2)**0.5
-         axs[2].plot(absolute_value_gnn,k,'r+')
+    try:
+        n = len(pos_k[0])
+        for i in range(n):
+             axs[0].plot(pos_k[0,i],k,'r+')
+             axs[1].plot(pos_k[1,i],k,'r+')
+             absolute_value_gnn = (pos_k[0,i]**2+pos_k[1,i]**2)**0.5
+             axs[2].plot(absolute_value_gnn,k,'r+')
+    except:
+        print('No Object detected')
          
 
 def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k,height_hor):
@@ -33,14 +36,19 @@ def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k,height_hor):
     hor_point_x = [0,img_w]
     hor_point_y = [height_hor*img_h/obj_h, height_hor*img_h/obj_h]
     plt.imshow(img)
-    n = len(pos_k[0])
+    
     #Plot aller Messungen
     for m in range(len(meas_k)):
         
         plt.plot(meas_k[m][0]*img_w/obj_w,meas_k[m][1]*img_h/obj_h,'ro',color='black')
     #Plot Objektdetektion
-    for i in range(n):
-        plt.plot(pos_k[0,i]*img_w/obj_w,pos_k[1,i]*img_h/obj_h,'r+')
+    try:
+        n = len(pos_k[0])
+        for i in range(n):
+            plt.plot(pos_k[0,i]*img_w/obj_w,pos_k[1,i]*img_h/obj_h,'r+')
+    except:
+        print('Consider increasing the detection treshhold')
+
     
     plt.plot(hor_point_x, hor_point_y)
     real_pic.savefig(pfad + name)
