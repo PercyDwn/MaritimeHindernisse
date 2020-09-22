@@ -130,8 +130,8 @@ def initMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):            
             n+=1                                        #       erhoehe die Anzahl der geschaetzten Objekte
             #############################################
         kandidaten=[]   
-    for x in range(len(uebersichtMatrix)):
-        print(uebersichtMatrix[x])
+    #for x in range(len(uebersichtMatrix)):
+    #    print(uebersichtMatrix[x])
     #return n, AnfangsWerteGNN
     return deathsBirths(n,AnfangsWerteGNN,est,n_old)
 
@@ -140,48 +140,48 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
     H_velocity = numpy.array([[0,1,0,0],[0,0,0,1]])
     vel_old = numpy.matmul(H_velocity,est) #Geschwindigkeit alt
     pos_old = numpy.matmul(H,est) #Positionen alt (Eingangs des MN)
-    pos_new = numpy.transpose(numpy.array(anfangsWerte))
-    est_updated = numpy.zeros((4,n_new))
     
+    if n_new !=0:
+        pos_new = numpy.transpose(numpy.array(anfangsWerte))
+        est_updated = numpy.zeros((4,n_new))
     #Initialisierung 
-    if n_old < 1:
-        est_updated[0,:] = pos_new[0,:]
-        est_updated[2,:] = pos_new[1,:]
+        if n_old < 1:
+            est_updated[0,:] = pos_new[0,:]
+            est_updated[2,:] = pos_new[1,:]
 
-    #Erweiterung : nur im Fall, dass Deaths oder Births auftreten n_alt != n_new.
-    elif n_new > n_old: #Births: Die Koordinaten die die minimale Abstände von den alten Objekten aufweisen, werden als "schon vorhandetes Objekt" betrachtet und daher werden als neues Objekt ausgeschlossen
-        vel_new = numpy.zeros((n_new-n_old)) #Geschwinigkeit neu. Erstmal als 0 annehmen. Später können wir dies erweitern 
-        for i in range(n_old):
-            distances = [] #Liste mit Abständen zu den alten koordinaten
-            for j in range(pos_new.shape[1]):
-                distances.append(differenz(pos_old[:,i],pos_new[:,j])) #Vektorbetrag hinzufügen
-            index_min = min(range(len(distances)), key=distances.__getitem__) #minimalen index ausrechnen
-            pos_new = numpy.delete(pos_new,index_min,1)
-        est_updated[0,:] = numpy.concatenate((pos_old[0],pos_new[0]),0)
-        est_updated[1,:] = numpy.concatenate((vel_old[0],vel_new),0)
-        est_updated[2,:] = numpy.concatenate((pos_old[1],pos_new[1]),0)
-        est_updated[3,:] = numpy.concatenate((vel_old[1],vel_new),0)
+        #Erweiterung : nur im Fall, dass Deaths oder Births auftreten n_alt != n_new.
+        elif n_new > n_old: #Births: Die Koordinaten die die minimale Abstände von den alten Objekten aufweisen, werden als "schon vorhandetes Objekt" betrachtet und daher werden als neues Objekt ausgeschlossen
+            vel_new = numpy.zeros((n_new-n_old)) #Geschwinigkeit neu. Erstmal als 0 annehmen. Später können wir dies erweitern 
+            for i in range(n_old):
+                distances = [] #Liste mit Abständen zu den alten koordinaten
+                for j in range(pos_new.shape[1]):
+                    distances.append(differenz(pos_old[:,i],pos_new[:,j])) #Vektorbetrag hinzufügen
+                index_min = min(range(len(distances)), key=distances.__getitem__) #minimalen index ausrechnen
+                pos_new = numpy.delete(pos_new,index_min,1)
+            est_updated[0,:] = numpy.concatenate((pos_old[0],pos_new[0]),0)
+            est_updated[1,:] = numpy.concatenate((vel_old[0],vel_new),0)
+            est_updated[2,:] = numpy.concatenate((pos_old[1],pos_new[1]),0)
+            est_updated[3,:] = numpy.concatenate((vel_old[1],vel_new),0)
         
-        print('....')
-        print(est_updated)
-        print('.....')
+        
     
-    elif n_new < n_old: #Deaths: Die Koordinaten die die maximale Abstände von den alten Objekten aufweisen, werden als "sterbende Objekte" betrachtet und daher werden von den Zuständen gelöscht 
-        for i in range(n_new):
-            distances = [] #Liste mit Abständen zu den alten koordinaten
-            for j in range(n_old):
-                distances.append(differenz(pos_old[:,j],pos_new[:,i])) #Vektorbetrag hinzufügen
-            index_min =  min(range(len(distances)), key=distances.__getitem__) #maximalen index ausrechnen
-            est_updated[0,i] = pos_old[0,index_min]
-            est_updated[1,i] = vel_old[0,index_min]
-            est_updated[2,i] = pos_old[1,index_min]
-            est_updated[3,i] = vel_old[1,index_min]
-            print('....')
-            print(est_updated)
-            print('.....')
-    elif n_new == n_old:
-        est_updated = est
+        elif n_new < n_old: #Deaths: Die Koordinaten die die maximale Abstände von den alten Objekten aufweisen, werden als "sterbende Objekte" betrachtet und daher werden von den Zuständen gelöscht 
+            for i in range(n_new):
+                distances = [] #Liste mit Abständen zu den alten koordinaten
+                for j in range(n_old):
+                    distances.append(differenz(pos_old[:,j],pos_new[:,i])) #Vektorbetrag hinzufügen
+                index_min =  min(range(len(distances)), key=distances.__getitem__) #maximalen index ausrechnen
+                est_updated[0,i] = pos_old[0,index_min]
+                est_updated[1,i] = vel_old[0,index_min]
+                est_updated[2,i] = pos_old[1,index_min]
+                est_updated[3,i] = vel_old[1,index_min]
+                
+        elif n_new == n_old:
+            est_updated = est
      
 
 
-    return n_new, est_updated
+        return n_new, est_updated
+    else:
+        est_updated = numpy.empty((4,1))
+        return n_new,est_updated

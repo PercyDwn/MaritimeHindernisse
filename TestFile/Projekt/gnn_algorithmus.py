@@ -100,7 +100,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                     P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
           
                 measurement_k = current_measurement_k
-                m= len(measurement_k) #Anzahl Messungen pro Zeitschritt k
+                m = len(measurement_k) #Anzahl Messungen pro Zeitschritt k
                 lambda_c = 0.001 + 1-n/m  #Clutter Intensität
                 L_detection = np.zeros((n,m)) #Kostfunktion detektiert
                 L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
