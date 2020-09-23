@@ -28,7 +28,7 @@ from typing import List, Tuple
 ObjectHandler = ObjectHandler()
 #Dateipfad individuell anpassen!!
 #################################
-ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1')
+ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
@@ -217,8 +217,9 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
 # Messungen
 #------------------------------------------------------------------------
 meas: List[ndarray] = []
+ObjectHandler.setPlotOnUpdate(True)
 for k in range(1,20):
-    meas.insert(k,  ObjectHandler.getObjectStates(k))
+    meas.insert(k,  ObjectHandler.getObjectStates(k, 'cc'))
 
 meas_v: List[ndarray] = []
 for k in range(len(meas)):

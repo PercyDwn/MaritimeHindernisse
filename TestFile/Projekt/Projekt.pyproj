@@ -21,15 +21,22 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CustomErrors.py" />
+    <Compile Include="dimtest.py" />
+    <Compile Include="filterpy_gnn_algorithmus.py" />
+    <Compile Include="filterpy_main.py" />
     <Compile Include="functions.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="GaussianPlot.py" />
+    <Compile Include="gmphd_ConstAcc.py" />
     <Compile Include="gnn_algorithmus.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="KalmanFilter.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="KF_ConstVelo_GNN.py" />
     <Compile Include="main.py">
       <SubType>Code</SubType>
     </Compile>
@@ -41,14 +48,25 @@
     </Compile>
     <Compile Include="ObjectHandler.py" />
     <Compile Include="obstacle_detect.py" />
+    <Compile Include="phd_plot.py" />
+    <Compile Include="playground.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="pyrate_common_math_gaussian.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="pyrate_sense_filters_gmphd.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="run_gmphd.py" />
+    <Compile Include="run_gmphd_v1.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_1.py" />
+    <Compile Include="test_gmphd.py" />
     <Compile Include="test_gmphd_2D.py" />
     <Compile Include="test_gmphd_pic.py" />
+    <Compile Include="test_kalmanfilter.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
