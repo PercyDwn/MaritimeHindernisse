@@ -28,7 +28,7 @@ class ObjectHandler:
         self.Img: ndarray 
         self.image_height: int
         self.image_width: int
-        self.PlotOnUpdate: bool = False
+        self.PlotOnUpdate: bool = True
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel

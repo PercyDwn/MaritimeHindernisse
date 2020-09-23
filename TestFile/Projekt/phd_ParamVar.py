@@ -89,23 +89,6 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
 
     return birth_belief
 
-
-birth_belief = phd_BirthModels(10, 10)
-
-survival_rate = 0.99
-detection_rate = 0.9
-intensity = 0.05
-
-phd = GaussianMixturePHD(
-                birth_belief,
-                survival_rate,
-                detection_rate,
-                intensity,
-                F,
-                H,
-                Q,
-                R)
-
 objects: List[ndarray] = []
 meas: List[ndarray] = []
 pos_phd: List[ndarray] = []
@@ -129,103 +112,6 @@ for i in range(10):
 for i in range(20):
     meas.insert(10+i, [ array([[10.+1.5*i], [20.+i]]), array([[35.-1.5*i], [15.]]), array([[40.-i], [26.+i]]), array([[50*random.random()], [50*random.random()]]),  array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
     
-
-
-
-#PHD-Filter anwenden
-#-----------------------------
-for z in meas:
-    phd.predict()
-    phd.correct(z)
-    #pruning
-    phd.prune(array([0.1]), array([3]), 20)
-    pos_phd.append(phd.extract())
-    print(phd.extract())
-    print('--------------')
-    
-
-##Plots
-## ------------------------
-## ------------------------
-
-#K = np.arange(len(meas))
-
-### x-Koordinate
-###------------------------------------
-#for i in K:
-#    #Messungen
-#    for j in range(len(meas[i])):
-#        plt.plot(meas[i][j][0],K[i],'ro',color='black')
-    
-#    #Objekte
-#    for j in range(len(objects[i])):
-#        plt.plot(objects[i][j][0],K[i],'ro',color='green')
-
-#    #Schätzungen
-#    for l in range(len(pos_phd[i])):
-#        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
-#        plt.plot(pos_phd[i][l][0],K[i],'ro',color= 'red', ms= 3)
-        
-#plt.legend('Zk', 'phd')     
-#plt.title('x-Koordinate')
-#plt.xlabel('x')
-#plt.ylabel('k')
-#plt.axis([-5,55,-1,len(K)+1])
-#plt.show()
-
-
-### y-Koordinate
-###------------------------------------
-#for i in K:
-#    #Messungen
-#    for j in range(len(meas[i])):
-#        plt.plot(meas[i][j][1],K[i],'ro',color='black')
-
-    
-#    #Objekte
-#    for j in range(len(objects[i])):
-#        plt.plot(objects[i][j][1],K[i],'ro',color='green')
-
-#    #Schätzungen
-#    for l in range(len(pos_phd[i])):
-#        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
-#        plt.plot(pos_phd[i][l][1],K[i],'ro',color= 'red', ms= 3)
-        
-#plt.legend(['Zk', 'phd'])     
-#plt.title('y-Koordinate')
-#plt.xlabel('y')
-#plt.ylabel('k')
-#plt.axis([-5,55,-1,len(K)+1])
-#plt.show()
-
-
-
-## x-y-Raum
-##------------------------------------
-
-#for i in K:
-#    #Messungen
-#    for j in range(len(meas[i])):
-#        plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
-
-#    #Objekte
-#    for j in range(len(objects[i])):
-#        plt.plot(objects[i][j][0],objects[i][j][1],'ro',color='green')
-
-#    #Schätzungen
-#    for l in range(len(pos_phd[i])):
-#        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
-#        plt.plot(pos_phd[i][l][0],pos_phd[i][l][1],'ro',color= 'red', ms= 3)
-        
-#plt.legend(['Zk', 'phd'])     
-#plt.title('x-y-Raum')
-#plt.xlabel('x-Koord.')
-#plt.ylabel('y-Koord.')
-#plt.axis([0,50,0,50])
-#plt.show()
-
-
-
 
 
 def varQR_phd(ini, num: int, meas: List[ndarray], objects, plot: bool = False):
