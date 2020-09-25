@@ -126,7 +126,7 @@ class ObjectHandler:
     # return last item in object states list
     def getLastObjectStates(self, position: str = 'cc') -> List:
 
-        return returnCoordinates(self.ObjectStates[-1], position)
+        return self.returnCoordinates(self.ObjectStates[-1], position)
 
     # update the object states for the next time step
     def updateObjectStates(self) -> bool:

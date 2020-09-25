@@ -368,3 +368,5 @@ plt.show()
 #    except InvalidTimeStepError as e:
 #        print(e.args[0])
 #    print('---------------------------------------')
+
+cv2.waitKey(0)

@@ -6,6 +6,7 @@ ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
+ObjectHandler.setPlotOnUpdate(True)
 
 for i in range(1,20):
     print('---------------------------------------')
