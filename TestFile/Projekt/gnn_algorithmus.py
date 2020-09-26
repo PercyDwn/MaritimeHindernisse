@@ -62,6 +62,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
         horizon_list = []
         est_hor_k = np.zeros((1,2))
         state_hor_meas = np.zeros((1,2))
+        horizonHeight_list = []
         ## Berechnung auf Messdaten
         while pictures_availiable == True: #While: 
             try:
@@ -78,7 +79,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 break
             if k < N: #warmup_data vorbereiten
                 warmup_data.append(current_measurement_k)
-                horizon_list.append(horizon_lines_k)
+                horizonHeight_list.append(getHorList(horizon_lines_k))
                 
                 
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
@@ -88,8 +89,12 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 n,estimate = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n) #Anzahl Objekte
                 estimate_all.append(estimate.tolist())
                 #MN Horizont aufrufen, um nur eine Linie von drei zu erhalten als Horizont-Kandidat
-                est_hor_k[0,0] = horizon_lines_k[1].height #vorübergehend
-                est_hor_k[0,1] = horizon_lines_k[1].angle #vorübergehend
+                horizon_opt_height = horizonMnLogic(horizonHeight_list)
+                est_hor_k[0,0] = horizon_opt_height #vorübergehend
+                est_hor_k[0,1] = horizon_lines_k[horizonHeight_list[N-1].tolist().index(horizon_opt_height)].angle #vorübergehend
+                
+                
+               
                 #est_hor_k = mn_horizon(horizon_list,N,M) #Estimate horizon am Zeitschritt k
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 #Horizontfilterung
@@ -177,7 +182,12 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 
                 estimate_all.append(estimate.tolist())
                 
-                n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
+                if len(velocity_all)<N:
+                    n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
+                else:
+                    n, estimate = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n)
+                    #n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n)
+               # n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
                 
                 
             #measurements_all.append(current_measurement_k)    
@@ -201,6 +211,13 @@ def horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k
     est_hor_k,P_horizon = kalman_filter_update(est_hor_k,P_horizon,H_horizon,np.transpose(state_hor_meas),theta_k,R_horizon,2)#Kalmann Update
     
     return np.transpose(est_hor_k), P_horizon
+
+def getHorList (horizon_lines_k):
+    heightsList = np.zeros((len(horizon_lines_k)))
+    for h in range(len(horizon_lines_k)):
+        
+        heightsList[h] = horizon_lines_k[h].height
+    return heightsList
            
         
 def kalman_filter_prediction(estimates_i, P_i,F,Q):
