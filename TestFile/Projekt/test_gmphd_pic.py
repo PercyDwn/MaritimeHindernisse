@@ -46,8 +46,10 @@ F = array([[1.0, 0.0, 1.0, 0.0],
            [0.0, 0.0, 0.0, 1.0]])
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
-Q = 15*eye(4)
-R = 35*eye(2)
+Q = 20*eye(4)
+#R = 30*eye(2)
+R = array([[7, 0],
+           [0, 50]])
 
 #Def. Birth_belief
 
@@ -75,31 +77,31 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
             
     """
 
-    # ObjectHandler updaten
+     #ObjectHandler updaten
     #--------------------------
-    #k = 1   #Zeitschritt
-    #pictures_availiable = True
-    #fig = plt.figure()
-    #est_phd: ndarray = []
+    k = 1   #Zeitschritt
+    pictures_availiable = True
+    fig = plt.figure()
+    est_phd: ndarray = []
 
-    #while pictures_availiable == True: #While: 
-    #    try:
-    #        ObjectHandler.updateObjectStates()
-    #        current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
-    #        #print(current_measurement_k)
-    #        #print([current_measurement_k[0][0]])
-    #    except InvalidTimeStepError as e:
-    #        print(e.args[0])
-    #        k = 0                
-    #        pictures_availiable = False
-    #        break
-    #    k = k+1
-    ## Bild höhe und breite Abrufen
-    #obj_h = ObjectHandler.getImgHeight()
-    #obj_w = ObjectHandler.getImgWidth()
+    while pictures_availiable == True: #While: 
+        try:
+            #ObjectHandler.updateObjectStates()
+            current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
+            #print(current_measurement_k)
+            #print([current_measurement_k[0][0]])
+        except InvalidTimeStepError as e:
+            print(e.args[0])
+            k = 0                
+            pictures_availiable = False
+            break
+        k = k+1
+    # Bild höhe und breite Abrufen
+    obj_h = ObjectHandler.getImgHeight()
+    obj_w = ObjectHandler.getImgWidth()
 
-    obj_h = 480
-    obj_w = 640
+    #obj_h = 480
+    #obj_w = 640
 
     birth_belief: List[Gaussian] = []
 
@@ -177,7 +179,7 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
 
     while pictures_availiable == True: #While: 
         try:
-            ObjectHandler.updateObjectStates()
+            #ObjectHandler.updateObjectStates()
             current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
             #print(current_measurement_k)
             #print([current_measurement_k[0][0]])
@@ -197,12 +199,12 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
         #print(phd.extract())
         #print('--------------')
         #pruning
-        phd.prune(array([0.01]), array([40]), 100)
+        phd.prune(array([0.001]), array([35]), 120)
         plot_PHD_realpic(ObjectHandler, est_phd, meas_vk, k)
         k = k+1
             
     plt.grid()
-    plt.show()   
+    #plt.show()   
     return est_phd 
 
 #------------------------------------------------------------------------
@@ -324,7 +326,7 @@ plt.show()
 #ax.set_xlabel('X Axis')
 #ax.set_ylabel('Y Axis')
 #ax.set_zlabel('k')
-#plt.show()
+#f()
 
 
 #------------------------------------------------------------------------
