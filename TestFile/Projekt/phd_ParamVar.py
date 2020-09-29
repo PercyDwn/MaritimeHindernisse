@@ -319,22 +319,174 @@ def varBirthNum_phd(ini: int, num: int, meas, objects, plot: bool = True):
                     ax.title.set_text('BirthmodelNumber is: '+str(m*ini))
 
         plt.suptitle('x-y-Raum for Variable Birthmodel Number')
-        plt.axis([0,50,0,50])
         plt.show()
 
     return pos_phd_all
 
-######################################################
-phd_QRvar = varQR_phd(0.01, 5, meas, objects, True)
-######################################################
+def varPruneNum_phd(ini: int, num: int, meas, objects, plot: bool = True):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
 
-'PRuning!!! wenn auf 50 dann schätzung wesentlich schlechter!!!'
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    Q = 0.1*eye(4)
+    R = 0.05*eye(2)
+    birth_belief = phd_BirthModels(10, 10)
+    for m in range (1,num+1):   
+
+        
+
+        survival_rate = 0.99
+        detection_rate = 0.9
+        intensity = 0.05
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([0.1]), array([3]), m*ini)
+            pos_phd.append(phd.extract())
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = pos_phd
+        #print(pos_phd_all[i-1])
+
+    if plot:
+        K = np.arange(len(meas))
+        # x-y-Raum
+        #------------------------------------
+        for m in range(1, len(pos_phd_all)+1):
+            ax = plt.subplot(num, 1, m)
+            for i in K:
+            #Schätzungen
+  
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                #Objekte
+                for j in range(len(objects[i])):
+                    plt.plot(objects[i][j][0],objects[i][j][1],'ro',color='green')
+
+                for l in range(len(pos_phd_all[m-1][i])):
+                    #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')   
+                    plt.plot(pos_phd_all[m-1][i][l][0],pos_phd_all[m-1][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Max Prune Number is: '+str(m*ini))
+
+        plt.suptitle('x-y-Raum for Variable Max Prune Number')
+        plt.show()
+
+    return pos_phd_all
+
+def varPruneThresh_phd(ini: int, num: int, meas, objects, plot: bool = True):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
+
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    Q = 0.08*eye(4)
+    R = 0.04*eye(2)
+    birth_belief = phd_BirthModels(10, 10)
+    for m in range (1,num+1):   
+
+        
+
+        survival_rate = 0.99
+        detection_rate = 0.9
+        intensity = 0.05
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([m*ini]), array([3]), 20)
+            pos_phd.append(phd.extract())
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = pos_phd
+        #print(pos_phd_all[i-1])
+
+    if plot:
+        K = np.arange(len(meas))
+        # x-y-Raum
+        #------------------------------------
+        for m in range(1, len(pos_phd_all)+1):
+            ax = plt.subplot(num, 1, m)
+            for i in K:
+            #Schätzungen
+  
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                #Objekte
+                for j in range(len(objects[i])):
+                    plt.plot(objects[i][j][0],objects[i][j][1],'ro',color='green')
+
+                for l in range(len(pos_phd_all[m-1][i])):
+                    #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')   
+                    plt.plot(pos_phd_all[m-1][i][l][0],pos_phd_all[m-1][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Prunethreshold is: '+str(m*ini))
+
+        plt.suptitle('x-y-Raum for Variable Prunethreshold')
+        plt.show()
+
+    return pos_phd_all
+
+#######################################################
+#phd_QRvar = varQR_phd(0.02, 5, meas, objects, True)
+#######################################################
+
+#'PRuning!!! wenn auf 50 dann schätzung wesentlich schlechter!!!'
 
 
-######################################################
-varIntens = varIntensity_phd(0.01, 5, meas, objects)
-######################################################
+#######################################################
+#varIntens = varIntensity_phd(0.025, 5, meas, objects)
+#######################################################
 
-######################################################
-varBirth = varBirthNum_phd(2, 5, meas, objects)
-######################################################
+#######################################################
+#varBirth = varBirthNum_phd(2, 5, meas, objects)
+#######################################################
+#'bei num = 10 beste ergebnisse -> entweder weil Cov passt oder mit auftauchen übereinstimmt'
+
+#######################################################
+#varPruneNum = varPruneNum_phd(25, 5, meas, objects)
+#######################################################
+#######################################################
+#varPruneTh = varPruneThresh_phd(0.05, 5, meas, objects)
+#######################################################
+#'Schlechtere ergebenisse wenn großer UND kleiner 0.1'
+
+

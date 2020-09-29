@@ -46,7 +46,7 @@ F = array([[1.0, 0.0, 1.0, 0.0],
            [0.0, 0.0, 0.0, 1.0]])
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
-Q = 20*eye(4)
+Q = 35*eye(4)
 #R = 30*eye(2)
 R = array([[7, 0],
            [0, 50]])
@@ -97,11 +97,11 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
             break
         k = k+1
     # Bild höhe und breite Abrufen
-    obj_h = ObjectHandler.getImgHeight()
-    obj_w = ObjectHandler.getImgWidth()
+    #obj_h = ObjectHandler.getImgHeight()
+    #obj_w = ObjectHandler.getImgWidth()
 
-    #obj_h = 480
-    #obj_w = 640
+    obj_h = 480
+    obj_w = 640
 
     birth_belief: List[Gaussian] = []
 
@@ -199,16 +199,16 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
         #print(phd.extract())
         #print('--------------')
         #pruning
-        phd.prune(array([0.001]), array([35]), 120)
+        phd.prune(array([0.001]), array([3]), 20)
         plot_PHD_realpic(ObjectHandler, est_phd, meas_vk, k)
         k = k+1
             
     plt.grid()
-    #plt.show()   
+    plt.show()   
     return est_phd 
 
 #------------------------------------------------------------------------
-#pos_phd = gm_phd(phd, ObjectHandler)
+pos_phd = gm_phd(phd, ObjectHandler)
 #------------------------------------------------------------------------
 
 
@@ -238,17 +238,17 @@ for k in range(len(meas)):
 #------------------------------------------------------------------------
 # PHD-Filter auf DATA anwenden
 #------------------------------------------------------------------------
-pos_phd: List[ndarray] = []
+#pos_phd: List[ndarray] = []
 
 
-for z in meas_v:
-    phd.predict()
-    phd.correct(z)
-    #pruning
-    phd.prune(array([0.01]), array([50]), 100)
-    pos_phd.append(phd.extract())
-    print(phd.extract())
-    print('--------------')
+#for z in meas_v:
+#    phd.predict()
+#    phd.correct(z)
+#    #pruning
+#    phd.prune(array([0.001]), array([3]), 20)
+#    pos_phd.append(phd.extract())
+#    print(phd.extract())
+#    print('--------------')
     
 
 #------------------------------------------------------------------------
@@ -275,43 +275,43 @@ plt.axis([-5,645,-5,485])
 plt.gca().invert_yaxis()
 plt.show()
 
-# x Achse
-#------------------------------------------------------------------------
-K = np.arange(len(meas_v))
+## x Achse
+##------------------------------------------------------------------------
+#K = np.arange(len(meas_v))
 
-for i in K:
-    #Messungen
-    for j in range(len(meas_v[i])):
-        plt.plot(K[i], meas_v[i][j][0],'ro',color='black')
+#for i in K:
+#    #Messungen
+#    for j in range(len(meas_v[i])):
+#        plt.plot(K[i], meas_v[i][j][0],'ro',color='black')
 
-    #Schätzungen
-    for l in range(len(pos_phd[i])):
-        plt.plot(K[i], pos_phd[i][l][0],'ro',color= 'red', ms= 3)
+#    #Schätzungen
+#    for l in range(len(pos_phd[i])):
+#        plt.plot(K[i], pos_phd[i][l][0],'ro',color= 'red', ms= 3)
         
-#plt.legend(['Zk', 'phd'])     
-plt.title('x-Raum')
-plt.xlabel('zeitpunkt k')
-plt.ylabel('x-Koord.')
-plt.axis([-1,20,-5,645])
-plt.show()
+##plt.legend(['Zk', 'phd'])     
+#plt.title('x-Raum')
+#plt.xlabel('zeitpunkt k')
+#plt.ylabel('x-Koord.')
+#plt.axis([-1,20,-5,645])
+#plt.show()
 
-# y-Achse
-#------------------------------------------------------------------------
-for k in K:
-    #Messungen
-    for j in range(len(meas_v[k])):
-        plt.plot(K[k], meas_v[k][j][1],'ro',color='black')
+## y-Achse
+##------------------------------------------------------------------------
+#for k in K:
+#    #Messungen
+#    for j in range(len(meas_v[k])):
+#        plt.plot(K[k], meas_v[k][j][1],'ro',color='black')
 
-    #Schätzungen
-    for l in range(len(pos_phd[k])):
-        plt.plot(K[k], pos_phd[k][l][1],'ro',color= 'red', ms= 3)
+#    #Schätzungen
+#    for l in range(len(pos_phd[k])):
+#        plt.plot(K[k], pos_phd[k][l][1],'ro',color= 'red', ms= 3)
         
-#plt.legend(['Zk', 'phd'])     
-plt.title('y-Raum')
-plt.xlabel('zeitpunkt k')
-plt.ylabel('y-Koord.')
-plt.axis([-1,20,-5,485])
-plt.show()
+##plt.legend(['Zk', 'phd'])     
+#plt.title('y-Raum')
+#plt.xlabel('zeitpunkt k')
+#plt.ylabel('y-Koord.')
+#plt.axis([-1,20,-5,485])
+#plt.show()
 
 # Scater plot 3D
 #------------------------------------------------------------------------
@@ -369,3 +369,449 @@ plt.show()
 #    except InvalidTimeStepError as e:
 #        print(e.args[0])
 #    print('---------------------------------------')
+
+def varPruneThresh_phd(ini: int, num: int, meas, plot: bool = True):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
+
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    Q = 20*eye(4)
+    #R = 30*eye(2)
+    R = array([[7, 0],
+               [0, 50]])
+
+    birth_belief = phd_BirthModels(8, 6)
+    for m in range (1,num+1):   
+
+        
+
+        survival_rate = 0.999
+        detection_rate = 0.9
+        intensity = 0.0001
+
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([m*ini]), array([3]), 20)
+            pos_phd.append(phd.extract())
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = pos_phd
+        #print(pos_phd_all[i-1])
+
+    if plot:
+        K = np.arange(len(meas))
+        plt.gca().invert_yaxis()
+
+        # x-y-Raum
+        #------------------------------------
+        for m in range(1, len(pos_phd_all)+1):
+            ax = plt.subplot(num, 1, m)
+            plt.gca().invert_yaxis()
+            for i in K:
+            #Schätzungen
+  
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                
+             
+
+                for l in range(len(pos_phd_all[m-1][i])):
+                    #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')   
+                    plt.plot(pos_phd_all[m-1][i][l][0],pos_phd_all[m-1][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Prunethreshold is: '+str(m*ini))
+                    
+
+        plt.suptitle('x-y-Raum for Variable Prunethreshold')
+        plt.show()
+
+    return pos_phd_all
+
+def varPruneNum_phd(ini: int, num: int, meas, plot: bool = True):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
+
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    Q = 20*eye(4)
+    #R = 30*eye(2)
+    R = array([[7, 0],
+               [0, 50]])
+    birth_belief = phd_BirthModels(8, 6)
+    for m in range (1,num+1):   
+
+        
+
+        survival_rate = 0.999
+        detection_rate = 0.9
+        intensity = 0.0001
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([0.001]), array([3]), m*ini)
+            pos_phd.append(phd.extract())
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = pos_phd
+        #print(pos_phd_all[i-1])
+
+    if plot:
+        K = np.arange(len(meas))
+        
+
+        # x-y-Raum
+        #------------------------------------
+        for m in range(1, len(pos_phd_all)+1):
+            ax = plt.subplot(num, 1, m)
+            plt.gca().invert_yaxis()
+            for i in K:
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                #Schätzungen
+                for l in range(len(pos_phd_all[m-1][i])):
+                    #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')   
+                    plt.plot(pos_phd_all[m-1][i][l][0],pos_phd_all[m-1][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Max Prune Number is: '+str(m*ini))
+
+        plt.suptitle('x-y-Raum for Variable Max Prune Number')
+        plt.show()
+
+    return pos_phd_all
+
+def varPrune_phd(iniThresh, ininum: int, num: int, meas, plot: bool = True):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
+
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    Q = 20*eye(4)
+    #R = 30*eye(2)
+    R = array([[7, 0],
+               [0, 50]])
+    birth_belief = phd_BirthModels(8, 6)
+    for m in range (1,num+1):   
+
+        
+
+        survival_rate = 0.999
+        detection_rate = 0.9
+        intensity = 0.001
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([iniThresh/m]), array([3]), m*ininum)
+            pos_phd.append(phd.extract())
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = pos_phd
+        #print(pos_phd_all[i-1])
+
+    if plot:
+        K = np.arange(len(meas))
+        
+
+        # x-y-Raum
+        #------------------------------------
+        for m in range(1, len(pos_phd_all)+1):
+            ax = plt.subplot(num, 1, m)
+            plt.gca().invert_yaxis()
+            for i in K:
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                #Schätzungen
+                for l in range(len(pos_phd_all[m-1][i])): 
+                    plt.plot(pos_phd_all[m-1][i][l][0],pos_phd_all[m-1][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Max Prune Number is: '+str(ininum*m)+'Threshold is: '+ str(iniThresh/m))
+
+        plt.suptitle('x-y-Raum for Variable Max Prune Number and Threshold')
+        plt.show()
+
+    return pos_phd_all
+
+def varIntensity_phd(ini, num: int, meas, plot: bool = True):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    Q = 35*eye(4)
+    R = array([[10, 0],
+               [0, 50]])
+    birth_belief = phd_BirthModels(8, 6)
+
+    for m in range (1,num+1):      
+        survival_rate = 0.99
+        detection_rate = 0.9
+        intensity = m*ini
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([0.001]), array([3]), 20)
+            pos_phd.append(phd.extract(0.01))
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = pos_phd
+    
+
+    if plot:
+        K = np.arange(len(meas))
+        plt.gca().invert_yaxis()
+        # x-y-Raum
+        #------------------------------------
+        for m in range(1, len(pos_phd_all)+1):
+            ax = plt.subplot(num, 1, m)
+            plt.gca().invert_yaxis()
+            for i in K:
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                for l in range(len(pos_phd_all[m-1][i])):  
+                    plt.plot(pos_phd_all[m-1][i][l][0],pos_phd_all[m-1][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Clutter intensity is: '+str(m*ini))
+        plt.suptitle('x-y-Raum für Variation der Clutter intensity')
+        plt.show()
+
+    return pos_phd_all
+
+def varQ_phd(ini, num: int, meas: List[ndarray], plot: bool = False):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
+
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    birth_belief = phd_BirthModels(8, 6)
+    for m in range (1,num+1):   
+        Q = m*ini*eye(4)
+        R = array([[7, 0],
+               [0, 50]])
+
+        survival_rate = 0.999
+        detection_rate = 0.9
+        intensity = 0.0001
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([0.001]), array([3]), 20)
+            pos_phd.append(phd.extract())
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = [pos_phd]
+
+    
+    if plot:
+        K = np.arange(len(meas))
+        
+        # x-y-Raum
+        #------------------------------------
+        
+        for m in range(1, num+1):
+            ax = plt.subplot(num, 1, m)
+            plt.gca().invert_yaxis()
+            #plt.subplot(num, 1, m)
+            for i in K:
+            #Schätzungen
+                #print('range(len(pos_phd_all[m-1][i])): ' + str(range(len(pos_phd_all[m-1][i]))))
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                for l in range(len(pos_phd_all[m-1][0][i])):                    
+                    plt.plot(pos_phd_all[m-1][0][i][l][0],pos_phd_all[m-1][0][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Covarianz in Q: '+str(m*ini))
+        plt.suptitle('x-y-Raum für Variation der Covarianzmatirzen Q')
+        plt.show()
+
+    return pos_phd_all
+
+
+def varR_phd(ini, num: int, meas: List[ndarray], plot: bool = False):
+    pos_phd_all: ndarray[List[ndarray]] = [None] * (num)
+
+    F = array([[1.0, 0.0, 1.0, 0.0], 
+               [0.0, 1.0, 0.0, 1.0], 
+               [0.0, 0.0, 1.0, 0.0], 
+               [0.0, 0.0, 0.0, 1.0]])
+    H = array([[1.0, 0.0, 0.0, 0.0],
+               [0.0, 1.0, 0.0, 0.0]])
+    birth_belief = phd_BirthModels(8, 6)
+    for m in range (1,num+1):   
+        Q = 35*eye(4)
+        R = array([[7, 0],
+                   [0, ini*num]])
+
+        survival_rate = 0.999
+        detection_rate = 0.9
+        intensity = 0.0001
+
+        phd = GaussianMixturePHD(
+                        birth_belief,
+                        survival_rate,
+                        detection_rate,
+                        intensity,
+                        F,
+                        H,
+                        Q,
+                        R)
+        pos_phd: List[ndarray] = []
+        #PHD-Filter anwenden
+        #-----------------------------
+        for z in meas:
+            phd.predict()
+            phd.correct(z)
+            #pruning
+            phd.prune(array([0.001]), array([3]), 20)
+            pos_phd.append(phd.extract())
+            #print(phd.extract())
+            #print('--------------')
+
+        pos_phd_all[m-1] = [pos_phd]
+
+    
+    if plot:
+        K = np.arange(len(meas))
+        
+        # x-y-Raum
+        #------------------------------------
+        fig = plt.figure()
+        for m in range(1, num+1):
+            ax = plt.subplot(num, 1, m)
+            plt.gca().invert_yaxis()
+            #plt.subplot(num, 1, m)
+            for i in K:
+            #Schätzungen
+                #print('range(len(pos_phd_all[m-1][i])): ' + str(range(len(pos_phd_all[m-1][i]))))
+                #Messungen
+                for j in range(len(meas[i])):
+                    plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+
+                for l in range(len(pos_phd_all[m-1][0][i])):                    
+                    plt.plot(pos_phd_all[m-1][0][i][l][0],pos_phd_all[m-1][0][i][l][1],'ro',color= 'red', ms= 3)
+                    ax.title.set_text('Covarianz in R: '+str(m*ini))
+        plt.suptitle('x-y-Raum für Variation der Covarianzmatirzen  R')
+        plt.show()
+
+    return pos_phd_all
+
+######################################################
+#phd_QRvar = varPruneThresh_phd(0.001, 5, meas_v, True)
+######################################################
+#######################################################
+varPruneNum = varPruneNum_phd(5, 5, meas_v, True)
+#######################################################
+
+#varPrune = varPrune_phd(0.0005, 10, 5, meas_v, True)
+
+#######################################################
+#varIntens = varIntensity_phd(0.000001, 5, meas_v)
+#######################################################
+
+varQ = varQ_phd(10, 5, meas_v, True)
+
+varR = varR_phd(5, 5, meas_v, True)
+#######################################################
+#varBirth = varBirthNum_phd(2, 5, meas, objects)
+#######################################################
+#'bei num = 10 beste ergebnisse -> entweder weil Cov passt oder mit auftauchen übereinstimmt'
+
+
+#######################################################
+#varPruneTh = varPruneThresh_phd(0.05, 5, meas, objects)
+#######################################################
+#'Schlechtere ergebenisse wenn großer UND kleiner 0.1'
