@@ -96,7 +96,7 @@ class ObjectHandler:
     # format coordinates
     def returnCoordinates(self, state: Tuple, position: str = 'cc') -> List:
 
-        print(state)
+        # print(state)
 
         x = state["x"]
         y = state["y"]
