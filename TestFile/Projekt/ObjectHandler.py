@@ -28,7 +28,7 @@ class ObjectHandler:
         self.Img: ndarray 
         self.image_height: int
         self.image_width: int
-        self.PlotOnUpdate: bool = False
+        self.PlotOnUpdate: bool = True
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -43,8 +43,13 @@ class ObjectHandler:
     def setPlotOnUpdate(self, plot: bool) -> None:
         self.PlotOnUpdate = plot
 
-    def setImageFolder(self, folder: str) -> bool:
-        self.ImageFolder = folder
+    def setImageFolder(self, folder: str, addCWD: bool = True) -> bool:
+        if addCWD:
+            path = os.getcwd()
+            path = path.replace(os.sep,'/')
+        else:
+            path = ''
+        self.ImageFolder = path + folder
         return True
 
     def setImageBaseName(self, baseName: str) -> bool:
@@ -73,24 +78,55 @@ class ObjectHandler:
         return self.ObjectStates
 
     # return object states for a given time step t
-    def getObjectStates(self, t: int) -> List:
-        if(t <= self.getTimeStepCount()):
-            # return data for requested time step
-            return self.ObjectStates[t-1]
-        else:
+    def getObjectStates(self, t: int, position: str = 'cc') -> List:
+        if(t > self.getTimeStepCount()):
             # try and update object state data
             for i in range(0,t - self.getTimeStepCount()):
                 # try to update
                 updated = self.updateObjectStates()
                 if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
-
-            return self.ObjectStates[t-1]
+        
+        # return data for requested time step
+        formattedCoordinates = []
+        for obj in self.ObjectStates[t-1]:
+            formattedCoordinates.append(self.returnCoordinates(obj, position))
+        return formattedCoordinates
                 
 
-    # return last item in object states list
-    def getLastObjectStates(self) -> List:
+    # format coordinates
+    def returnCoordinates(self, state: Tuple, position: str = 'cc') -> List:
 
-        return self.ObjectStates[-1]
+        # print(state)
+
+        x = state["x"]
+        y = state["y"]
+        w = state["width"]
+        h = state["height"]
+
+        if position[0] == 'l':
+            return_x = x
+        elif position[0] == 'c':
+            return_x = x + w//2
+        elif position[0] == 'r':
+            return_x = x + w
+        else:
+            return_x = x
+
+        if position[1] == 't':
+            return_y = y
+        elif position[1] == 'c':
+            return_y = y + h //w
+        elif position[1] == 'b':
+            return_y = y + h
+        else:
+            return_y = y
+
+        return [return_x, return_y]
+
+    # return last item in object states list
+    def getLastObjectStates(self, position: str = 'cc') -> List:
+
+        return self.returnCoordinates(self.ObjectStates[-1], position)
 
     # update the object states for the next time step
     def updateObjectStates(self) -> bool:
@@ -134,7 +170,13 @@ class ObjectHandler:
                 # write found obstacles in list
                 ObstacleStates = []
                 for obs in obstacles:
-                    ObstacleStates .append([obs.x + obs.width // 2, obs.y + obs.height])
+                    # ObstacleStates.append([obs.x + obs.width // 2, obs.y + obs.height])
+                    ObstacleStates.append({
+                            "x": obs.x,
+                            "y": obs.y,
+                            "width": obs.width,
+                            "height": obs.height
+                        })
                 # add list to list with obstacles over all time steps
                 self.ObjectStates.append(ObstacleStates)
             else:
