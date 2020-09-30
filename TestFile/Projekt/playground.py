@@ -159,7 +159,8 @@ meas_v: List[ndarray] = []
 pos_phd: List[ndarray] = []
 ObjectHandler.setPlotOnUpdate(True)
 
-inspect = 8
+inspect = 10
+detail = 5
 
 for k in range(1,inspect+1):
     meas.insert(k,  ObjectHandler.getObjectStates(k, 'cc'))
@@ -180,9 +181,9 @@ for k in range(1,inspect+1):
       Nx, Ny = obj_h, obj_w
       gz = np.zeros((Nx, Ny))
       print('calculate gaussian map')
-      for i in range(1,Nx, 5):
+      for i in range(1,Nx, detail):
         print("x pixel " + str(i))
-        for j in range(1, Ny, 5):
+        for j in range(1, Ny, detail):
           for gmi in phd.gmm:
             gz[i,j] +=  gmi(vstack([i, j, 0, 0]))
           """ for ci in range(0,4):
