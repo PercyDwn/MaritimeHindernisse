@@ -15,6 +15,8 @@ import cv2
 from phd_plot import *
 from typing import List, Tuple
 
+from plotGMM import *
+
 def gauss(x, mean, cov, normalized=True):
     if len(x.shape) == 2:
         mean = mean[:, None]
@@ -159,7 +161,7 @@ meas_v: List[ndarray] = []
 pos_phd: List[ndarray] = []
 ObjectHandler.setPlotOnUpdate(True)
 
-inspect = 10
+inspect = 5
 detail = 5
 
 for k in range(1,inspect+1):
@@ -178,25 +180,13 @@ for k in range(1,inspect+1):
     #print('--------------')
 
     if k == inspect:
-      Nx, Ny = obj_h, obj_w
-      gz = np.zeros((Nx, Ny))
-      print('calculate gaussian map')
-      for i in range(1,Nx, detail):
-        print("x pixel " + str(i))
-        for j in range(1, Ny, detail):
-          for gmi in phd.gmm:
-            gz[i,j] +=  gmi(vstack([i, j, 0, 0]))
-          """ for ci in range(0,4):
-            gz[i,j] +=  phd.gmm[ci](vstack([i, j, 0, 0])) """
 
-      gz /= gz.max()
+      plt = plotGMM(phd.gmm, pixel_w = obj_w, pixel_h = obj_h, detail = detail)
+      """ for l in range(len(pos_phd[k-1])):
+        plt.plot(pos_phd[k-1][l][0],pos_phd[k-1][l][1],'ro',color= 'white', ms= 3) """
       
-      plt.contourf(gz)
-      for l in range(len(pos_phd[k-1])):
-        plt.plot(pos_phd[k-1][l][0],pos_phd[k-1][l][1],'ro',color= 'white', ms= 3)
-      plt.gca().invert_yaxis()
       plt.show()
-      print("heightmap printed")
+      # print("heightmap printed")
       cv2.waitKey(0)
 
 
