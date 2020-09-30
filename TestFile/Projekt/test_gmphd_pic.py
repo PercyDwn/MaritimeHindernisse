@@ -28,9 +28,9 @@ from typing import List, Tuple
 ObjectHandler = ObjectHandler()
 #Dateipfad individuell anpassen!!
 #################################
-ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1')
+ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list2')
 ObjectHandler.setImageBaseName('')
-ObjectHandler.setImageFileType('.jpg')
+ObjectHandler.setImageFileType('.png')
 ObjectHandler.setDebugLevel(2)
 
 #------------------------------------------------------------------------
@@ -133,7 +133,7 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     b_area: List[Gaussian] = []
     for i in range(1,num_h):
         for j in range(1, num_w): 
-            mean = vstack([j*obj_w/(num_h+1), i*obj_h/(num_h+1), 0.0, 0.0])
+            mean = vstack([j*obj_w/(num_w+1), i*obj_h/(num_h+1), 0.0, 0.0])
             b_area.append(Gaussian(mean, cov_edge))
     
     
