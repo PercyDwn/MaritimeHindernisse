@@ -15,6 +15,7 @@ import math
 # Typing
 from typing import List
 
+from plotGMM import *
 #Initialisierung
 #------------------------------------------------------------------------
 
@@ -37,18 +38,7 @@ Q = .1*eye(4)
 R = .05*eye(2)
 
 #Def. Birth_belief
-mean1 = vstack([0.0, 15.0, 1.0, 1.0])
-covariance1 = array([[5, 0.0, 0.0, 0.0], 
-                     [0.0, 30.0, 0.0, 0.0],
-                     [0.0, 0.0, 1.0, 0.0],
-                     [0.0, 0.0, 0.0, 1.0]])
 
-mean2 = vstack([50.0, 15.0, -1.0, 1.0])
-covariance2 = array([[5, 0.0, 0.0, 0.0], 
-                     [0.0, 30.0, 0.0, 0.0],
-                     [0.0, 0.0, 2.0, 0.0],
-                     [0.0, 0.0, 0.0, 2.0]])
-birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
 
 def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     """
@@ -130,7 +120,10 @@ for i in range(20):
     meas.insert(10+i, [ array([[10.+1.5*i], [20.+i]]), array([[35.-1.5*i], [15.]]), array([[40.-i], [26.+i]]), array([[50*random.random()], [50*random.random()]]),  array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
     
 
-
+fig = plt.figure
+fig = plotGMM(birth_belief, 50, 50, 1)
+plt.title('gausplot des birthmodels')
+plt.show()
 
 #PHD-Filter anwenden
 #-----------------------------
@@ -139,16 +132,37 @@ for z in meas:
     phd.correct(z)
     #pruning
     phd.prune(array([0.1]), array([3]), 20)
+    fig = plt.figure
+    fig = plotGMM(phd.gmm, 50, 50, 2)
+    
+    maxWeight = 0
+    for comp in phd.gmm:
+        if comp.w > maxWeight:
+            maxWeight = comp.w
+    print('max weight: ' + str(maxWeight))
+    minWeight = 1
+    for comp in phd.gmm:
+        if comp.w < minWeight:
+            minWeight = comp.w
+    print('min weight: ' + str(minWeight))
+    plt.title('gausplot')
+    
+    for m in z:
+        plt.plot(m[0], m[1], 'ro',color= 'white', ms= 2)
+    for m in phd.extract():
+        plt.plot(m[0],m[1],'ro',color= 'red', ms= 1)
+    plt.show()
     pos_phd.append(phd.extract())
-    print(phd.extract())
-    print('--------------')
+
+    #print(phd.extract())
+    #print('--------------')
     
 
 ##Plots
 ## ------------------------
 ## ------------------------
 
-#K = np.arange(len(meas))
+K = np.arange(len(meas))
 
 ### x-Koordinate
 ###------------------------------------
@@ -203,26 +217,26 @@ for z in meas:
 ## x-y-Raum
 ##------------------------------------
 
-#for i in K:
-#    #Messungen
-#    for j in range(len(meas[i])):
-#        plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
+for i in K:
+    #Messungen
+    for j in range(len(meas[i])):
+        plt.plot(meas[i][j][0],meas[i][j][1],'ro',color='black')
 
-#    #Objekte
-#    for j in range(len(objects[i])):
-#        plt.plot(objects[i][j][0],objects[i][j][1],'ro',color='green')
+    #Objekte
+    for j in range(len(objects[i])):
+        plt.plot(objects[i][j][0],objects[i][j][1],'ro',color='green')
 
-#    #Schätzungen
-#    for l in range(len(pos_phd[i])):
-#        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
-#        plt.plot(pos_phd[i][l][0],pos_phd[i][l][1],'ro',color= 'red', ms= 3)
+    #Schätzungen
+    for l in range(len(pos_phd[i])):
+        #plt.plot(real_objects[i][j],K[i]+1,'ro',color='green')
+        plt.plot(pos_phd[i][l][0],pos_phd[i][l][1],'ro',color= 'red', ms= 3)
         
-#plt.legend(['Zk', 'phd'])     
-#plt.title('x-y-Raum')
-#plt.xlabel('x-Koord.')
-#plt.ylabel('y-Koord.')
-#plt.axis([0,50,0,50])
-#plt.show()
+plt.legend(['Zk', 'phd'])     
+plt.title('x-y-Raum')
+plt.xlabel('x-Koord.')
+plt.ylabel('y-Koord.')
+plt.axis([0,50,0,50])
+plt.show()
 
 
 
@@ -439,16 +453,16 @@ def varBirthNum_phd(ini: int, num: int, meas, objects, plot: bool = True):
     return pos_phd_all
 
 ######################################################
-phd_QRvar = varQR_phd(0.01, 5, meas, objects, True)
+#phd_QRvar = varQR_phd(0.01, 5, meas, objects, True)
 ######################################################
 
 'PRuning!!! wenn auf 50 dann schätzung wesentlich schlechter!!!'
 
 
 ######################################################
-varIntens = varIntensity_phd(0.01, 5, meas, objects)
+#varIntens = varIntensity_phd(0.01, 5, meas, objects)
 ######################################################
 
 ######################################################
-varBirth = varBirthNum_phd(2, 5, meas, objects)
+#varBirth = varBirthNum_phd(2, 5, meas, objects)
 ######################################################

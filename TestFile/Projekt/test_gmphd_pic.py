@@ -47,10 +47,10 @@ F = array([[1.0, 0.0, 1.0, 0.0],
            [0.0, 0.0, 0.0, 1.0]])
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
-Q = 35*eye(4)
+Q = 20*eye(4)
 #R = 30*eye(2)
 R = array([[7, 0],
-           [0, 40]])
+           [0, 50]])
 
 #Def. Birth_belief
 def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
@@ -94,28 +94,27 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     #--------------------------
     b_leftside: List[Gaussian] = [] 
     cov_edge = array([[1500,  0.0,             0.0, 0.0], 
-                     [0.0,  (obj_h/(num_h))**2,   0.0, 0.0],
-                     [0.0,  0.0,             50.0**2, 0.0],
-                     [0.0,  0.0,             0.0, 50.0**2]])
+                     [0.0,  (obj_h/(num_h))*10,   0.0, 0.0],
+                     [0.0,  0.0,             50.0*5, 0.0],
+                     [0.0,  0.0,             0.0, 50.0*5]])
     for i in range(num_h):
-        mean = vstack([20,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
+        mean = vstack([0,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
         b_leftside.append(Gaussian(mean, cov_edge))
     
     # Birthmodelle Rand rechts
     #--------------------------
     b_rightside: List[Gaussian] = [] 
     for i in range(num_h):
-        mean = vstack([obj_w-20,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
-        print(i*obj_h/num_h+obj_h/(2*num_h))
+        mean = vstack([obj_w-0,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
         b_rightside.append(Gaussian(mean, cov_edge))
 
  
     # Birthmodelle übers Bild
     #--------------------------
-    cov_area = array([[(obj_w/num_w)**2, 0.0,            0.0,    0.0], 
-                     [0.0,          (obj_h/(num_h))**2,  0.0,    0.0],
-                     [0.0,          0.0,            50.0**2,   0.0],
-                     [0.0,          0.0,            0.0,    50.0**2]])
+    cov_area = array([[(obj_w/num_w)*10, 0.0,            0.0,    0.0], 
+                     [0.0,          (obj_h/(num_h))*10,  0.0,    0.0],
+                     [0.0,          0.0,            50.0*5,   0.0],
+                     [0.0,          0.0,            0.0,    50.0*5]])
     b_area: List[Gaussian] = []
     for i in range(num_h):
         for j in range(num_w): 
@@ -123,8 +122,8 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
             b_area.append(Gaussian(mean, cov_area))
     
     
-    birth_belief.extend(b_leftside)
-    birth_belief.extend(b_rightside)
+    #birth_belief.extend(b_leftside)
+    #birth_belief.extend(b_rightside)
     birth_belief.extend(b_area)
 
     return birth_belief
@@ -135,7 +134,7 @@ birth_belief = phd_BirthModels(5, 5)
 
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.0001
+intensity = 0.000000001
 
 phd = GaussianMixturePHD(
                 birth_belief,
@@ -510,8 +509,8 @@ def varPrune_phd(iniThresh, ininum: int, num: int, meas, plot: bool = True):
                [0.0, 1.0, 0.0, 0.0]])
     Q = 20*eye(4)
     #R = 30*eye(2)
-    R = array([[20, 0],
-               [0, 20]])
+    R = array([[7, 0],
+               [0, 50]])
     birth_belief = phd_BirthModels(8, 6)
     for m in range (1,num+1):   
 
@@ -770,10 +769,10 @@ def varR_phd(ini, num: int, meas: List[ndarray], plot: bool = False):
     return pos_phd_all
 
 ######################################################
-#phd_QRvar = varPruneThresh_phd(0.001, 5, meas_v, True)
+#phd_QRvar = varPruneThresh_phd(10, 5, meas_v, True)
 ######################################################
 #######################################################
-varPruneNum = varPruneNum_phd(5, 5, meas_v, True)
+#varPruneNum = varPruneNum_phd(5, 5, meas_v, True)
 #######################################################
 
 #varPrune = varPrune_phd(0.0005, 10, 5, meas_v, True)
@@ -782,11 +781,11 @@ varPruneNum = varPruneNum_phd(5, 5, meas_v, True)
 #varIntens = varIntensity_phd(0.000001, 5, meas_v)
 #######################################################
 
-varQ = varQ_phd(10, 5, meas_v, True)
+#varQ = varQ_phd(10, 5, meas_v, True)
 
-varR = varR_phd(5, 5, meas_v, True)
+#varR = varR_phd(5, 5, meas_v, True)
 #######################################################
-#varBirth = varBirthNum_phd(2, 5, meas, objects)
+#varBirth = varBirthNum_phd(2, 5, meas)
 #######################################################
 #'bei num = 10 beste ergebnisse -> entweder weil Cov passt oder mit auftauchen übereinstimmt'
 

@@ -142,8 +142,11 @@ class GaussianMixturePHD:
         for component in self.gmm:
             if component.w > threshold:
                 # A component with weight over 1 represents multiple targets
+                'PROBLEM!!'
+                'Was wenn thersh kleiner 0,5 -> round immer 0!! => keine states'
                 states += [component.x for _ in range(int(round(component.w)))]
-
+                print(range(int(round(component.w))))
+                #states += [component.x]
         # Return all extracted states
         return states
 
@@ -278,6 +281,7 @@ class GaussianMixturePHD:
         updated = deepcopy(self.gmm)
         for component in updated:
             component.w *= 1 - self.detection_rate # w_k = (1-p_d)*w_k|k-1
+            
 
         # Measured assumption
         for z in measurements:
