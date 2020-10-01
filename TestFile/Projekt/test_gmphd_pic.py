@@ -18,6 +18,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import cv2
 
 from phd_plot import *
+from plotGMM import *
 
 # Typing
 from typing import List, Tuple
@@ -28,9 +29,9 @@ from typing import List, Tuple
 ObjectHandler = ObjectHandler()
 #Dateipfad individuell anpassen!!
 #################################
-ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list2')
+ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
-ObjectHandler.setImageFileType('.png')
+ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
 
 #------------------------------------------------------------------------
@@ -49,25 +50,9 @@ H = array([[1.0, 0.0, 0.0, 0.0],
 Q = 35*eye(4)
 #R = 30*eye(2)
 R = array([[7, 0],
-           [0, 50]])
+           [0, 40]])
 
 #Def. Birth_belief
-
-#birth_belief = phd_BirthModels(ObjectHandler, 4, 3)
-
-mean1 = vstack([1.0, 120.0, 10.0, 2.0])
-covariance1 = array([[10, 0.0, 0.0, 0.0], 
-                     [0.0, 5.0, 0.0, 0.0],
-                     [0.0, 0.0, 10.0, 0.0],
-                     [0.0, 0.0, 0.0, 10.0]])
-
-mean2 = vstack([1.0, 120.0, 17.0, 2.0])
-covariance2 = array([[15, 0.0, 0.0, 0.0], 
-                     [0.0, 30.0, 0.0, 0.0],
-                     [0.0, 0.0, 5.0, 0.0],
-                     [0.0, 0.0, 0.0, 2.0]])
-birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
-
 def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     """
      Args:
@@ -77,28 +62,28 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
             
     """
 
-     #ObjectHandler updaten
-    #--------------------------
-    k = 1   #Zeitschritt
-    pictures_availiable = True
-    fig = plt.figure()
-    est_phd: ndarray = []
+    # #ObjectHandler updaten
+    ##--------------------------
+    #k = 1   #Zeitschritt
+    #pictures_availiable = True
+    #fig = plt.figure()
+    #est_phd: ndarray = []
 
-    while pictures_availiable == True: #While: 
-        try:
-            #ObjectHandler.updateObjectStates()
-            current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
-            #print(current_measurement_k)
-            #print([current_measurement_k[0][0]])
-        except InvalidTimeStepError as e:
-            print(e.args[0])
-            k = 0                
-            pictures_availiable = False
-            break
-        k = k+1
-    # Bild höhe und breite Abrufen
-    #obj_h = ObjectHandler.getImgHeight()
-    #obj_w = ObjectHandler.getImgWidth()
+    #while pictures_availiable == True: #While: 
+    #    try:
+    #        #ObjectHandler.updateObjectStates()
+    #        current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
+    #        #print(current_measurement_k)
+    #        #print([current_measurement_k[0][0]])
+    #    except InvalidTimeStepError as e:
+    #        print(e.args[0])
+    #        k = 0                
+    #        pictures_availiable = False
+    #        break
+    #    k = k+1
+    ## Bild höhe und breite Abrufen
+    ##obj_h = ObjectHandler.getImgHeight()
+    ##obj_w = ObjectHandler.getImgWidth()
 
     obj_h = 480
     obj_w = 640
@@ -108,33 +93,34 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     # Birthmodelle Rand links
     #--------------------------
     b_leftside: List[Gaussian] = [] 
-    cov_edge = array([[20,  0.0,             0.0, 0.0], 
-                     [0.0,  obj_h/(num_h),   0.0, 0.0],
-                     [0.0,  0.0,             20.0, 0.0],
-                     [0.0,  0.0,             0.0, 20.0]])
-    for i in range(1,num_h):
-        mean = vstack([20, i*obj_h/(num_h+1), 10.0, 0.0])
+    cov_edge = array([[1500,  0.0,             0.0, 0.0], 
+                     [0.0,  (obj_h/(num_h))**2,   0.0, 0.0],
+                     [0.0,  0.0,             50.0**2, 0.0],
+                     [0.0,  0.0,             0.0, 50.0**2]])
+    for i in range(num_h):
+        mean = vstack([20,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
         b_leftside.append(Gaussian(mean, cov_edge))
     
     # Birthmodelle Rand rechts
     #--------------------------
     b_rightside: List[Gaussian] = [] 
-    for i in range(1,num_h):
-        mean = vstack([obj_w-20, i*obj_h/(num_h+1), -10.0, 0.0])
+    for i in range(num_h):
+        mean = vstack([obj_w-20,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
+        print(i*obj_h/num_h+obj_h/(2*num_h))
         b_rightside.append(Gaussian(mean, cov_edge))
 
  
     # Birthmodelle übers Bild
     #--------------------------
-    cov_area = array([[obj_w/num_w, 0.0,            0.0,    0.0], 
-                     [0.0,          obj_h/(num_h),  0.0,    0.0],
-                     [0.0,          0.0,            20.0,   0.0],
-                     [0.0,          0.0,            0.0,    20.0]])
+    cov_area = array([[(obj_w/num_w)**2, 0.0,            0.0,    0.0], 
+                     [0.0,          (obj_h/(num_h))**2,  0.0,    0.0],
+                     [0.0,          0.0,            50.0**2,   0.0],
+                     [0.0,          0.0,            0.0,    50.0**2]])
     b_area: List[Gaussian] = []
-    for i in range(1,num_h):
-        for j in range(1, num_w): 
-            mean = vstack([j*obj_w/(num_w+1), i*obj_h/(num_h+1), 0.0, 0.0])
-            b_area.append(Gaussian(mean, cov_edge))
+    for i in range(num_h):
+        for j in range(num_w): 
+            mean = vstack([j*obj_w/num_w+obj_w/(2*num_w), i*obj_h/num_h+obj_h/(2*num_h), 0.0, 0.0])
+            b_area.append(Gaussian(mean, cov_area))
     
     
     birth_belief.extend(b_leftside)
@@ -144,14 +130,8 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     return birth_belief
 
 
-birth_belief = phd_BirthModels(8, 6)
 
-#mean = vstack([320, 240, 0.0, .0])
-#covariance = array([[1000, 0.0, 0.0, 0.0], 
-#                    [0.0, 1000.0, 0.0, 0.0],
-#                    [0.0, 0.0, 50.0, 0.0],
-#                    [0.0, 0.0, 0.0, 50.0]])
-#birth_belief = [Gaussian(mean, covariance)]
+birth_belief = phd_BirthModels(5, 5)
 
 survival_rate = 0.999
 detection_rate = 0.9
@@ -530,8 +510,8 @@ def varPrune_phd(iniThresh, ininum: int, num: int, meas, plot: bool = True):
                [0.0, 1.0, 0.0, 0.0]])
     Q = 20*eye(4)
     #R = 30*eye(2)
-    R = array([[7, 0],
-               [0, 50]])
+    R = array([[20, 0],
+               [0, 20]])
     birth_belief = phd_BirthModels(8, 6)
     for m in range (1,num+1):   
 

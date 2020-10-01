@@ -32,7 +32,7 @@ def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1) -> plt:
     distribution = gaussian_obj.distribution()
     for i in range(1,rows, detail):
       for j in range(1, cols, detail):
-        gz[i,j] +=  gaussian_obj.distributionValue(distribution, vstack([i, j, 0, 0]))
+        gz[i,j] +=  gaussian_obj.distributionValue(distribution, vstack([j, i, 0, 0]))
     gaussian_counter+=1
   stdout.write("\r100 percent finished")
   stdout.flush()
