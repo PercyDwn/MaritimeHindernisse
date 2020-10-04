@@ -1,10 +1,9 @@
-
-import numpy as np
-import matplotlib.pyplot as plt
 from math import pi
+import matplotlib.pyplot as plt
+import numpy as np
 import cv2
 
-cov = np.diag([2, 2])
+cov = np.diag([100, 100])
 mean = np.array([5, 5])
 
 def gauss(x, mean, cov, normalized=True):
@@ -25,13 +24,13 @@ for i in range(Nx):
     # row based evaluation
     weight = .4
     z[i, :] += weight * gauss(x_vect, mean[:2], cov[:2, :2], normalized=True)
-    # z[i, :] += .6 * gauss(x_vect, np.array([50, 70]), cov, normalized=True)
+    z[i, :] += .6 * gauss(x_vect, np.array([50, 70]), cov, normalized=True)
 
 print('loop finished')
 # normalize
 z /= z.max()
 # show image
 #cv2.imshow('gauss', z)
-cv2.waitKey(0)
+#cv2.waitKey(0)
 plt.contourf(z)
 plt.show()

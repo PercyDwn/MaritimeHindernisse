@@ -18,6 +18,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import cv2
 
 from phd_plot import *
+from plotGMM import *
 
 # Typing
 from typing import List, Tuple
@@ -84,7 +85,7 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     fig = plt.figure()
     est_phd: ndarray = []
 
-    while pictures_availiable == True: #While: 
+    """ while pictures_availiable == True: #While: 
         try:
             #ObjectHandler.updateObjectStates()
             current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
@@ -98,10 +99,10 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
         k = k+1
     # Bild höhe und breite Abrufen
     obj_h = ObjectHandler.getImgHeight()
-    obj_w = ObjectHandler.getImgWidth()
+    obj_w = ObjectHandler.getImgWidth() """
 
-    #obj_h = 480
-    #obj_w = 640
+    obj_h = 480
+    obj_w = 640
 
     birth_belief: List[Gaussian] = []
 
@@ -145,6 +146,7 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
 
 
 birth_belief = phd_BirthModels(8, 6)
+fig = plotGMM(gmm = birth_belief, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'Birth Belief GMM', savePath = '/PHD_Plots')
 
 #mean = vstack([320, 240, 0.0, .0])
 #covariance = array([[1000, 0.0, 0.0, 0.0], 
@@ -220,7 +222,7 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
 #------------------------------------------------------------------------
 meas: List[ndarray] = []
 ObjectHandler.setPlotOnUpdate(True)
-for k in range(1,20):
+for k in range(1,21):
     meas.insert(k,  ObjectHandler.getObjectStates(k, 'cc'))
 
 meas_v: List[ndarray] = []
@@ -241,7 +243,7 @@ for k in range(len(meas)):
 #------------------------------------------------------------------------
 pos_phd: List[ndarray] = []
 
-
+ci = 1
 for z in meas_v:
     phd.predict()
     phd.correct(z)
@@ -250,6 +252,8 @@ for z in meas_v:
     pos_phd.append(phd.extract())
     print(phd.extract())
     print('--------------')
+    fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci), savePath = '/PHD_Plots')
+    ci += 1
     
 
 #------------------------------------------------------------------------
@@ -259,7 +263,7 @@ for z in meas_v:
 
 #x-y Raum
 #------------------------------------------------------------------------
-for i in range(19):
+for i in range(20):
     #Messungen
     for j in range(len(meas_v[i])):
         plt.plot(meas_v[i][j][0],meas_v[i][j][1],'ro',color='black')

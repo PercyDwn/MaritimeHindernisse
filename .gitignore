@@ -213,3 +213,5 @@ __pycache__/
 *.pyc
 .DS_Store
 /TestFile/Projekt/.vscode/settings.json
+/.vscode/launch.json
+/.vscode/settings.json
