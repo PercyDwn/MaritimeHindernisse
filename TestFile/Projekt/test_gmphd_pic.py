@@ -48,221 +48,103 @@ F = array([[1.0, 0.0, 1.0, 0.0],
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
 Q = 20*eye(4)
-#R = 30*eye(2)
-R = array([[7, 0],
-           [0, 50]])
-
-#Def. Birth_belief
-
-#birth_belief = phd_BirthModels(ObjectHandler, 4, 3)
-
-mean1 = vstack([1.0, 120.0, 10.0, 2.0])
-covariance1 = array([[10, 0.0, 0.0, 0.0], 
-                     [0.0, 5.0, 0.0, 0.0],
-                     [0.0, 0.0, 10.0, 0.0],
-                     [0.0, 0.0, 0.0, 10.0]])
-
-mean2 = vstack([1.0, 120.0, 17.0, 2.0])
-covariance2 = array([[15, 0.0, 0.0, 0.0], 
-                     [0.0, 30.0, 0.0, 0.0],
-                     [0.0, 0.0, 5.0, 0.0],
-                     [0.0, 0.0, 0.0, 2.0]])
-birth_belief = [Gaussian(mean1, covariance1), Gaussian(mean2, covariance2)]
+R = array(
+    [[7, 0],
+     [0, 50]])
 
 def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
-    """
-     Args:
-            ObjectHandler: ObjectHandler          
-            num_w: number of fields on width
-            num_h: number of Fields on height
-            
-    """
-
-     #ObjectHandler updaten
-    #--------------------------
-    k = 1   #Zeitschritt
-    pictures_availiable = True
-    fig = plt.figure()
-    est_phd: ndarray = []
-
-    """ while pictures_availiable == True: #While: 
-        try:
-            #ObjectHandler.updateObjectStates()
-            current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
-            #print(current_measurement_k)
-            #print([current_measurement_k[0][0]])
-        except InvalidTimeStepError as e:
-            print(e.args[0])
-            k = 0                
-            pictures_availiable = False
-            break
-        k = k+1
-    # Bild höhe und breite Abrufen
-    obj_h = ObjectHandler.getImgHeight()
-    obj_w = ObjectHandler.getImgWidth() """
-
-    obj_h = 480
     obj_w = 640
+    obj_h = 480
 
     birth_belief: List[Gaussian] = []
-
-    # Birthmodelle Rand links
-    #--------------------------
     b_leftside: List[Gaussian] = [] 
-    cov_edge = array([[20,  0.0,             0.0, 0.0], 
-                     [0.0,  obj_h/(num_h),   0.0, 0.0],
-                     [0.0,  0.0,             20.0, 0.0],
-                     [0.0,  0.0,             0.0, 20.0]])
-    for i in range(1,num_h):
-        mean = vstack([20, i*obj_h/(num_h+1), 10.0, 0.0])
-        b_leftside.append(Gaussian(mean, cov_edge))
-    
-    # Birthmodelle Rand rechts
-    #--------------------------
     b_rightside: List[Gaussian] = [] 
-    for i in range(1,num_h):
-        mean = vstack([obj_w-20, i*obj_h/(num_h+1), -10.0, 0.0])
-        b_rightside.append(Gaussian(mean, cov_edge))
 
- 
-    # Birthmodelle übers Bild
-    #--------------------------
-    cov_area = array([[obj_w/num_w, 0.0,            0.0,    0.0], 
-                     [0.0,          obj_h/(num_h),  0.0,    0.0],
-                     [0.0,          0.0,            20.0,   0.0],
-                     [0.0,          0.0,            0.0,    20.0]])
+    cov_mul = 2
+    pad_y = 30
+
+    cov_edge = array(
+        [[(obj_w/num_w)+40,  0.0,            0.0,    0.0], 
+         [0.0,          (obj_h/num_h)+40,    0.0,    0.0],
+         [0.0,          0.0,            20.0,   0.0],
+         [0.0,          0.0,            0.0,    20.0]])
+    for i in range(0,num_h+1):
+        mean_left = vstack([20, (i*(obj_h-2*pad_y)/num_h)+pad_y, 10.0, 0])
+        b_leftside.append(Gaussian(mean_left, cov_mul*cov_edge))
+        mean_right = vstack([obj_w-20, (i*(obj_h-2*pad_y)/num_h)+pad_y, -10.0, 0])
+        b_rightside.append(Gaussian(mean_right, cov_mul*cov_edge))
+
+    cov_area = array(
+        [[obj_w/num_w,  0.0,            0.0,    0.0], 
+         [0.0,          obj_h/num_h,    0.0,    0.0],
+         [0.0,          0.0,            20.0,   0.0],
+         [0.0,          0.0,            0.0,    20.0]])
     b_area: List[Gaussian] = []
-    for i in range(1,num_h):
+    for i in range(0,num_h+1):
         for j in range(1, num_w): 
-            mean = vstack([j*obj_w/(num_h+1), i*obj_h/(num_h+1), 0.0, 0.0])
-            b_area.append(Gaussian(mean, cov_edge))
-    
+            mean = vstack([j*obj_w/num_w, (i*(obj_h-2*pad_y)/num_h)+pad_y, 0.0, 0.0])
+            b_area.append(Gaussian(mean, cov_mul*cov_area))
     
     birth_belief.extend(b_leftside)
-    birth_belief.extend(b_rightside)
     birth_belief.extend(b_area)
+    birth_belief.extend(b_rightside)
 
     return birth_belief
 
-
-birth_belief = phd_BirthModels(8, 6)
+birth_belief = phd_BirthModels(num_w = 14, num_h = 8)
 fig = plotGMM(gmm = birth_belief, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'Birth Belief GMM', savePath = '/PHD_Plots')
-
-#mean = vstack([320, 240, 0.0, .0])
-#covariance = array([[1000, 0.0, 0.0, 0.0], 
-#                    [0.0, 1000.0, 0.0, 0.0],
-#                    [0.0, 0.0, 50.0, 0.0],
-#                    [0.0, 0.0, 0.0, 50.0]])
-#birth_belief = [Gaussian(mean, covariance)]
+fig.close()
 
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.0001
+intensity = 0.01
 
 phd = GaussianMixturePHD(
-                birth_belief,
-                survival_rate,
-                detection_rate,
-                intensity,
-                F,
-                H,
-                Q,
-                R)
+    birth_belief,
+    survival_rate,
+    detection_rate,
+    intensity,
+    F,
+    H,
+    Q,
+    R
+)
 
-
-
-
-
-def gm_phd(phd, ObjectHandler) -> ndarray:
-    k = 1   #Zeitschritt
-    pictures_availiable = True
-    fig = plt.figure()
-    est_phd: ndarray = []
-
-    while pictures_availiable == True: #While: 
-        try:
-            #ObjectHandler.updateObjectStates()
-            current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
-            #print(current_measurement_k)
-            #print([current_measurement_k[0][0]])
-        except InvalidTimeStepError as e:
-            print(e.args[0])
-            k = 0                
-            pictures_availiable = False
-            break
-        #current_measurement_k = ObjectHandler.getObjectStates(k+1) #Daten der Detektion eines Zeitschrittes 
-        meas_vk: ndarray = []
-        for j in range(len(current_measurement_k)):
-            meas_vk.append(array([[current_measurement_k[j][0]], [current_measurement_k[j][1]]]))
-        #meas_v.insert(k, meas_vk)
-        phd.predict()
-        phd.correct(meas_vk)
-        est_phd.append(phd.extract())
-        #print(phd.extract())
-        #print('--------------')
-        #pruning
-        phd.prune(array([0.001]), array([35]), 120)
-        plot_PHD_realpic(ObjectHandler, est_phd, meas_vk, k)
-        k = k+1
-            
-    plt.grid()
-    #plt.show()   
-    return est_phd 
-
-#------------------------------------------------------------------------
-#pos_phd = gm_phd(phd, ObjectHandler)
-#------------------------------------------------------------------------
-
-
-
-
-
-#------------------------------------------------------------------------
-# Messungen
-#------------------------------------------------------------------------
+# measurements
+print('get measurements ...')
 meas: List[ndarray] = []
 ObjectHandler.setPlotOnUpdate(True)
 for k in range(1,21):
     meas.insert(k,  ObjectHandler.getObjectStates(k, 'cc'))
 
+print('rearrange measurements ...')
 meas_v: List[ndarray] = []
 for k in range(len(meas)):
     meas_vk: ndarray = []
 
     for j in range(len(meas[k])):
         meas_vk.append(array([[meas[k][j][0]], [meas[k][j][1]]]))
-        #print('----')
-        #print(meas_vi)
     meas_v.insert(k, meas_vk)
 
-
-
-
-#------------------------------------------------------------------------
-# PHD-Filter auf DATA anwenden
-#------------------------------------------------------------------------
+# apply phd filter
+print('start phd filtering...')
 pos_phd: List[ndarray] = []
-
 ci = 1
 for z in meas_v:
     phd.predict()
     phd.correct(z)
-    #pruning
     phd.prune(array([0.01]), array([50]), 100)
     pos_phd.append(phd.extract())
-    print(phd.extract())
-    print('--------------')
+    print( 'timestep ' + str(ci) )
+    print( 'tracking ' + str(len(phd.extract())) + ' objects' )
     fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci), savePath = '/PHD_Plots')
+    fig.close()
     ci += 1
+    print('------------------')
     
+# plot data
 
-#------------------------------------------------------------------------
-# Plott DATA
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-
-#x-y Raum
-#------------------------------------------------------------------------
+# xy 
 for i in range(20):
     #Messungen
     for j in range(len(meas_v[i])):
@@ -280,8 +162,7 @@ plt.axis([-5,645,-5,485])
 plt.gca().invert_yaxis()
 plt.show()
 
-# x Achse
-#------------------------------------------------------------------------
+# x-axis
 K = np.arange(len(meas_v))
 
 for i in K:
@@ -300,8 +181,7 @@ plt.ylabel('x-Koord.')
 plt.axis([-1,20,-5,645])
 plt.show()
 
-# y-Achse
-#------------------------------------------------------------------------
+# y-axis
 for k in K:
     #Messungen
     for j in range(len(meas_v[k])):

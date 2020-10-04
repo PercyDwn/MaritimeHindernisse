@@ -16,11 +16,17 @@ from numpy import ndarray
 from scipy.stats import multivariate_normal
 from pyrate_common_math_gaussian import Gaussian
 
+import time
+import progressbar
+
 def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str = 'rowwise', figureTitle: str = 'GMM Plot', savePath: str = '') -> plt:
 
   rows, cols = pixel_h, pixel_w
   gz = np.zeros((rows, cols))
   
+  # create new figure
+  fig = plt.figure()
+
   # set count vars and check how many gm there are
   gaussian_count = len(gmm)
   gaussian_counter = 0
@@ -52,34 +58,24 @@ def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str 
     stdout.write("\r100 percent finished  \n")
   # calculate gauss values rowwise
   elif method == 'rowwise':
-    for gaussian_obj in gmm:
-      # get distribution of current gm
-      distribution = gaussian_obj.distribution()
-      # iterate over rows
-      for i in range(1,rows):
-        # set vector with current row and all cols
-        x_vect = np.zeros((4, cols))
-        x_vect[0, :] = range(cols)
-        x_vect[1, :] = i
-        # calc gauss value for current row and set in gauss array gz
-        gz[i,:] +=  gaussian_obj.distributionValues(distribution, x_vect)
-        # increase counter and recalc progress
-        pixel_row_counter+=1
-        pixel_rows_analysed_percent = cast(float,(pixel_row_counter / pixel_row_count) * 100)
-        # print progress
-        if gaussian_count <= 150:
-          stdout.write("\r%.0f percent finished    " % pixel_rows_analysed_percent)
-        elif gaussian_count > 150 and gaussian_count < 250:
-          stdout.write("\r%.1f percent finished    " % pixel_rows_analysed_percent)
-        else:
-          stdout.write("\r%.2f percent finished    " % pixel_rows_analysed_percent)
-    # print finished statement
-    stdout.write("\r100 percent finished  \n")
+    with progressbar.ProgressBar(max_value=pixel_row_count) as bar:
+      for gaussian_obj in gmm:
+        # get distribution of current gm
+        distribution = gaussian_obj.distribution()
+        # iterate over rows
+        for i in range(1,rows):
+          # set vector with current row and all cols
+          x_vect = np.zeros((4, cols))
+          x_vect[0, :] = range(cols)
+          x_vect[1, :] = i
+          # calc gauss value for current row and set in gauss array gz
+          gz[i,:] +=  gaussian_obj.distributionValues(distribution, x_vect)
+          # increase counter and recalc progress
+          pixel_row_counter+=1
+          bar.update(pixel_row_counter)
 
   # normalize
   gz /= gz.max()
-  # create new figure
-  fig = plt.figure()
   # draw contour
   plt.contourf(gz)
   # set window title
