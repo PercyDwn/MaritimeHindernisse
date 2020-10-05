@@ -310,7 +310,7 @@ class GaussianMixturePHD:
             measurement_norm = self.intensity + sum([c.w for c in batch])
             for component in batch:
                 component.w /= measurement_norm
-            print('Normalize assert: '+str(1 - sum([c.w for c in batch])))
+            #print('Normalize assert: '+str(1 - sum([c.w for c in batch])))
             #assert (1 - sum([c.w for c in batch]) < 1E-3), "Error with Normalize weights"
             
 

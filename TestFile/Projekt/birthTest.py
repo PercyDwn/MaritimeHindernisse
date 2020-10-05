@@ -62,13 +62,13 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     # Birthmodelle Rand links
     #--------------------------
     b_leftside: List[Gaussian] = [] 
-    cov_edge = array([[100*30,  0.0,             0.0, 0.0], 
-                     [0.0,  (obj_h/(num_h))*30,   0.0, 0.0],
+    cov_edge = array([[100*40,  0.0,             0.0, 0.0], 
+                     [0.0,  (obj_h/(num_h))*40,   0.0, 0.0],
                      [0.0,  0.0,             10.0*10, 0.0],
                      [0.0,  0.0,             0.0, 10.0*10]])
     print('leftside')
     for i in range(num_h):
-        mean = vstack([0,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
+        mean = vstack([20,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
         print(i*obj_h/num_h+obj_h/(2*num_h))
         print('--------------')
         b_leftside.append(Gaussian(mean, cov_edge, 0.05))
@@ -79,14 +79,14 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     print('*******************')
     print('rightside')
     for i in range(num_h):
-        mean = vstack([obj_w,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
+        mean = vstack([obj_w-20,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
         b_rightside.append(Gaussian(mean, cov_edge, 0.05))
 
  
     # Birthmodelle übers Bild
     #--------------------------
-    cov_area = array([[(obj_w/num_w)*30, 0.0,            0.0,    0.0], 
-                     [0.0,          (obj_h/(num_h))*30,  0.0,    0.0],
+    cov_area = array([[(obj_w/num_w)*40, 0.0,            0.0,    0.0], 
+                     [0.0,          (obj_h/(num_h))*40,  0.0,    0.0],
                      [0.0,          0.0,            10.0*10,   0.0],
                      [0.0,          0.0,            0.0,    10.0*10]])
     b_area: List[Gaussian] = []
@@ -102,10 +102,14 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
 
     return birth_belief
 
-for n in range(5):
-    birth_belief = phd_BirthModels(n+1, n+1)
+birth_belief = phd_BirthModels(5, 5)
+fig = plotGMM(birth_belief, 640, 480, 1)
+plt.show()
 
-    fig = plt.figure
-    fig = plotGMM(birth_belief, 640, 480)
-    plt.title('Gausplot für : ' +str(n+1))
-    plt.show()
+#for n in range(5):
+#    birth_belief = phd_BirthModels(n+1, n+2)
+
+#    fig = plt.figure
+#    fig = plotGMM(birth_belief, 640, 480, 1)
+#    plt.title('Gausplot für : ' +str(n+1))
+#    plt.show()

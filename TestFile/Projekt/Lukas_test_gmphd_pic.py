@@ -94,7 +94,7 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     #--------------------------
     b_leftside: List[Gaussian] = [] 
     cov_edge = array([[3000,  0.0,             0.0, 0.0], 
-                     [0.0,  (obj_h/(num_h))*30,   0.0, 0.0],
+                     [0.0,  (obj_h/(num_h))*40,   0.0, 0.0],
                      [0.0,  0.0,             50.0*5, 0.0],
                      [0.0,  0.0,             0.0, 50.0*5]])
     for i in range(num_h):
@@ -111,8 +111,8 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
  
     # Birthmodelle übers Bild
     #--------------------------
-    cov_area = array([[(obj_w/num_w)*30, 0.0,            0.0,    0.0], 
-                     [0.0,          (obj_h/(num_h))*30,  0.0,    0.0],
+    cov_area = array([[(obj_w/num_w)*40, 0.0,            0.0,    0.0], 
+                     [0.0,          (obj_h/(num_h))*40,  0.0,    0.0],
                      [0.0,          0.0,            50.0*5,   0.0],
                      [0.0,          0.0,            0.0,    50.0*5]])
     b_area: List[Gaussian] = []
@@ -130,12 +130,12 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
 
 
 
-birth_belief = phd_BirthModels(5, 5)
+birth_belief = phd_BirthModels(5, 4)
 
-#fig = plt.figure
-#fig = plotGMM(birth_belief, 640, 480, 5)
-#plt.title('GausPlot des Birthmodels')
-#plt.show()
+fig = plt.figure
+fig = plotGMM(birth_belief, 640, 480)
+plt.title('GausPlot des Birthmodels')
+plt.show()
 
 survival_rate = 0.999
 detection_rate = 0.9
@@ -208,7 +208,7 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
             fig = plt.figure
             fig = plotGMM(phd.gmm, 640, 480, 4)
             for l in range(len(meas_vk)):
-                plt.plot(meas_vk[l][0],meas_vk[l][1],'ro',color= 'white', ms= 1)
+                plt.plot(meas_vk[l][0],meas_vk[l][1],'ro',color= 'black', ms= 1)
             for est in phd.extract():
                 plt.plot(est[0],est[1],'ro',color= 'red', ms= 1)
             plt.title('GausPlot after pruning')

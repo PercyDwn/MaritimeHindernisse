@@ -78,7 +78,7 @@ class ObjectHandler:
         return self.ObjectStates
 
     # return object states for a given time step t
-    def getObjectStates(self, t: int, position: str = 'cc') -> List:
+    def getObjectStates(self, t: int, position: str = 'cb') -> List:
         if(t > self.getTimeStepCount()):
             # try and update object state data
             for i in range(0,t - self.getTimeStepCount()):
@@ -94,7 +94,7 @@ class ObjectHandler:
                 
 
     # format coordinates
-    def returnCoordinates(self, state: Tuple, position: str = 'cc') -> List:
+    def returnCoordinates(self, state: Tuple, position: str = 'cb') -> List:
 
         # print(state)
 
@@ -124,7 +124,7 @@ class ObjectHandler:
         return [return_x, return_y]
 
     # return last item in object states list
-    def getLastObjectStates(self, position: str = 'cc') -> List:
+    def getLastObjectStates(self, position: str = 'cb') -> List:
 
         return self.returnCoordinates(self.ObjectStates[-1], position)
 
