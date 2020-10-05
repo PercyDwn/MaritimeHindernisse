@@ -106,6 +106,6 @@ for n in range(5):
     birth_belief = phd_BirthModels(n+1, n+1)
 
     fig = plt.figure
-    fig = plotGMM(birth_belief, 640, 480, 3)
+    fig = plotGMM(birth_belief, 640, 480)
     plt.title('Gausplot für : ' +str(n+1))
     plt.show()
