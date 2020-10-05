@@ -19,13 +19,20 @@ from pyrate_common_math_gaussian import Gaussian
 import time
 import progressbar
 
-def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str = 'rowwise', figureTitle: str = 'GMM Plot', savePath: str = '') -> plt:
+from PIL import Image
+
+def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str = 'rowwise', figureTitle: str = 'GMM Plot', savePath: str = '', imgPath: str = None) -> plt:
 
   rows, cols = pixel_h, pixel_w
   gz = np.zeros((rows, cols))
   
   # create new figure
   fig = plt.figure()
+  if imgPath:
+    img = Image.open(imgPath)
+    img = img.resize((pixel_w, pixel_h))
+    plt.imshow(img)
+
 
   # set count vars and check how many gm there are
   gaussian_count = len(gmm)
@@ -77,11 +84,11 @@ def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str 
   # normalize
   gz /= gz.max()
   # draw contour
-  plt.contourf(gz)
+  plt.contourf(gz, alpha=.5, antialiased=True)
   # set window title
   plt.gcf().canvas.set_window_title(figureTitle)
   # invert y axis
-  plt.gca().invert_yaxis()
+  #plt.gca().invert_yaxis()
 
   # save figure if savePath is set and valid
   if savePath != '' and savePath[0] == '/': 

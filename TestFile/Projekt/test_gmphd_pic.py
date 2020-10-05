@@ -1,8 +1,6 @@
- ############test##################
-#from ObjectHandler import ObjectHandler
+
 from ObjectHandler import *
 
-########
 import  matplotlib.pyplot as plt
 import numpy as np
 import pyrate_sense_filters_gmphd
@@ -19,28 +17,19 @@ import cv2
 
 from phd_plot import *
 from plotGMM import *
+from phd_functions import * 
 
 # Typing
-from typing import List, Tuple
+from typing import List, Tuple, cast
 
-#------------------------------------------------------------------------
-# ObjectHandler initialisieren
-#------------------------------------------------------------------------
+# ObjectHandler init
 ObjectHandler = ObjectHandler()
-#Dateipfad individuell anpassen!!
-#################################
 ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
 
-#------------------------------------------------------------------------
-# GM_PHD filter initialisieren
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#
-# x= [x, y, dx, dy]
-
+# GM_PHD filter init
 F = array([[1.0, 0.0, 1.0, 0.0], 
            [0.0, 1.0, 0.0, 1.0], 
            [0.0, 0.0, 1.0, 0.0], 
@@ -52,63 +41,30 @@ R = array(
     [[7, 0],
      [0, 50]])
 
-def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
-    obj_w = 640
-    obj_h = 480
+HorizontLines = ObjectHandler.getHorizonLines(t=1)
+ypt = 0
+for hl in HorizontLines:
+    ypt = max(ypt, hl.height)
 
-    birth_belief: List[Gaussian] = []
-    b_leftside: List[Gaussian] = [] 
-    b_rightside: List[Gaussian] = [] 
 
-    cov_mul = 2
-    pad_y = 30
-
-    cov_edge = array(
-        [[(obj_w/num_w)+40,  0.0,            0.0,    0.0], 
-         [0.0,          (obj_h/num_h)+40,    0.0,    0.0],
-         [0.0,          0.0,            20.0,   0.0],
-         [0.0,          0.0,            0.0,    20.0]])
-    for i in range(0,num_h+1):
-        mean_left = vstack([20, (i*(obj_h-2*pad_y)/num_h)+pad_y, 10.0, 0])
-        b_leftside.append(Gaussian(mean_left, cov_mul*cov_edge))
-        mean_right = vstack([obj_w-20, (i*(obj_h-2*pad_y)/num_h)+pad_y, -10.0, 0])
-        b_rightside.append(Gaussian(mean_right, cov_mul*cov_edge))
-
-    cov_area = array(
-        [[obj_w/num_w,  0.0,            0.0,    0.0], 
-         [0.0,          obj_h/num_h,    0.0,    0.0],
-         [0.0,          0.0,            20.0,   0.0],
-         [0.0,          0.0,            0.0,    20.0]])
-    b_area: List[Gaussian] = []
-    for i in range(0,num_h+1):
-        for j in range(1, num_w): 
-            mean = vstack([j*obj_w/num_w, (i*(obj_h-2*pad_y)/num_h)+pad_y, 0.0, 0.0])
-            b_area.append(Gaussian(mean, cov_mul*cov_area))
-    
-    birth_belief.extend(b_leftside)
-    birth_belief.extend(b_area)
-    birth_belief.extend(b_rightside)
-
-    return birth_belief
-
-birth_belief = phd_BirthModels(num_w = 14, num_h = 8)
-fig = plotGMM(gmm = birth_belief, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'Birth Belief GMM', savePath = '/PHD_Plots')
-fig.close()
+# image size
+img_w = 640
+img_h = 480
+# create birth_belief
+boatContour = ('Triangle', 30,140)
+ypt = cast(int, ypt)
+birth_belief = phd_BirthModels(obj_w = img_w, obj_h = img_h, num_w = 12, num_h = 8, ypt = ypt, boatContour=boatContour)
+# plot gmm
+imgPath = os.getcwd()+'/TestFile/Projekt/Bilder/list1/1.jpg'
+fig = plotGMM(gmm = birth_belief, pixel_w = img_w, pixel_h = img_h, detail = 1 , method = 'rowwise', figureTitle = 'Birth Belief GMM', savePath = '/PHD_Plots', imgPath = imgPath)
+fig.show()
 
 survival_rate = 0.999
 detection_rate = 0.9
 intensity = 0.01
 
-phd = GaussianMixturePHD(
-    birth_belief,
-    survival_rate,
-    detection_rate,
-    intensity,
-    F,
-    H,
-    Q,
-    R
-)
+# phd object
+phd = GaussianMixturePHD(birth_belief, survival_rate, detection_rate, intensity, F, H, Q, R)
 
 # measurements
 print('get measurements ...')
@@ -133,7 +89,7 @@ ci = 1
 for z in meas_v:
     phd.predict()
     phd.correct(z)
-    phd.prune(array([0.01]), array([50]), 100)
+    phd.prune(array([0.001]), array([100]), 200)
     pos_phd.append(phd.extract())
     print( 'timestep ' + str(ci) )
     print( 'tracking ' + str(len(phd.extract())) + ' objects' )
