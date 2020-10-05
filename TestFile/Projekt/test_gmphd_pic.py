@@ -47,10 +47,10 @@ F = array([[1.0, 0.0, 1.0, 0.0],
            [0.0, 0.0, 0.0, 1.0]])
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
-Q = 20*eye(4)
+Q = 10*eye(4)
 #R = 30*eye(2)
-R = array([[7, 0],
-           [0, 50]])
+R = array([[5, 0],
+           [0, 25]])
 
 #Def. Birth_belief
 def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
@@ -93,37 +93,37 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     # Birthmodelle Rand links
     #--------------------------
     b_leftside: List[Gaussian] = [] 
-    cov_edge = array([[1500,  0.0,             0.0, 0.0], 
-                     [0.0,  (obj_h/(num_h))*10,   0.0, 0.0],
+    cov_edge = array([[3000,  0.0,             0.0, 0.0], 
+                     [0.0,  (obj_h/(num_h))*30,   0.0, 0.0],
                      [0.0,  0.0,             50.0*5, 0.0],
                      [0.0,  0.0,             0.0, 50.0*5]])
     for i in range(num_h):
-        mean = vstack([0,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
-        b_leftside.append(Gaussian(mean, cov_edge))
+        mean = vstack([20,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
+        b_leftside.append(Gaussian(mean, cov_edge, 0.05))
     
     # Birthmodelle Rand rechts
     #--------------------------
     b_rightside: List[Gaussian] = [] 
     for i in range(num_h):
-        mean = vstack([obj_w-0,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
-        b_rightside.append(Gaussian(mean, cov_edge))
+        mean = vstack([obj_w-20,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
+        b_rightside.append(Gaussian(mean, cov_edge, 0.05))
 
  
     # Birthmodelle übers Bild
     #--------------------------
-    cov_area = array([[(obj_w/num_w)*10, 0.0,            0.0,    0.0], 
-                     [0.0,          (obj_h/(num_h))*10,  0.0,    0.0],
+    cov_area = array([[(obj_w/num_w)*30, 0.0,            0.0,    0.0], 
+                     [0.0,          (obj_h/(num_h))*30,  0.0,    0.0],
                      [0.0,          0.0,            50.0*5,   0.0],
                      [0.0,          0.0,            0.0,    50.0*5]])
     b_area: List[Gaussian] = []
     for i in range(num_h):
         for j in range(num_w): 
             mean = vstack([j*obj_w/num_w+obj_w/(2*num_w), i*obj_h/num_h+obj_h/(2*num_h), 0.0, 0.0])
-            b_area.append(Gaussian(mean, cov_area))
+            b_area.append(Gaussian(mean, cov_area, 0.9))
     
     
-    #birth_belief.extend(b_leftside)
-    #birth_belief.extend(b_rightside)
+    birth_belief.extend(b_leftside)
+    birth_belief.extend(b_rightside)
     birth_belief.extend(b_area)
 
     return birth_belief
@@ -132,9 +132,14 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
 
 birth_belief = phd_BirthModels(5, 5)
 
+#fig = plt.figure
+#fig = plotGMM(birth_belief, 640, 480, 5)
+#plt.title('GausPlot des Birthmodels')
+#plt.show()
+
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.000000001
+intensity = 0.00015
 
 phd = GaussianMixturePHD(
                 birth_belief,
@@ -147,7 +152,7 @@ phd = GaussianMixturePHD(
                 R)
 
 
-
+inspect = 15
 
 
 def gm_phd(phd, ObjectHandler) -> ndarray:
@@ -173,13 +178,42 @@ def gm_phd(phd, ObjectHandler) -> ndarray:
             meas_vk.append(array([[current_measurement_k[j][0]], [current_measurement_k[j][1]]]))
         #meas_v.insert(k, meas_vk)
         phd.predict()
-        phd.correct(meas_vk)
-        est_phd.append(phd.extract())
+        phd.correct(meas_vk)        
+        #if k == inspect:
+        #    fig = plt.figure
+        #    fig = plotGMM(phd.gmm, 640, 480, 3)
+        #    plt.title('GausPlot befor pruning')
+        #    plt.show()
         #print(phd.extract())
         #print('--------------')
+        print('Anzahl an Gaussummanden vorm pruning: ' + str(len(phd.gmm)))
         #pruning
-        phd.prune(array([0.001]), array([3]), 20)
-        plot_PHD_realpic(ObjectHandler, est_phd, meas_vk, k)
+        phd.prune(array([0.001]), array([3]), 25)
+        print('Anzahl an Gaussummanden nachm pruning: ' + str(len(phd.gmm)))
+
+        est_phd.append(phd.extract())
+
+        maxWeight = 0
+        for comp in phd.gmm:
+            if comp.w > maxWeight:
+                maxWeight = comp.w
+        print('max weight: ' + str(maxWeight))
+        minWeight = 1
+        for comp in phd.gmm:
+            if comp.w < minWeight:
+                minWeight = comp.w
+        print('min weight: ' + str(minWeight))
+
+        if k == inspect:
+            fig = plt.figure
+            fig = plotGMM(phd.gmm, 640, 480, 4)
+            for l in range(len(meas_vk)):
+                plt.plot(meas_vk[l][0],meas_vk[l][1],'ro',color= 'white', ms= 1)
+            for est in phd.extract():
+                plt.plot(est[0],est[1],'ro',color= 'red', ms= 1)
+            plt.title('GausPlot after pruning')
+            plt.show()
+        #plot_PHD_realpic(ObjectHandler, est_phd, meas_vk, k)
         k = k+1
             
     plt.grid()

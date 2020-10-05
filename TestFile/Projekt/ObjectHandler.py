@@ -78,7 +78,7 @@ class ObjectHandler:
         return self.ObjectStates
 
     # return object states for a given time step t
-    def getObjectStates(self, t: int, position: str = 'cc') -> List:
+    def getObjectStates(self, t: int, position: str = 'cb') -> List:
         if(t > self.getTimeStepCount()):
             # try and update object state data
             for i in range(0,t - self.getTimeStepCount()):

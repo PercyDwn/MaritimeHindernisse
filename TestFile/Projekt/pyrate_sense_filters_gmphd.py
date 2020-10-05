@@ -128,7 +128,7 @@ class GaussianMixturePHD:
         self.gmm: List[Gaussian] = []
 
     'threshold geändert! vorher 0.5'
-    def extract(self, threshold: float = 0.1) -> List[ndarray]:
+    def extract(self, threshold: float = 0.5) -> List[ndarray]:
         """Extract a state representation based on spikes in the current GMM.
 
         Args:
@@ -147,6 +147,8 @@ class GaussianMixturePHD:
                 states += [component.x for _ in range(int(round(component.w)))]
                 print(range(int(round(component.w))))
                 #states += [component.x]
+
+        print('Number of extracted states: ' + str(len(states)))
         # Return all extracted states
         return states
 
@@ -303,8 +305,14 @@ class GaussianMixturePHD:
                 )
 
             # Normalize weights
+            #for component in batch:
+            #    component.w /= self.intensity + sum([c.w for c in batch])
+            measurement_norm = self.intensity + sum([c.w for c in batch])
             for component in batch:
-                component.w /= self.intensity + sum([c.w for c in batch])
+                component.w /= measurement_norm
+            print('Normalize assert: '+str(1 - sum([c.w for c in batch])))
+            #assert (1 - sum([c.w for c in batch]) < 1E-3), "Error with Normalize weights"
+            
 
             # Append batch to updated GMM
             updated += batch

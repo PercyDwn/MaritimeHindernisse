@@ -81,13 +81,13 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
         mean = vstack([20,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
         print(i*obj_h/num_h+obj_h/(2*num_h))
         print('--------------')
-        b_leftside.append(Gaussian(mean, cov_edge, 0.075))   
+        b_leftside.append(Gaussian(mean, cov_edge, 0.05))   
     # Birthmodelle Rand rechts
     #--------------------------
     b_rightside: List[Gaussian] = [] 
     for i in range(num_h):
         mean = vstack([obj_w-20,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
-        b_rightside.append(Gaussian(mean, cov_edge, 0.075))
+        b_rightside.append(Gaussian(mean, cov_edge, 0.05))
     # Birthmodelle übers Bild
     #--------------------------
     cov_area = array([[(obj_w/num_w), 0.0,            0.0,    0.0], 
@@ -98,7 +98,7 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     for i in range(num_h):
         for j in range(num_w): 
             mean = vstack([j*obj_w/num_w+obj_w/(2*num_w), i*obj_h/num_h+obj_h/(2*num_h), 0.0, 0.0])
-            b_area.append(Gaussian(mean, cov_area, 0.2))
+            b_area.append(Gaussian(mean, cov_area, 0.1))
             
     birth_belief.extend(b_leftside)
     birth_belief.extend(b_rightside)
@@ -109,7 +109,7 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
 
 birth_belief = phd_BirthModels(12, 10) #12, 10
 #fig = plt.figure
-#fig = plotGMM(birth_belief, 640, 480, 10)
+#fig = plotGMM(birth_belief, 640, 480, 5)
 #plt.title('GausPlot des Birthmodels')
 #plt.show()
 maxWeight = 0
@@ -128,7 +128,7 @@ print('Num of Gaus in gmm: ' + str(numGaus))
 
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.0001
+intensity = 0.00005
 T = 1
 F = array(
   [[1.0, 0.0, T,    0.0], 
@@ -140,12 +140,12 @@ H = array(
   [[1.0, 0.0, 0.0, 0.0],
    [0.0, 1.0, 0.0, 0.0]]
 )
-Q = 5*array([[(T**4)/4,  0,      (T**3)/2, 0],
+Q = 20*array([[(T**4)/4,  0,      (T**3)/2, 0],
               [0,       (T**4)/4, 0,      (T**3)/2],
               [(T**3)/2,  0,      T**2,   0], 
               [0,      (T**3)/2,  0,      T**2]
               ])
-R = array(
+R = 20*array(
   [[1, 0],
    [0, 5]]
 )
@@ -165,7 +165,7 @@ meas_v: List[ndarray] = []
 pos_phd: List[ndarray] = []
 ObjectHandler.setPlotOnUpdate(True)
 
-inspect = 15
+inspect = 21
 
 for k in range(1,20):
     meas.insert(k,  ObjectHandler.getObjectStates(k, 'cb'))
@@ -177,7 +177,9 @@ for k in range(1,20):
     z = meas_v[k-1]
     phd.predict()
     phd.correct(z)
-    phd.prune(array([0.025]), array([20]), 30)
+    print('Anzahl an Gaussummanden vorm pruning: ' + str(len(phd.gmm)))
+    phd.prune(array([0.0001]), array([20]), 30)
+    print('Anzahl an Gaussummanden nachm pruning: ' + str(len(phd.gmm)))
     pos_phd.append(phd.extract(0.5))
     #print(phd.extract())
     #print('--------------')
