@@ -92,11 +92,15 @@ class Gaussian:
 
     def distribution(self) -> multivariate_normal:
     
-      return multivariate_normal(mean=self.mean.T[0], cov=self.covariance)
+        return multivariate_normal(mean=self.mean.T[0], cov=self.covariance)
 
     def distributionValue(self, distribution, value: ndarray) -> float:
 
-      return self.weight * cast(float, distribution.pdf(value.T[0]))
+        return self.weight * cast(float, distribution.pdf(value.T[0]))
+
+    def distributionValues(self, distribution, values: ndarray) -> ndarray:
+      
+        return self.weight * cast(float, distribution.pdf(values.T))
 
     def __call__(self, value: ndarray) -> float:
         """Evaluate the gaussian at the given location."""

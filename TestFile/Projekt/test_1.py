@@ -2,10 +2,11 @@ from ObjectHandler import *
 
 ObjectHandler = ObjectHandler()
 #Ordner evtl. anpassen!
-ObjectHandler.setImageFolder('C:/Users/lukas/source/repos/PercyDwn/MaritimeHindernisse/TestFile/Projekt/Bilder/list1')
+ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
+ObjectHandler.setPlotOnUpdate(True)
 
 for i in range(1,20):
     print('---------------------------------------')

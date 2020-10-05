@@ -78,7 +78,7 @@ class ObjectHandler:
         return self.ObjectStates
 
     # return object states for a given time step t
-    def getObjectStates(self, t: int, position: str = 'cb') -> List:
+    def getObjectStates(self, t: int, position: str = 'cc') -> List:
         if(t > self.getTimeStepCount()):
             # try and update object state data
             for i in range(0,t - self.getTimeStepCount()):
@@ -160,7 +160,7 @@ class ObjectHandler:
             # check if image is valid
             assert img is not None, 'file ' + filepath + ' could not be read'
             # plot if plot setting is true
-            if self.PlotOnUpdate == True: cv2.imshow('orig', img)
+            #if self.PlotOnUpdate == True: cv2.imshow('orig', img)
             # detect horizon
             horizon_lines, votes, seps = detector.detect_horizon(img)
             # if horizon lines found

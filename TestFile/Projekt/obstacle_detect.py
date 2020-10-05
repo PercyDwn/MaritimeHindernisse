@@ -1,5 +1,5 @@
 import numpy as np
-import cv2
+from cv2 import cv2
 from math import ceil, cos, sin, sqrt, atan2
 import matplotlib.pyplot as plt
 from typing import List, Tuple
