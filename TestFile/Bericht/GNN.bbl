@@ -1,0 +1,102 @@
+\begin{thebibliography}{}
+
+\bibitem [\protect \citeauthoryear {%
+{Apache Software Foundation}%
+}{%
+{Apache Software Foundation}%
+}{%
+{\protect \APACyear {{\protect \bibnodate {}}}}%
+}]{%
+HungarianPython}
+\APACinsertmetastar {%
+HungarianPython}%
+\begin{APACrefauthors}%
+{Apache Software Foundation}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{{\protect \bibnodate {}}}{}{}.
+\newblock
+\APACrefbtitle {Hadoop.} {Hadoop.}
+\newblock
+\begin{APACrefURL} \url{https://hadoop.apache.org} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Lenz%
+}{%
+Lenz%
+}{%
+{\protect \APACyear {2019}}%
+}]{%
+IDS}
+\APACinsertmetastar {%
+IDS}%
+\begin{APACrefauthors}%
+Lenz.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Identification Dymanischer Systemen} {Identification
+  dymanischer systemen}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Identification Dymanischer Systemen.} {Identification
+  dymanischer systemen.}
+\newblock
+\APACaddressPublisher{}{TU Darmstadt}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Mills-Tettey%
+, Stentz%
+\BCBL {}\ \BBA {} Dias%
+}{%
+Mills-Tettey%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2007}}%
+}]{%
+hungarian}
+\APACinsertmetastar {%
+hungarian}%
+\begin{APACrefauthors}%
+Mills-Tettey, G\BPBI A.%
+, Stentz, A.%
+\BCBL {}\ \BBA {} Dias, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2007}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The Dynamic Hungarian Algorithm for the Assignment
+  Problem with Changing Costs} {The dynamic hungarian algorithm for the
+  assignment problem with changing costs}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+of Technology%
+}{%
+of Technology%
+}{%
+{\protect \APACyear {2019}}%
+}]{%
+MOTyoutube}
+\APACinsertmetastar {%
+MOTyoutube}%
+\begin{APACrefauthors}%
+of Technology, C\BPBI U.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+\APACrefbtitle {Multiple Object Tracking} {Multiple object tracking}\ [Chanel].
+\newblock
+\APAChowpublished
+  {\url{https://www.youtube.com/channel/UCa2-fpj6AV8T6JK1uTRuFpw}}.
+\newblock
+\APACrefnote{In comment section, accessed on 2018/12/04}
+\PrintBackRefs{\CurrentBib}
+
+\end{thebibliography}

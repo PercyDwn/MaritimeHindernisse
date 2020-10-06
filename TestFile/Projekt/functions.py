@@ -100,7 +100,7 @@ def initialize_values(dimensions,T,n,measurements_0):
             init_values[0,i] = random_meas_coordinates[0]+  random_meas_coordinates[0]/30 #x ELement aus der zufälligen Koordinate plus Abweichung
             init_values[2,i] = random_meas_coordinates[1]+  random_meas_coordinates[1]/30 #y ELement aus der zufälligen Koordinate plus Abweichung
         
-        P_i_init = [[10,0,0,0],[0,10,0,0],[0,0,10,0],[0,0,0,10]] 
+        P_i_init = [[100,0,0,0],[0,1,0,0],[0,0,100,0],[0,0,0,1]] 
         
     return F,H,Q,R,P_i_init,init_values
 
@@ -122,3 +122,4 @@ def get_position(estimate,dimensions): #Extraiert die Position der Objekten aus 
             position[j] = position_k
             
     return position
+

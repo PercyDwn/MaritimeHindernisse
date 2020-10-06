@@ -1,0 +1,21 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{amsmath}   
+
+
+\begin{document}
+\section{Horizont Schätzung}
+Aufgrund der \textit{2D-3D Transformation}, die im Kapitel \ref{sub:Pixel Transformation} vorgestellt wird, werden die Höhe und der Winkel der Horizontposition ebenfalls benötigt. Die Objekt Detektion liefert pro Zeitschritt drei Horizontkandidaten, die aufgrund Messungenauigkeiten, verzerrt sind. Die Ziele der Horizont Schätzung sind die Filterung der Messungen, um genauerer Ergebnisse zu erhalten und die Wahl des besten Kandidaten.\\
+Die Filterung wird mithilfe des \textit{Kalman-Filters} durchgeführt und daher wird der ursprüngliche Zustand $\underline{x}_{k|k}$ auf 
+\begin{equation}
+\underline{x}^+_{k|k} = \begin{bmatrix}
+\underline{x}_{k|k} \\
+h_{k|k}\\
+\alpha_{k|k}
+\end{bmatrix}
+\end{equation}
+erweitert. Variablen $h_{k|k}$ und $\alpha_{k|k}$ stellen die Höhe beziehungsweise den Winkel des Horizonts dar.\\
+Für den \textit{PHD} wird in dem ersten Zeitschritt $k = 0$ einen der drei Kandidaten einfach zufällig gewählt, da man keine zusätzliche Information verfügt, die diese Wahl beeinflussen kann.\\
+Bei dem \textit{GNN} wird die Zeitverzögerung, die für den \textit{M/N Algorithmus} erforderlich ist, ausgenutzt, um bei $k = N$ den besten Kandidaten zu erhalten.
+\subsection{MN Horizont}
+
+\end{document}

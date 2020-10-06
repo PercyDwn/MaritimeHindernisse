@@ -1,0 +1,54 @@
+  \documentclass[10pt,a4paper]{article}
+
+\usepackage{amsmath}   
+
+
+\begin{document}
+\section{Constant Velocity Model}
+Der Zustand  $\underline{x}_{k|k-1}$ an dem Zeitschritt $k$, der die Bewegung des Objekts beschreibt, erhält die Postionen $x_{k|k-1}$ und $y_{k|k-1}$ und die Geschwindigkeiten $v^x_{k|k-1}$ beziehungsweise $v^y_{k|k-1}$.
+\begin{equation}
+\underline{x}_{k-1} = \begin{bmatrix}
+x_{k-1} \\
+v^x_{k-1}\\
+y_{k-1}\\
+v^y_{k-1}\\
+\end{bmatrix}.
+\end{equation}
+$x_{k-1}$ und $y_{k-1}$ können gemessen werden und $v^x_{k-1}$ und $v^y_{k-1}$ werden geschätzt, somit:
+\begin{equation}
+\underline{y}_{k-1} = \begin{bmatrix}
+x_{k-1} \\
+y_{k-1}\\
+\end{bmatrix} =\textbf{H}\underline{x}_{k-1} =
+\begin{bmatrix}
+1 & 0 &0 &0 \\
+0 & 0 &1 &0\\
+\end{bmatrix}\underline{x}_{k-1},
+\end{equation}
+die Matrix $\textbf{H}$ wird als \textit{Ausgangsmatrix} betrachtet. Es wird angenommen, dass die Objekte sich mit näherungsweise einer konstanten Geschwindigkeit bewegen. Aus dem Grund, können die Postionen und Geschwindigkeiten folgendermaßen beschrieben werden.
+\begin{equation}
+x_{k} = x_{k-1} + Tv^x_{k-1},
+\end{equation}
+\begin{equation*}
+y_{k} = y_{k-1} + Tv^y_{k-1},
+\end{equation*}
+\begin{equation*}
+v^x_{k} = v^x_{k-1},
+\end{equation*}
+\begin{equation*}
+v^y_{k} = v^y_{k-1},
+\end{equation*}
+wo $T$ die Bildaufnahmezeit darstellt. Zusammenfassend stellt man das diskrete dynamische System vor:
+\begin{equation}
+\underline{x}_{k} = \textbf{F}\underline{x}_{k-1} = 
+\begin{bmatrix}
+1 & T &0 &0 \\
+0 & 1 &0 &0 \\
+0 & 0 &1 &T\\
+0 & 0 &0 &1 \\
+\end{bmatrix}\underline{x}_{k-1},
+\end{equation}
+wo die Matrix $\textbf{F}$ die diskrete Systemmatrix darstellt.
+
+
+\end{document}

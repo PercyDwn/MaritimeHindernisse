@@ -1,42 +1,37 @@
- \documentclass[10pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \usepackage{graphicx}
 \usepackage{apacite}
-\usepackage{amsmath}               
+\usepackage{amsmath}   
+\usepackage{caption}
+\usepackage{subcaption} 
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+
 \newtheorem{assumption}{Assumption}
 \usepackage{enumitem}
 \newlist{steps}{enumerate}{1}
 \setlist[steps, 1]{label = Step \arabic*:}
-%opening
-\title{Test}
-\author{}
+
 
 \begin{document}
 
-\maketitle
-\newpage
-\tableofcontents
-\newpage
-\begin{abstract}
-al
-\end{abstract}
-\newpage
-
 \section{Global Nearest Neighbour: Algorithmus und Idee}
-\subsection{Grundlage GNN}
-Da die Verfolgung der exakten gesuchten posteorie Wahrscheinlichkeit, aufgrund begrenzter Rechnerzeit und hohen Rechneraufwand, nicht genau bestimmbar ist, sind Approximationen für eine durchführbare Rechnung erforderlich. In diesem Kapitel wird der einfachste und rechnen günstigste Tracking Algorithmus vorgestellt, der Global Nearest Neighbour (GNN).\\
-Wie bereits erwähnt, werden hauptsächlich zwei Annahmen getroffen, um die Problematik noch berechenbar zu gestalten, die sogenannte Merging und Pruning. Der GNN baut sich auf ein abruptes Pruning.
+\subsection{Grundlage \textit{GNN}}
+Da die Verfolgung der exakten gesuchten posteorie Wahrscheinlichkeit, aufgrund begrenzter Rechnerzeit und hohen Rechneraufwand, nicht genau bestimmbar ist, sind Approximationen für eine durchführbare Rechnung erforderlich. In diesem Kapitel wird der einfachste und rechnen günstigste Tracking Algorithmus vorgestellt, der Global Nearest Neighbour (\textit{GNN}).\\
+Wie bereits erwähnt, werden hauptsächlich zwei Annahmen getroffen, um die Problematik noch berechenbar zu gestalten, die sogenannte Merging und Pruning. Der \textit{GNN} basiert sich auf ein abruptes Pruning.
 \subsubsection{Bekannte Anzahl von Objekten}
 Eine wichtige Annahme und gleichzeitig Einschränkung dieses Algorithmus, bezieht sich auf die Voraussetzung, dass die Anzahl der Objekten in jedem Zeitschritt $n_k$ bekannt ist. Diese Annahme ist hinsichtlich einer Performance Analyse auf künstliche Testdaten ausreichend, allerdings wird der Algorithmus für eine Realitätsnahe Simulation so gut wie unbrauchbar. In den späteren Kapiteln, wird die \textit{M/N} Methode vorgestellt, die eine Einschätzung von $n_k$ liefern kann, daher wäre der GNN bei einer praktischen Anwendung verwendbar.
-\subsubsection{Pruning in dem GNN Context}
+\subsubsection{Pruning in dem \textit{GNN} Context}
 Hinsichtlich der Übersichtlichkeit der vorhanden Problematik, stellt man sich folgendes Szenario vor: Bei jedem Zeitschritt $k$ (immer wenn ein neues Bild aufgenommen wird), erhält der Algorithmus verschiedenen Messungen $\underline{M}_k$ mit x und y Koordinaten und Länge $m_k$ aus der Objektdetektion. Dies enthält sowohl Clutters wie die Koordinaten der echten Objekten $o_k$. Ohne eine genauere Analyse , sind diese beiden Größen nicht unterscheidbar, daher bewertet man über Zeitschritten hinweg, welche der Koordinaten näherungsweise einem \textit{Constant Velocity Model} entsprechen können. Je mehr die Reihe der Koordinaten einer konstanten Geschwindigkeit Annahme folgt, desto wahrscheinlicher ist es, dass es sich um ein echtes Objekt handelt. Auf der anderen Seite, Reihen von 
 Koordinaten deren vorkommen zufällig erscheinen, werden mit höherer Wahrscheinlich den Clutters zugewiesen.\\
 Eine Datenanalyse ohne das Pruning, müsste alle mögliche Kombinationen der Daten bewerten. Zum Beispiel für lediglich zwei Zeitschritten $k =0$ und $k=1$ mit jeweiligen zwei Messungen  $m_0 = 2$ und $m_1 = 2$, entstehen 4 Assoziationsmöglichkeiten, da sowohl die erste, wie die zweite Koordinate von der Messung $M_0$ zwei Alternativen besitzen sich mit den Koordinaten der $M_1$ zu Assoziieren.\\
-Laut \cite{youtubeMOT} die Gleichung, die die gesamte Anzahl aller Assoziationen $N_A$ für beliebige Objektanzahl $n_k$ und beliebige Messungen $m_k$ vorgibt lautet:
+Laut \cite{MOTyoutube} die Gleichung, die die gesamte Anzahl aller Assoziationen $N_A$ für beliebige Objektanzahl $n_k$ und beliebige Messungen $m_k$ vorgibt lautet:
 \begin{equation}
 N_A(m_k,n_k) = \sum_{\delta=0}^{min(m_k,n_k)}\dfrac{m_k!n_k!}{\delta!(m_k-\delta)!(n_k-\delta)!}
 \end{equation}
 Infolge dessen, für $m_k=n_k = 8$, entstehen bereits 1441729 mögliche Assoziationen. Dieses Beispiel vermittelt wie wesentlich für den Rechneraufwand es sei, die Hypothesen Anzahl mithilfe des Prunings einzuschränken. \\
-Bei dem GNN, wird lediglich die wahrscheinlichste Assoziation beibehalten, alle anderen möglichen Kombinationen werden bei jedem Zeitschritt \textit{weggeprunt}. Diese Eigenschaft verleiht dem GNN die Schnelligkeit und Einfachheit, die seine Anwendung auf kosten der Genauigkeit gerechtfertigten. Aus dem Grund, dass nur die wahrscheinlichste Hypothese bei jedem Zeitschritt $k$ berücksichtigt wird, wirde dieser Algorithmus als \textit{Greedy-Algorithm} bezeichnet. \\
+Bei dem \textit{GNN}, wird lediglich die wahrscheinlichste Assoziation beibehalten, alle anderen möglichen Kombinationen werden bei jedem Zeitschritt \textit{weggeprunt}. Diese Eigenschaft verleiht dem \textit{GNN} die Schnelligkeit und Einfachheit, die seine Anwendung auf kosten der Genauigkeit gerechtfertigt. Aus dem Grund, dass nur die wahrscheinlichste Hypothese bei jedem Zeitschritt $k$ berücksichtigt wird, wirde dieser Algorithmus als \textit{Greedy-Algorithm} bezeichnet. \\
 Mithilfe des Prunings, kann man die folgenden posteriori Wahrscheinlichkeit der Objektzuständen $\underline{x_k}$ darstellen.
 \begin{equation}
 p_{k|k}^{GNN}(\underline{x_k}) = p_{k|k}^{\theta^*_{1:k}}(\underline{x_k}),
@@ -57,7 +52,7 @@ Für jeden Zeitschritt $k$:\\
 \end{steps}
 
 \subsubsection{Unabhängige Objektzustände}
-Da diese Schritte für eine reale Anwendung unpraktisch sein können, setzt man folgenden Annahmen voraus.
+Da die vorherige Schritte für eine reale Anwendung unpraktisch sein können, setzt man folgenden Annahmen voraus.
 
 \begin{assumption}-\label{Ass:LinMod}
   Das Zustandsmodell sei linear.
@@ -72,20 +67,23 @@ Seien Sie erfüllt, ist der Einsatz eines Kalman-Filters bei der Prädikation be
 \subsection{GNN Algorithmus}\label{subsec:GNNAlg}
 \subsubsection{GNN Kalman-Filter}
 Wenn die Voraussetzungen \ref{Ass:LinMod} bis \ref{AssGauss} des vorherigen Kapitels erfüllt sind, kann der GNN die Eingenschaften des Kalman-Filters ausnutzen. Dieses Filter handelt sich um einen Zustandsschätzer, der das Eingangs beziehungsweise Ausgangsrauschen eines dynamischen Systems minimieren kann. Dafür werden zwei Hauptschritten erforderlich: die Prädikation und die Korrektur (oder Update).\\
-Das Kalman-Filter benötigt drei Parameter, die die Leistung der Schätzung stark beeinflussen können. Die positiv-definite Matrix der Varianz des Modellrauschens $\textbf{Q} \in \Re^{4x4}$, die positiv-definite Matrix der Varianz des Messrauschens $\textbf{R} \in \Re^{2x2}$ und letztlich die symmetrische  Objektkovarianzmatrix des Systemrauschens $\textbf{P}^i \in \Re^{2x2}$. Die Matrizen $\textbf{Q}$ und $\textbf{R}$ sind für alle Objekte konstant und sind Zeitinvariant. Matrix $\textbf{P}^i$ wird bei jedem Korrekturschritt aktualisiert und ist für die jeweilige Objekte $i$ unterschiedlich. Die Prädiktion und Korrektur werden bei jedem Zeitschritt erneut aufgerufen und sind für jedes Objekt $i = 1,...,n_k$ getrennt auszuführen. Der Einfluss der Wahl der Matrizen $\textbf{Q}$ und $\textbf{R}$ sowie des Startwertes der Matrix $\textbf{P}^i$ wird im Kapitel \ref{sub:GNNEinflussParam} untersucht.
+Das Kalman-Filter benötigt drei Parameter, die die Leistung der Schätzung stark beeinflussen können. Die positiv-definite Matrix der Varianz des Modellrauschens $\textbf{Q} \in \Re^{4x4}$, die positiv-definite Matrix der Varianz des Messrauschens $\textbf{R} \in \Re^{2x2}$ und letztlich die symmetrische  Objektkovarianzmatrix des Systemrauschens $\textbf{P}^i \in \Re^{2x2}$. Die Matrizen $\textbf{Q}$ und $\textbf{R}$ sind für alle Objekte gleich und Konstant. Matrix $\textbf{P}^i$ wird bei jedem Korrekturschritt aktualisiert und ist für die jeweilige Objekte $i$ unterschiedlich. Die Prädiktion und Korrektur werden bei jedem Zeitschritt erneut aufgerufen und sind für jedes Objekt $i = 1,...,n_k$ getrennt auszuführen. Der Einfluss der Wahl der Matrizen $\textbf{Q}$ und $\textbf{R}$ sowie des Startwertes der Matrix $\textbf{P}^i$ wird im Kapitel \ref{sub:GNNEinflussParam} untersucht.
 \subsubsection{Kalman-Prädiktion}
+
 Das Ziel der Prädiktion ist die vorhersage des Zustands des aktuellen Zeitschrittes nur anhand des Modells (Matrizen $\textbf{F}$ und $\textbf{H}$) und der Messung der Koordinaten bei dem vorherigen Schritt $k-1$. In diesem Vorgang wird die Kenntnis der Größen des aktuellen Zeitschritts noch nicht vorausgesetzt. Die Prädiktion erfolgt mithilhe folgender Gleichungen.
 \begin{equation}
+\label{eq:GNNPraediktionX}
 \underline{x}^i_{k|k-1} = F\underline{x}^i_{k-1|k-1},
 \end{equation} 
 \begin{equation}
+\label{eq:GNNPraediktionP}
 \textbf{P}^i_{k|k-1} = \textbf{F}\textbf{P}^i_{k-1|k-1}\textbf{F}^T + \textbf{Q}.
 \end{equation} 
 Die Notation ${[.]}_{k|k-1}$ repräsentiert die Vorhersage des Zustands in dem Zeitschritt $k$ gegeben die Informationen aus $k-1$.\\
 Die Prognose der aktuellen Werten ohne das Wissen der eingentlichen Größen verursacht eine Erhöhung der Fehleranfälligkeit, die ohne die Korrektur, die echte Ergebnis über viele Zeitschritten immer weiter verfälscht. Um dies zu vermindern, korrigiert der Update-schritt die vorhergesagte Größe bezüglich der gemessenen Werten. 
 
 \subsubsection{Datenassoziation und Kostenmatrix}
-Bevor eine Korrektur auf die Prädiktion angewandt werden kann, wird die Ermittlung der wahrscheinlichsten Hypothese erforderlich. Das heißt: Bei einem Zeitschritt $k$, erhält man aus der Detektion, $m_k$ Koordinaten und aus dem \textit{M/N Algorithmus}, $n_k$ Objektanzahl. Das Ziel ist natürlich die Objekte einer der $m_k$ Koordinaten zuzuweisen, um eine Korrektur mit den echten Messungen zu ermöglichen. Die Koordinaten die keinem Objekt entsprechen werden als Clutter angesehen. Außerdem, es besteht auch die Möglichkeit, dass ein bestimmtes Objekt nicht detektiert wurde. Um dies zu Lösen verwendet man die Eigenschaften eines \textit{Zuweisungsproblems}.\\
+Bevor eine Korrektur auf die Prädiktion angewandt werden kann, wird die Ermittlung der wahrscheinlichsten Hypothese erforderlich. Das heißt: Bei einem Zeitschritt $k$, erhält man aus der Detektion, $m_k$ Koordinaten und aus dem \textit{M/N Algorithmus}, $n_k$ Objektanzahl. Das Ziel ist natürlich die Objekte $n_k$ einer der $m_k$ Koordinaten zuzuweisen, um eine Korrektur mit den echten Messungen zu ermöglichen. Die Koordinaten die keinem Objekt entsprechen werden als Clutter angesehen. Außerdem, es besteht auch die Möglichkeit, dass ein bestimmtes Objekt nicht detektiert wurde. Um dies zu Lösen verwendet man die Eigenschaften eines \textit{Zuweisungsproblems}.\\
 Zur Veranschaulichung der Problematik, wird folgendes Beispiel präsentiert. An einem bestimmten $k$ sei $n_k = 2$ und $m_k = 3$. Sei $l_{i,j}$ der Kosten, dass Objekt $i$ der Messung $j$ zugewiesen wird und sei $l_{i,0}$ der Kosten für den Fall, dass $i$ nicht detektiert wurde. Man bilde also die Kostenmatrix $\textbf{L} \in \Re^{n_k\times (m_k +n_k) }$.\\
 \newline
 $\textbf{L} = \begin{bmatrix}
@@ -107,6 +105,7 @@ Einträge der Matrix schließen sinnlose Assoziationen aus. Für die Lösung des
 Matrix \textbf{A} enthält lediglich die Werte $0$ und $1$ und die Summe ihrer Spalten und Zeilen ergeben immer genau $1$. Die Anweisung $tr(.)$ repräsentiert die Spur einer Matrix und daher die Operation $tr(\textbf{A}^T\textbf{L})$ ergibt die Assoziationskosten einer bestimmten Zuordnung. \\
 Zur Bestimmung der Kostenmatrix Elementen $l_{i,j}$ stellt \cite{MOTyoutube}, unter der Voraussetzung eines linearen und gauß'schen Modells und einer konstanten $P^D$, die untere Gleichungen vor.
 \begin{equation}
+\label{eq:GNNKostenMatrix}
 l_{i,0} = - ln(1-P^D)
 \end{equation}
 \begin{equation*}
@@ -115,14 +114,15 @@ l_{i,j} = - [ln(\dfrac{P^D}{\lambda_c})-0,5log(det(2\pi\textbf{S}_i))-0.5(\under
 wo die Clutter-Intensität $\lambda_c = 1- \dfrac{n_k}{m_k}$, die Koordinaten des Objektes $i$ $\tilde{\underline{z}}_i = \textbf{H}\underline{x}_{k|k-1}$ und die Kovarianzinovationsmatrix $\textbf{S}_i = \textbf{H}\textbf{P}_{k|k-1}^i\textbf{H}^T+\textbf{R}$ die restlichen Variablen darstellen.\\
 Die Elemente $l_{i,0}$ bilden die Gewichte ab, für den Fall dass $i$ nicht detektiert wurde. Die Elemente $l_{i,j}$ sind, wie bereits erwähnt, die Gewichte, wenn Objekt $i$ der Messung $j$ zugewiesen wird. \\
 Die Lösung dieses Assoziationsproblem wird mithilfe eines Python-Pakets, welches von \cite{HungarianPython} zur Verfügung gestellt worden ist. \\
-Zu den Gunsten der Erhaltung einer kompakteren Schreibweise der optimalen Assoziation, führt man die Variable $\theta \in \Re^{n_k}$ ein.  $\theta_i = 0$ bedeutet, dass keine neue Detektion für das Objekt $i$ vorhanden ist und $\theta_i = j$ gibt an, dass $i$ der Messung $j$ zugeordnet wurde.
+Zu den Gunsten der Erhaltung einer kompakteren Schreibweise der optimalen Assoziation, führt man die Variable $\underline{\theta} \in \Re^{n_k}$ ein.  $\theta_i = 0$ bedeutet, dass keine neue Detektion für das Objekt $i$ vorhanden ist und $\theta_i = j$ gibt an, dass $i$ der Messung $j$ zugeordnet wurde.
 \subsubsection{Kalman-Update}
-Nach der Ermittlung der wahrscheinlichste Hypothese, wird eine Korrektur benötigt, um die Fehlervarianz des Schätzers zu reduzieren. Die Korrektur wird mithilfe der Messung der Koordinaten von was als ein wahrscheinliches Objekt betrachtet wird. Folgende Gleichungen repräsentieren diesen Vorgang.
+Nach der Ermittlung der wahrscheinlichste Hypothese, wird eine Korrektur benötigt, um die Fehlervarianz des Schätzers zu reduzieren. Die Korrektur wird mithilfe der Messung der Koordinaten, die wahrscheinlich einem Objekt entspricht, durchgeführt. Folgende Gleichungen repräsentieren diesen Vorgang.
 \begin{equation}
 \textbf{K}^i =  \textbf{P}_{k|k-1}^i\textbf{H}^T(\textbf{H}\textbf{P}_{k|k-1}^i\textbf{H}^T + \textbf{R})^{-1}.
 \end{equation}
 $\textbf{K}^i$ sei die Kalman-Verstärkung und $\textbf{P}_{k|k-1}$ die Kovarianzmatrix aus dem Prädiktionsschritt. Letztlich lässt sich den aktuellen Zustand $\underline{x}^i_{k|k}$ beziehungsweise die neue Kovarianzmatrix $\textbf{P}_{k|k}^i$ folgendermaßen berechnen.
 \begin{equation}
+\label{eq:GNNUpdate}
 \underline{x}^i_{k|k} = \begin{cases}
 \underline{x}^i_{k|k-1}+\textbf{K}^i(\underline{z}^{\theta^{*,i}}- \textbf{H}\underline{x}^i_{k|k-1}) &$für $ \theta^{*,i} \neq 0 \\
 \underline{x}^i_{k|k-1} & $für $ \theta^{*,i} = 0,
@@ -138,12 +138,161 @@ $\textbf{K}^i$ sei die Kalman-Verstärkung und $\textbf{P}_{k|k-1}$ die Kovarian
 Der Vektor $\underline{z}^{\theta^{*,i}}$ stellt die gemessenen Koordinaten dar, die als wahrscheinlichste Fortsetzung der Bewegung des Objekten $i$ angesehen wird. Ein $ \theta^{*,i} \neq 0$ bedeutet, dass das Objekt $i$ detektiert worden ist. Wenn $\theta^{*,i} = 0$ (keine Detektion des Objekts), ist keine Korrektur möglich und daher werden die Werte der Prädiktion weitergereicht. 
 \subsubsection{M/N Algorithmus}
 \subsubsection{Startwerte}
-\subsubsection{Deaths and Births}
-\subsubsection{GNN Zusammenfassung}
+Die Genauigkeit der Zustandsschätzung des GNN ist von der Wahl der Positionsstartwerten stark abhängig. Bild \ref{pic:GNNSW} veranschaulicht diesen Performance Unterschied anhand  Testdaten. \\
+
+
+\begin{figure}[h!]\label{pic:GNNSW}
+    \centering
+    \begin{subfigure}{0.6\textwidth}
+        \includegraphics[width=11cm]{./Pictures_report/GNNTestdatenSW0.png}
+        \subcaption{x,y Schätzung anhand ungeeigneter Startwerten. Ein von zwei Objekt richtig erkannt}
+    \end{subfigure}
+
+\medskip
+    \begin{subfigure}{0.6\textwidth}
+        \includegraphics[width= 11cm]{./Pictures_report/GNNTestdatenSW1.png}
+        \subcaption{x,y Schätzung anhand geeigneter Startwerten. Beide Objekte richtig erkannt}
+    \end{subfigure}
+    \caption[]{GNN Performance, mit geeigneten und ungeeigneten Startwerte und $n_k = const. = 2$. Die schwarze Punkte repräsentiert die Clutters, die grüne die echte Positionen der Objekten und die rote Kreuze stellen die geschätzten Positionen des GNN dar  }
+    \label{pic:GNNSW}
+\end{figure}
+
+
+Die Platzierung der Startwerten entscheidet also, ob die Schätzung des GNN als sehr gut  oder als sehr schlecht eingestuft werden kann, was den Einsatz des Algorithmus in Frage stellen kann. Aus dem Grund, nutzt man die Zeitverzögerung, die bereits für die Anwendung des \textit{M/N Algorithmus} erforderlich ist, um genaueren Startwerten aus den Messungen zu extrahieren.\\
+Nach der Bestimmung der Objektanzahl, analysiert der \textit{M/N Algorithmus} welche Koordinaten welchem Objektkandidaten gehört und diese werden als x,y Größe für den Zeitschritt $k = N-1$ verwendet. Werden die richtige  Objektkandidaten gefunden, kann man sicher stellen, dass die Startwerte geeignet sind. Falls die gefundene Kandidaten sich mit den echte unterscheiden, liegen die Startwerte auch falsch und die Qualität der Schätzung des GNN wird je stärker beeinträchtigt je größer diese Abweichung ist.\\
+Die x und y Anfangsgeschwindigkeiten werden immer als null initialisiert.
+\subsubsection{Deaths and Births}\label{subsub:GNNDeathBirth}
+In einem praktischen Anwendungszenario bleibt selbstverständlich die Anzahl der Objekten nicht konstant. Daher bei jedem Zeitschritt wird es eine Analyse benötigt, die entscheidet ob ein neues Objekt auf die Bildaufnahme aufgetreten  oder verschwunden ist. Man nennt solches Verfahren als \textit{Deaths and Births Analyse}.\\
+Zum Gegenteil des \textit{PHD- Algorithmus} wird dieser Schritt bei dem \textit{GNN } simpel gehalten. Nach der Bestimmung der Objektanzahl $n_k$, ist ein Objekt \textit{gestorben}, falls $n_k < n_{k-1}$ und wurde \textit{geboren}, falls $n_k > n_{k-1}$.\\
+Für den ersten Fall, vergleicht man die Positionen der Objekten anhand der $k$ und $k-1$ Zeitschritten. Die Koordinaten aus $k-1$, die betragsmäßig am weitesten der neuen Koordinaten $k$ liegen, werden aus dem Zustand gelöscht, daher Objekte, die diesen Koordinaten entsprechen werden als \textit{Tot} angesehen.\\
+Für den Fall neuer Geburten, vergleicht man wieder die Beträge der Position über den letzten zwei Zeitschritten. Die Objekte dessen Koordinaten auf $k-1$ die größten Abstände zum $k$ aufweisen, werden als Objekte, die neulich geboren wurden, erkannt. Deren Positionen werden zusammen mit den Anfangsgeschwindigkeiten in den aktualisierten Zustand eingespeichert.
+
+\subsubsection{\textit{GNN} Zusammenfassung}
+Nach der Vorstellung des Aufbaus des \textit{Algorithmus}, ist es möglich seine komplette Struktur darzustellen.\\
+\begin{algorithm}
+\caption{GNN Algorithm}
+\label{alg:GNNAlgorithm}
+\begin{algorithmic}[1]
+\State Initialisieren: $n_k = -1$, $k = 0$
+\While{Bilder vorhanden}
+  \State Koordinaten vom Zeitschritt $k$ aus der Detektion erhalten
+  \State Messungsanzahl $m_k$ aus den Koordinaten
+  \If{$k < N$ }
+  \State Messungen für \textit{M/N Algorithmus} laden
+  \EndIf
+  \If {$k = N$ }
+  \State $n_k$ aus dem \textit{M/N Algorithmus}
+  \State Initialisierung $x_{N|N-1}$
+  \EndIf
+  \If {$k>N$}
+      \For{$i \leq n_k$}
+          \State \textit{Kalman-Prädiktion: }$x_{k|k-1}$ und $P_{k|k-1}$  mithilfe der Gleichungen  \ref{eq:GNNPraediktionX} und                 \ref{eq:GNNPraediktionP} ausrechnen .
+          \State Kostenmatrix mithilfe der Gleichung \eqref{eq:GNNKostenMatrix} erstellen 
+          \State Wahrscheinlichste Hypothese mithilfe eines \textit{Hungarian-Algorithmus}
+          \State \textit{Kalman-Update: }$x_{k|k}$ und $P_{k|k}$ mithilfe der Gleichungen \ref{eq:GNNUpdate} korrigieren
+          \State $x_{k|k}$ ausgeben
+      \EndFor
+      \State Daten für \textit{M/N Algorithmus} aktualisieren
+      \State $n_{k+1}$ bestimmen mithilfe des  \textit{M/N Algorithmus}
+      \State $x_{k+1|k}$ mithilfe \textit{Deaths and Births Analyse} ergänzen
+      
+  \EndIf
+  $k = k+1$
+\EndWhile
+
+
+\end{algorithmic}
+\end{algorithm}
 \subsection{Ergebnisauswertung auf Testdaten}\label{sub:GNNEinflussParam}
-\subsubsection{Einfluss der Hyperparametern}
+Wie bereits auf Bild \ref{pic:GNNSW} gezeigt, findet der \textit{GNN} das richtige Tracking anhand der Testdaten lediglich, wenn der Startwert den echten Positionen annähert. Bild \ref{pic:GNNXY} zeigt die Schätzung der x,y Koordinaten. Man beobachte, dass in der Regel, die Zustände beider Objekten nur einen geringen Fehler aufweisen. Der Erfolg der Schätzung kann hauptsächlich der Tatsache zugewiesen werden, dass die Clutters sich nicht wie die angenommene Bewegung der Objekten (\textit{Constant Velocity Model}) bewegen. Außerdem, findet weder ein \textit{Birth} noch ein \textit{Death} statt und letztlich sind die Hyperparameter genau auf diese Problematik angepasst. In einer praktischen Umwelt sind diese Vereinfachungen alerdings meistens nicht erfüllbar. Eine Performanceanalyse hinsichtlich praxisorientierter Datensätze wird im Kapitel \ref{.} zusammen mit der Performance des \textit{PHD-Filter} vorgestellt.  \\
+\begin{figure}[h!]
+%\begin{center}
+\includegraphics[width=12 cm]{./Pictures_report/GNNTestdatenXY}\label{ConvexConcave}
+\caption{Ist-Soll Vergleich der Koordinatenschätzung: Die schwarze Punkte repräsentiert die Clutters, die grüne die echte Positionen der Objekten und die rote Kreuze stellen die geschätzten Positionen des GNN dar}
+\label{pic:GNNXY}
+%\end{center}
+\end{figure}
+
+Die erforderliche Hyperparameter, die diese Schätzung erzeugt habe,, sind folgendermaßen dargestellt.\\
+\begin{itemize}
+  \item $\textbf{Q} = \begin{bmatrix}
+10 &0 &0&0&0 \\
+0 &10 &0&0&0\\
+0 &0 &10&0&0\\
+0 &0 &0&0&10\\
+\end{bmatrix}$
+  \item $\textbf{R} = \begin{bmatrix}
+1 &0  \\
+0 &1\\
+\end{bmatrix}$
+  \item $\textbf{P}_0 = \begin{bmatrix}
+20 &0 &0&0&0 \\
+0 &20 &0&0&0\\
+0 &0 &100&0&0\\
+0 &0 &0&0&100\\
+\end{bmatrix}$
+   \item $M = 4$
+   \item $N = 5$
+   \item $p^D = 0.99$
+   \item $\eta = 0.08$
+\end{itemize}
+Kapitel \ref{subsub: GNNParameter} beschäftig sich mit der Variation dieser Parameter und wie sie den Algorithmus beeinflusst.\\
+
+\subsubsection{Einfluss der Hyperparametern}\label{subsub: GNNParameter}
+Bild \ref{pic:GNNPD} zeigt wie eine leichte Verringerung der Detektionsrate $p^D$ bereits zu einer falschen Schätzung führen kann. Es liegt daran, der  die $l_{i,0}$ Werte der Kostenmatrix, verglichen mit den $l_{i,j}$ kleiner werden. Infolgedessen wird die Wahrscheinlichkeit einer Nicht-Detektion gegenüber einer Detektion übergewichtet, daher werden die Werte von $\theta^*_k$ öfters gleich null sein und die Kalman-Korrektur reicht mehrmals die gleichen Weten der Prädiktion weiter, ohne die Schätzung anhand echter Messungen zu aktualisieren. \\
+\begin{figure}[h!]
+%\begin{center}
+\includegraphics[width=12 cm]{./Pictures_report/GNNPD}
+\caption{Einfluss $p^D = 0.95$: Die schwarze Punkte repräsentiert die Clutters, die grüne die echte Positionen der Objekten und die rote Kreuze stellen die geschätzten Positionen des GNN dar}
+\label{pic:GNNPD}
+%\end{center}
+\end{figure}
+Eine Vergrößerung oder Verkleinerung der Werten der Matrizen $\textbf{Q}$, $\textbf{R}$ und $\textbf{P}_0$ bedeutet eine $1000$-Faktor Multiplikation beziehungsweise Division von den gegebenen Matrizen aus dem letzten Kapitel.\\
+Die Varianz des Modellrauschen $\textbf{Q}$ entscheidet über die Einsatzfähigkeit des Algorithmus. Je mehr Wissen man über die Startwerte und das Systemrauschen verfügt, desto kleiner müssen die Werte von $\textbf{Q}$ gewählt werden. Eine betragsmäßig höhere $\textbf{Q}$ erlaubt dem Kalman-Filter eine höhere Abweichung des Zustands über Zeitschritten hinaus, daher werden höhere \textit{Sprünge} ermöglicht, was sich für ein Szenario aneignet, wo weniger Wissen über die Anfangsbedingungen vorhanden ist. Bild \ref{pic:GNNQ0} veranschaulicht: wenn $\textbf{Q}$ zu gering gewählt wird, verringert sich erheblich die Reaktionszeit auf unerwartete Messungen des \textit{GNN}.\\
+\begin{figure}[h!]
+%\begin{center}
+\includegraphics[width=12 cm]{./Pictures_report/GNNQ0}
+\caption{Einfluss einer Verringerung der Werten von $\textbf{Q}$: Die schwarze Punkte repräsentiert die Clutters, die grüne die echte Positionen der Objekten und die rote Kreuze stellen die geschätzten Positionen des GNN dar}
+\label{pic:GNNQ0}
+%\end{center}
+\end{figure}
+Die Varianz des Messrauschens $\textbf{R}$ entscheidet wie stark der Algorithmus von den Messungen abhängig gestaltet wird. Je kleiner die Werte von dieser Matrix, desto geringerer ist die Abweichung der Schätzung bezüglich der Messungen . Dies führt zu einer Überanpassungsgefahr, da bei einer Clutter-behateten Umwelt, der unerwünschte Einfluss der Clutters übergewichtet wird. Allerdings für große $\textbf{R}$ Werte, wird der Einfluss der Messungen derart untergewichtet, dass der Algorithmus Schätzungen mit enormer Abweichung zur Realität suggeriert. Dieser Effekt wird genau auf Bild \ref{pic:GNNR1} erkannt, wo der Einfluss der Messungen nach wenigen Zeitschritten schon beinah vernachlässigt wird.\\
+\begin{figure}[h!]
+%\begin{center}
+\includegraphics[width=12 cm]{./Pictures_report/GNNR1}
+\caption{Einfluss einer Vergrößerung der Werten von $\textbf{R}$ : Die schwarze Punkte repräsentiert die Clutters, die grüne die echte Positionen der Objekten und die rote Kreuze stellen die geschätzten Positionen des GNN dar}
+\label{pic:GNNR1}
+%\end{center}
+\end{figure}
+Ähnlich wie bei der Wahl der Varianz des Modellrauschens, sind die Werte der Kovarianzmatrix des Schätzfehlers $\textbf{P}_0$ abhängig von dem Vorwissen des Anfangsbereichs. Ist kein Vorwissen vorhanden, werden höhere Werte von $\textbf{P}$ erforderlich, die noch ermöglichen das Tracking der Objekten. Da, man tatsächlich mithilfe der Zeitverzögerung, die für den \textit{M/N Algorithmus} erforderlich ist, Informationen über den Bereich der Anfangsbedingung erhält, empfiehlt \cite{IDS} diesen für die Wahl der $\textbf{P}_0$ zu nutzen. Bild \ref{pic:GNNP} zeigt die Qualitätsminderung für die Wahl ungeeigneter Anfangswerten von $\textbf{P}_0$.\\
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}{0.6\textwidth}
+        \includegraphics[width=11cm]{./Pictures_report/GNNP0.png}
+        \subcaption{Einfluss einer Verkleinerung der Werten von $\textbf{P}_0$}
+       % \label{pic:GNNSW0}
+    \end{subfigure}
+
+\medskip
+    \begin{subfigure}{0.6\textwidth}
+        \includegraphics[width= 11cm]{./Pictures_report/GNNP1.png}
+        \subcaption{Einfluss einer Vergrößerung der Weten von $\textbf{P}_0$}
+        \label{fig:arm4}
+    \end{subfigure}
+    \caption[]{GNN Performance, mit unterschiedlichen Anfangswerten $\textbf{P}_0$. Die schwarze Punkte repräsentiert die Clutters, die grüne die echte Positionen der Objekten und die rote Kreuze stellen die geschätzten Positionen des GNN dar  }
+    \label{pic:GNNP}
+\end{figure}
 \subsection{Einschränkung des Algorithmus}
-zitiere \cite{MultiTrackingBase}, und \cite{MOTyoutube}
+Der Entwurf eines rechnengünstigen und schnellen Algorithmus wie der \textit{GNN} wird auf Kosten bestimmter Einschränkungen ausgelegt. Folgende Liste präsentiert ein Fazit über die Haupteinschränkungen und warum für bestimmte marianischen Szenarien die Anwendung des \textit{GNN} problematisch sein kann.\\
+\begin{itemize}
+  \item \textit{GNN Prunning:} Die Berücksichtigung von lediglich der wahrscheinlichsten Datenassoziation ist der Grund warum der \textit{GNN} simpel uns schnell ist. Allerdings es reichen wenige Zeitschritten, wo die wahrscheinlichste Hypothese nicht der Bewegung eines Objekts entspricht, um die Verfolgung dieses Objekts komplett zu unterbrechen. Eine maritmische Umwelt, wo viele Clutters vorhanden sind können den Einsatz dieses Algorithmus verhindern. Aus dem Grund, der Einsatz ist nur zu gerechtfertigten wenn die Detektionsqualität als hoch eingestuft wird.
+  \item Der Algorithmus geht prinzipiell von einer bekannten und konstante Objektanzahl aus. Damit man dies umgehen kann, integriert man den \textit{M/N Algorithmus} was nur eine grobe Einschätzung des $n_k$ abliefert. Außerdem, wird eine Zeitverzögerung von einigen Frames erforderlich, bevor der Zustand ausgegeben wird.
+ \item \textit{Deaths and Births Model}. Dies ist ebenso ein wichtiges Element, das der \textit{GNN} prinzipiell nicht berücksichtigt. Anhand dieser Arbeit werden die Annahmen im Kapitel \ref{subsub:GNNDeathBirth} getroffen. Diese Annahmen können ebenfalls die Trackingsqualität vermindern.
+  \item \textit{Hohe Detektionsrate erforderlich:} Aufgrund der Auslegung der Gleichung der Kostenmatrix, wird eine hohe Detektionsrate erforderlich, damit der \textit{Hungarian Algorithmus} die Messung des Objekts nicht als eine Nicht-detektion einstuft. In der praktischen Anwendung bedeutet, dass eine hohe Kameraqualität erwünscht ist.
+  \item \textit{Auswahl der Kalman-Filter Parametern:} Die Wahl der Varianzmatrizen des Kalman-Filters führen zu einer Überanpassungsgefahr an bestimmten Szenarien. Wenn die Umweltbedingungen sich viel unterscheiden von Bedingungen, an den die Parameter festgelegt wurden, werden die Ergebnisse von der Realität abweichen. Bei der Wahl dieser Parametern wird eine bestimmte Erfahrung des Benutzers erforderlich.
+  \item \textit{Constant Velocity Model}: Dies ist eine Einschränkung die eigentlich alle Algorithmen, die von diesem Modell ausgehen, betrifft. Wenn Objekten sich mit einer großen Beschleunigung bewegen, wird deren Verfolgung stark beeinträchtigt. Außerdem, wenn Clutters nicht zufällig vorkommen, sondern sich näherungsweise konstant und linear "bewegen", werden die vermutlich als Objekt erkannt. 
+\end{itemize}
+
 
 \newpage
 \bibliographystyle{apacite}

@@ -4,25 +4,19 @@ from numpy import linalg as lin
 import math
 from munkres import Munkres
 from numpy.linalg import multi_dot #Matrix Mult. mit mehreren Matrizen
-#from functions import initialize_values
+from functions import *
 from MN import *
 from ObjectHandler import *
 #from functions import createTestDataSet
 import random
 from plot import *
 # Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
-def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
-    #data Messung aller Zeitschritten
-    #p_d =detection rate
-    #lambda_c Clutter Intensität
-    #F, H  System bzw Ausgangsmatrux
-    #n Anzahl Objekten
-    #R,Q,P_i_init Kovarianz Matrizen
-    #Algorithmus eignet sich nur für GNN mit einem linearen und gaußverteilten Modell 
-        #ObjectHandler = ObjectHandler()
-        ObjectHandler.setImageFolder('Bilder/list2')
+def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_horizon,P_horizon):
+    
+    
+        ObjectHandler.setImageFolder('Bilder/list1') #Ordner der Bildern
         ObjectHandler.setImageBaseName('')
-        ObjectHandler.setImageFileType('.jpg')
+        ObjectHandler.setImageFileType('.jpg') #Art der Bildern
         ObjectHandler.setDebugLevel(2)
         safe_pic = True 
 
@@ -34,75 +28,66 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
             [0,0,1,0]]#Ausgangsmatrix
         H_velocity =[[0,1,0,0],
                      [0,0,0,1]]
-        Q_horizon = [[0.1,0],
-            [0,0.1]] ##Varianz des Modellrauschens Horizont
-        R_horizon = 1 
-        P_horizon = [[1,0],
-            [0,1]]
-
         H_horizon = [[1,0],
             [0,1]]#Ausgangsmatrix Horizont
         F_horizon = [[1,0],
             [0,1]] #Systemmatrix Horizont
-        warmup_data = []
+
+        warmup_data = [] #Initialisierung warmup_data
        
         
         hungarian = Munkres() # Objekt, welches den Hungarian Algorithmus darstellt
         number_states = len(F) # Zuständezahl
-        n = -1 #Initialisierung der Anzahl der Objekten
+        n = -1 #Initialisierung der Anzahl der Objekte
         k = 0   #Zeitschritt
-        estimate = np.zeros((4,1))
-        pictures_availiable = True
+        estimate = np.zeros((4,1)) #Zustandschätzung eines Objekts
+        pictures_availiable = True #While Schleife Initialisierung
         fig, axs = plt.subplots(3)
         real_pic = plt.figure()
-        
-        measurements_all = [] #Liste mit den Messungen aller Zeitschriten
-        estimate_all =[]
+        estimate_all =[]   #Zustandschätzung aller Objekte aller Zeitschritten
+        estimate_horizont_all = [] #Zustandschätzung aller Horizonten (Winkel und Höhe) aller Zeitschritten
         velocity_all = []   
-        horizon_list = []
-        est_hor_k = np.zeros((1,2))
-        state_hor_meas = np.zeros((1,2))
-        horizonHeight_list = []
+        horizon_list = [] #Liste der Ausgabe des Horizonts
+        est_hor_k = np.zeros((1,2)) #Zustand des Horizonts
+        state_hor_meas = np.zeros((1,2)) #Messung des Zustands des Horizonts
+        horizonHeight_list = [] #Liste der Höhen der Kandidaten des Horizonts für alles k<N
         ## Berechnung auf Messdaten
-        while pictures_availiable == True: #While: 
-            try:
+        while pictures_availiable == True: 
+            try: #Erfolg, falls ein Bild vorhanden ist
                 ObjectHandler.updateObjectStates()
                 current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
                 HORIZON = ObjectHandler.getHorizonData(k) #3 Horizont Kandidaten
                 horizon_lines_k = HORIZON[0]
-                heightsDiff_horizon = np.zeros((len(horizon_lines_k)))
+                heightsDiff_horizon = np.zeros((len(horizon_lines_k)))#Initialisierung Liste der Höhedifferenzen
             except InvalidTimeStepError as e:
                 print(e.args[0])
                 k = 0 
                 warmup_data = []
                 pictures_availiable = False
-                break
+                break #Schleife unterbrechen
             if k < N: #warmup_data vorbereiten
-                warmup_data.append(current_measurement_k)
-                horizonHeight_list.append(getHorList(horizon_lines_k))
+                warmup_data.append(current_measurement_k) #Append Messungen für den M/N Algorithmus
+                horizonHeight_list.append(getHorList(horizon_lines_k)) #Append Messungen des Horizonts für die Kandidatenentscheidung
                 
                 
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 
                 mn_data = warmup_data[:]
                 
-                n,estimate = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n) #Anzahl Objekte
-                estimate_all.append(estimate.tolist())
+                n,estimate = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n) #Anzahl Objekte mit M/N Algorithmus
+                
                 #MN Horizont aufrufen, um nur eine Linie von drei zu erhalten als Horizont-Kandidat
-                horizon_opt_height = horizonMnLogic(horizonHeight_list)
-                est_hor_k[0,0] = horizon_opt_height #vorübergehend
-                est_hor_k[0,1] = horizon_lines_k[horizonHeight_list[N-1].tolist().index(horizon_opt_height)].angle #vorübergehend
+                horizon_opt_height = horizonMnLogic(horizonHeight_list) #Höhe des besten Horizontkandidaten 
+                est_hor_k[0,0] = horizon_opt_height
+                est_hor_k[0,1] = horizon_lines_k[horizonHeight_list[N-1].tolist().index(horizon_opt_height)].angle #Winkel  des besten Horizontkandidaten 
                 
-                
-               
-                #est_hor_k = mn_horizon(horizon_list,N,M) #Estimate horizon am Zeitschritt k
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 #Horizontfilterung
-                est_hor_k,P_horizon = horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k,horizon_lines_k,heightsDiff_horizon,state_hor_meas) 
-                ################
-                #Zustände
-                #----------------#
-                if n != 0:
+                est_hor_k,P_horizon = horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k,horizon_lines_k,heightsDiff_horizon,state_hor_meas) #Zustand und Scätzfehlers aktualisieren
+                
+                #Objektzustände
+                
+                if n != 0: #Falls mindestens ein Objekt detektiert wurde:
                     theta_k = np.zeros((1,n)) #Data Assossiation Vektor
                     P = np.zeros((number_states,n*number_states))
                     for i in range(n):
@@ -122,11 +107,10 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                         estimate_i,P_i = kalman_filter_prediction(estimate_i, P_i,F,Q) 
          
                     #Kostenmatrix erzeugen 
-                    # Theorie zur Kostenmatrix :https://www.youtube.com/watch?v=uwBVssiFpOg&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=17&t=0s
                         S = R+ multi_dot([H,P_i,np.transpose(H)]) #Inovation Kovarianz
                         S_skaliert = (2*math.pi*S).tolist() # Mit 2*pi skaliertes S
-                        S = S.tolist() #Detreminate und Inverse von List sklara möglich (array skalar unmöglich)
-                        z_hat = np.matmul(H,estimate_i) #Predicted detection
+                        S = S.tolist() #Detreminate und Inverse von List sklara möglich 
+                        z_hat = np.matmul(H,estimate_i) #Prädiktuerte Detetektion
                         L_missdetection[i][i] = -np.log(1-p_d)
                 
                         for j in range(m):
@@ -163,14 +147,13 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 
 
                         estimate_i,P_i = kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_k[0][i],R,dimensions) #Update P und estimate_i mit Kalman-Korrekturschritt
-                        position_i = np.matmul(H,estimate_i) #Position eines Objekts aus den Zuständen 
                         P[0:number_states,i*number_states:number_states*(i+1)] = P_i #P_i in die gesamte P Matrix wieder einfügen
                         estimate[0:number_states,i] = estimate_i #estimates_i in die gesamte estimates Matrix wieder einfügen
                    
-                    mn_data.pop(0) #Löschen ältestes Element
+                    mn_data.pop(0) #Löschen ältestes Element der MN Messungen (nur N  benötigt)
                     mn_data.append(measurement_k) #Aktuelle Messung einfügen
-                    positionen_k = multi_dot([H,estimate])
-                    velocity_k = np.transpose(multi_dot([H_velocity,estimate])).tolist()
+                    positionen_k = multi_dot([H,estimate]) #Alle Positionen Zeitschritt k
+                    velocity_k = np.transpose(multi_dot([H_velocity,estimate])).tolist() #Alle Geschwinigkeiten Zeitschritt k
                     velocity_all.append(velocity_k)
                 else:
                     positionen_k = []
@@ -180,22 +163,21 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold):
                 if safe_pic == True:
                     plot_GNN_realpic(ObjectHandler,positionen_k,k,N, real_pic,current_measurement_k,est_hor_k[0,0])
                 
-                estimate_all.append(estimate.tolist())
-                
+                estimate_all.append(estimate.tolist()) #Zustand am Zeitpunkt k in die gesamte Matrix einfügen
+                estimate_horizont_all.append(est_hor_k.tolist())
                 if len(velocity_all)<N:
                     n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
                 else:
                     n, estimate = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n)
-                    #n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n)
-               # n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
+                   
                 
                 
-            #measurements_all.append(current_measurement_k)    
+            
             k = k+1
         plt_GNN_settings(fig,axs)    
         
         
-        return estimate_all ,n   
+        return estimate_all , estimate_horizont_all
 
 def horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k,horizon_lines_k,heightsDiff_horizon,state_hor_meas):
     est_hor_k,P_horizon = kalman_filter_prediction(np.transpose(est_hor_k), P_horizon,F_horizon,Q_horizon) # Kalman Prädiktion
@@ -212,7 +194,7 @@ def horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k
     
     return np.transpose(est_hor_k), P_horizon
 
-def getHorList (horizon_lines_k):
+def getHorList (horizon_lines_k): #Höhe der Horinzkanidaten
     heightsList = np.zeros((len(horizon_lines_k)))
     for h in range(len(horizon_lines_k)):
         
@@ -253,16 +235,7 @@ def kalman_filter_update(estimate_i,P_i,H,z_opt_assossiation,theta_i,R,dimension
      
      return estimate_i,P_i
 
-def kalmann_filter_horizon(estimate_horizon_k,P_horizon_k,Q_horizon,R_horizon,horizon_k):
-     #Kalmannfilter für die Filterung des Horizonts. Basiert auf ein Constant-Position Model (F_horizon =1,H_horinzon = 1)
-     #Prädiktion
-     estimate_horizon_k = estimate_horizon_k
-     P_horizon_k = P_horizon_k + Q_horizon
-     #Update
-     K = P_horizon_k/(P_horizon_k+R_horizon)
-     estimate_horizon_k = estimate_horizon_k +K*(horizon_k-estimate_horizon_k)
-     P_horizon_k = P_horizon_k*(1-K)
-     return estimate_horizon_k, P_horizon_k
+
 
 
 
@@ -279,7 +252,7 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
          #Initialisierung
         warmup_data,data,real_object,K = createTestDataSet(dimensions)
         mn_data = warmup_data[:] #Daten für M/N Algorithmus
-        print(mn_data)
+        
         n = 2
         #n,init_values = mnLogic(M,N,1,mn_data) #Anzahl Objekte
         F,H,Q,R,P_i_init,init_values = initialize_values(dimensions,T,n,data[0]) #Initialisierung aller Anfangswerten 

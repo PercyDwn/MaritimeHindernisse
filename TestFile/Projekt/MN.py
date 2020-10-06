@@ -192,8 +192,8 @@ def veloMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):#(Anzahl der
             AnfangsWerteGNN.append([(max_x-min_x)*normed_data[len(measurements)-1][j][0]+min_x,(max_y-min_y)*normed_data[len(measurements)-1][j][1]+min_y])
             n+=1                                        #       erhoehe die Anzahl der geschaetzten Objekte
         kandidaten=[]   
-    for x in range(len(uebersichtMatrix)):
-        print(uebersichtMatrix[x])
+    #for x in range(len(uebersichtMatrix)):
+    #    print(uebersichtMatrix[x])
     #return n, AnfangsWerteGNN
     return deathsBirths(n,AnfangsWerteGNN,est,n_old)
 
@@ -230,7 +230,7 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
 
         #Erweiterung : nur im Fall, dass Deaths oder Births auftreten n_alt != n_new.
         elif n_new > n_old: #Births: Die Koordinaten die die minimale Abstände von den alten Objekten aufweisen, werden als "schon vorhandetes Objekt" betrachtet und daher werden als neues Objekt ausgeschlossen
-            vel_new = numpy.zeros((n_new-n_old)) #Geschwinigkeit neu. Erstmal als 0 annehmen. Später können wir dies erweitern 
+            vel_new = numpy.zeros((n_new-n_old)) #Geschwinigkeit neu. Erstmal als 0 annehmen. 
             for i in range(n_old):
                 distances = [] #Liste mit Abständen zu den alten koordinaten
                 for j in range(pos_new.shape[1]):
