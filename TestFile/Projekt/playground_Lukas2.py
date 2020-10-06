@@ -26,7 +26,7 @@ from plotGMM import *
 #    return value
 
 ObjectHandler = ObjectHandler()
-ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list3')
+ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
@@ -54,8 +54,8 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     b_leftside: List[Gaussian] = [] 
     cov_edge = array([[75,  0.0,             0.0, 0.0], 
                      [0.0,  (obj_h/(num_h)),   0.0, 0.0],
-                     [0.0,  0.0,             10.0, 0.0],
-                     [0.0,  0.0,             0.0, 10.0]])
+                     [0.0,  0.0,             100.0, 0.0],
+                     [0.0,  0.0,             0.0, 100.0]])
     for i in range(num_h):
         mean = vstack([30,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
         #print(i*obj_h/num_h+obj_h/(2*num_h))
@@ -71,16 +71,16 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     #--------------------------
     cov_area = array([[(obj_w/num_w), 0.0,            0.0,    0.0], 
                      [0.0,          (obj_h/(num_h)),  0.0,    0.0],
-                     [0.0,          0.0,            10.0,   0.0],
-                     [0.0,          0.0,            0.0,    10.0]])
+                     [0.0,          0.0,            100.0,   0.0],
+                     [0.0,          0.0,            0.0,    100.0]])
     b_area: List[Gaussian] = []
     for i in range(num_h):
         for j in range(num_w): 
             mean = vstack([j*obj_w/num_w+obj_w/(2*num_w), i*obj_h/num_h+obj_h/(2*num_h), 0.0, 0.0])
             b_area.append(Gaussian(mean, 40*cov_area, 0.5))
             
-    #birth_belief.extend(b_leftside)
-    #birth_belief.extend(b_rightside)
+    birth_belief.extend(b_leftside)
+    birth_belief.extend(b_rightside)
     birth_belief.extend(b_area)
 
     return birth_belief
@@ -107,7 +107,7 @@ print('Num of Gaus in gmm: ' + str(numGaus))
 
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.0001
+intensity = 0.000075
 T = 1
 F = array(
   [[1.0, 0.0, T,    0.0], 

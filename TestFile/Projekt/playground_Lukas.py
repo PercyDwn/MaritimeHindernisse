@@ -26,7 +26,7 @@ from plotGMM import *
 #    return value
 
 ObjectHandler = ObjectHandler()
-ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list3')
+ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
