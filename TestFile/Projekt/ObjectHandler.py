@@ -22,6 +22,7 @@ class ObjectHandler:
         
         self.DebugLevel = 0
         self.ObjectStates: List = []
+        self.HorizonLines: List = []
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
         self.ImageFileType: str = '.jpg'
@@ -92,6 +93,16 @@ class ObjectHandler:
             formattedCoordinates.append(self.returnCoordinates(obj, position))
         return formattedCoordinates
                 
+    def getHorizonLines(self, t:int):
+        if(t > self.getTimeStepCount()):
+            # try and update object state data
+            for i in range(0,t - self.getTimeStepCount()):
+                # try to update
+                updated = self.updateObjectStates()
+                if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
+        
+        # return data for requested time step
+        return self.HorizonLines[t-1]
 
     # format coordinates
     def returnCoordinates(self, state: Tuple, position: str = 'cb') -> List:
@@ -163,6 +174,7 @@ class ObjectHandler:
             #if self.PlotOnUpdate == True: cv2.imshow('orig', img)
             # detect horizon
             horizon_lines, votes, seps = detector.detect_horizon(img)
+            self.HorizonLines.append(horizon_lines) 
             # if horizon lines found
             if horizon_lines:
                 # find obstacles

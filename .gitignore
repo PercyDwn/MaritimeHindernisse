@@ -260,3 +260,26 @@ paket-files/
 __pycache__/
 *.pyc
 .DS_Store
+/TestFile/Projekt/.vscode/settings.json
+/.vscode/launch.json
+/.vscode/settings.json
+/TestFile/Projekt/PHD_Plots/PHD GMM k-1.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-10.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-11.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-12.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-13.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-14.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-15.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-16.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-17.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-18.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-19.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-2.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-20.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-3.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-4.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-5.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-6.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-7.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-8.png
+/TestFile/Projekt/PHD_Plots/PHD GMM k-9.png
