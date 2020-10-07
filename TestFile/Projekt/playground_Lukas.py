@@ -109,9 +109,9 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
 
 birth_belief = phd_BirthModels(12, 10) #12, 10
 
-#fig = plotGMM(birth_belief, 640, 480)
-#plt.title('GausPlot des Birthmodels')
-#plt.show()
+fig = plotGMM(birth_belief, 640, 480)
+plt.title('GausPlot des Birthmodels')
+plt.show()
 maxWeight = 0
 for comp in birth_belief:
     if comp.w > maxWeight:
