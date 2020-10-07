@@ -4,11 +4,11 @@ from numpy.linalg import inv
 import numpy as np
 from numpy import array
 import math
+from cv2 import Rodrigues
 
+from scipy.spatial.transform import Rotation as R
 
-
-
-def trans(u, v, fx, fy, cx, cy, R, t) -> array:
+def trans(u, v, fx, fy, cx, cy, R_quat: tuple, t) -> array:
     """
     Args:
         u: x Coordinates in Pixel
@@ -27,7 +27,10 @@ def trans(u, v, fx, fy, cx, cy, R, t) -> array:
     A = [[fx, 0,  cx], 
          [0,  fy, cy], 
          [0,  0,  1]]
-    Rt = np.hstack(R, t)
+    # create Rotation object with quatrions
+    r = R.from_quat([R_quat[0], R_quat[1], R_quat[2], R_quat[3]])
+
+    Rt = np.hstack(r.as_matrix(), t)
 
     Vec = inv(A)@inv(Rt)@v_pix
 
