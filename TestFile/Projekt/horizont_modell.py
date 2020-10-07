@@ -16,7 +16,8 @@ ObjectHandler.setDebugLevel(2)
 N = 5
 Q_horizon = [[0.1,0],
             [0,0.1]] ##Varianz des Modellrauschens Horizont
-R_horizon = 1 
+R_horizon = [[1,0],
+            [0,1]]
 P_horizon = [[1,0],
             [0,1]]
 
