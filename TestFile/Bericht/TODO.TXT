@@ -1,9 +1,7 @@
--Referenzen
-- Bedingung P, R, Q
-
-- Assignment problem = Zuweisungs Problem ?
 
 
-Parameter GNN P0 vorgeben in abhängigkeit des Messbereichs
 
-T = Aufnahmezeit ?
+
+references
+
+

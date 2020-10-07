@@ -23,7 +23,8 @@ P_i_init = [[100,0,0,0],[0,1,0,0],[0,0,100,0],[0,0,0,1]] #Initialisierung der Ko
 treshhold = 0.08 #M/N Trashhold
 Q_horizon = [[0.1,0],
             [0,0.1]] ##Varianz des Modellrauschens Horizont
-R_horizon = 1 #Messvarianz des Horizonts
+R_horizon = [[1,0],
+            [0,1]]#Messvarianz des Horizonts
 P_horizon = [[1,0],
             [0,1]]  #Anfangsvarianz des Scätzfehlers des Horizonts
 #GNN Aufruf

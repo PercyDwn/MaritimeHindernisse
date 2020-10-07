@@ -10,7 +10,7 @@ from ObjectHandler import *
 #from functions import createTestDataSet
 import random
 from plot import *
-# Theorie GNN : https://www.youtube.com/watch?v=MDMNsQJl6-Q&list=PLadnyz93xCLiCBQq1105j5Jeqi1Q6wjoJ&index=21&t=0s
+
 def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_horizon,P_horizon):
     
     
@@ -56,8 +56,10 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
             try: #Erfolg, falls ein Bild vorhanden ist
                 ObjectHandler.updateObjectStates()
                 current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
-                HORIZON = ObjectHandler.getHorizonData(k) #3 Horizont Kandidaten
-                horizon_lines_k = HORIZON[0]
+                HORIZON = ObjectHandler.getHorizonData(k) 
+                horizon_lines_k = HORIZON[0] #3 Horizont Kandidaten
+                print('........')
+                print(horizon_lines_k)
                 heightsDiff_horizon = np.zeros((len(horizon_lines_k)))#Initialisierung Liste der Höhedifferenzen
             except InvalidTimeStepError as e:
                 print(e.args[0])
@@ -68,8 +70,9 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
             if k < N: #warmup_data vorbereiten
                 warmup_data.append(current_measurement_k) #Append Messungen für den M/N Algorithmus
                 horizonHeight_list.append(getHorList(horizon_lines_k)) #Append Messungen des Horizonts für die Kandidatenentscheidung
-                
-                
+                print('........')
+                print(horizonHeight_list)
+                print('........')
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 
                 mn_data = warmup_data[:]

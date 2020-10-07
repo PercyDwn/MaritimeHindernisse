@@ -14,6 +14,22 @@ h_{k|k}\\
 \end{bmatrix}
 \end{equation}
 erweitert. Variablen $h_{k|k}$ und $\alpha_{k|k}$ stellen die Höhe beziehungsweise den Winkel des Horizonts dar.\\
+Man geht von einem \textit{Constant Position Model} für den Horizont aus, das heißt:\\
+\begin{equation}
+h_k = h_{k-1}
+\end{equation}
+\begin{equation*}
+\alpha_k = \alpha_{k-1},
+\end{equation*}
+was zu den System und Ausgangsmatrizen
+\begin{equation}
+\textbf{F}_{horizon} = \textbf{H}_{horizon} = \begin{bmatrix}
+1 & 0  \\
+0 & 1\\
+\end{bmatrix}
+\end{equation}
+führt.\\
+Die Anfangskovarianzmatrix des Systemfehlers $\textbf{P}_{0_{horizon}}$, die Varianz des Messrauschens $\textbf{R}_{horizon}$ und die Varianz des Systemrauschens $\textbf{Q}_{horizon}$ werden ebenfalls als eine zweidimensionale Einheitsmatrix angenommen.\\
 Für den \textit{PHD} wird in dem ersten Zeitschritt $k = 0$ einen der drei Kandidaten einfach zufällig gewählt, da man keine zusätzliche Information verfügt, die diese Wahl beeinflussen kann.\\
 Bei dem \textit{GNN} wird die Zeitverzögerung, die für den \textit{M/N Algorithmus} erforderlich ist, ausgenutzt, um bei $k = N$ den besten Kandidaten zu erhalten.
 \subsection{MN Horizont}

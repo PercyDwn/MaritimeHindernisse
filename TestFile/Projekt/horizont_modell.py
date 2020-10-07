@@ -108,6 +108,8 @@ def horizonState_phd (ObjectHandler,R_horizon,P_horizon,H_horizon,F_horizon):
         est_hor_k,P_horizon = kalman_filter_update(est_hor_k,P_horizon,H_horizon,np.transpose(state_hor_meas),theta_k,R_horizon,2)#Kalmann Update
         est_hor_k = np.transpose(est_hor_k)
             #Zustände auf gesamten Zustand zusammenführen
+        print('........')
+        print(est_hor_k)
         k = k+1
 
  
