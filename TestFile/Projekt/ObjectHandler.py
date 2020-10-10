@@ -161,19 +161,17 @@ class ObjectHandler:
                 # write found obstacles in list
                 ObstacleStates = []
                 for obs in obstacles:
-                    ObstacleStates .append([obs.x + obs.width // 2, obs.y + obs.height])
+                    ObstacleStates.append([obs.x + obs.width // 2, obs.y + obs.height])
                 # add list to list with obstacles over all time steps
                 self.ObjectStates.append(ObstacleStates)
             else:
+                print('horizont lines were not found')
                 obstacles = None
-            # plot image with found obstacles
-            #print('obstacles:')
-            #for obs in obstacles:
-            #    print('[' + str(obs.x) + ', ' + str(obs.y) + ']')
+                self.ObjectStates.append([])
+
             if self.PlotOnUpdate == True: detector.plot_img(img, obstacles=obstacles,horizon_lines=horizon_lines,plot_method='cv', wait_time=1)
 
             return True
-
         else:
             if self.printDebug(0): print(filepath + ' is not a valid file')
             return False

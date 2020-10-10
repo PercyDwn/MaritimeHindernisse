@@ -58,8 +58,8 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
         ## Berechnung auf Messdaten
         while pictures_availiable == True: 
             try: #Erfolg, falls ein Bild vorhanden ist
-                ObjectHandler.updateObjectStates()
-                current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
+                #ObjectHandler.updateObjectStates()
+                current_measurement_k = ObjectHandler.getObjectStates(k+1) #Daten der Detektion eines Zeitschrittes 
                 HORIZON = ObjectHandler.getHorizonData(k) 
                 horizon_lines_k = HORIZON[0] #3 Horizont Kandidaten
                 heightsDiff_horizon = np.zeros((len(horizon_lines_k)))#Initialisierung Liste der Höhedifferenzen
