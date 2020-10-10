@@ -23,6 +23,29 @@ HungarianPython}%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Lennart~Svenson%
+}{%
+Lennart~Svenson%
+}{%
+{\protect \APACyear {2019}}%
+}]{%
+MOTyoutube}
+\APACinsertmetastar {%
+MOTyoutube}%
+\begin{APACrefauthors}%
+Lennart~Svenson, C\BPBI U\BPBI o\BPBI T., Karl~Ganström.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+\APACrefbtitle {Multiple Object Tracking} {Multiple object tracking}\ [Chanel].
+\newblock
+\APAChowpublished
+  {\url{https://www.youtube.com/channel/UCa2-fpj6AV8T6JK1uTRuFpw}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Lenz%
 }{%
 Lenz%
@@ -72,31 +95,6 @@ Mills-Tettey, G\BPBI A.%
 {\BBOQ}\APACrefatitle {The Dynamic Hungarian Algorithm for the Assignment
   Problem with Changing Costs} {The dynamic hungarian algorithm for the
   assignment problem with changing costs}.{\BBCQ}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-of Technology%
-}{%
-of Technology%
-}{%
-{\protect \APACyear {2019}}%
-}]{%
-MOTyoutube}
-\APACinsertmetastar {%
-MOTyoutube}%
-\begin{APACrefauthors}%
-of Technology, C\BPBI U.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{2019}{}{}.
-\newblock
-\APACrefbtitle {Multiple Object Tracking} {Multiple object tracking}\ [Chanel].
-\newblock
-\APAChowpublished
-  {\url{https://www.youtube.com/channel/UCa2-fpj6AV8T6JK1uTRuFpw}}.
-\newblock
-\APACrefnote{In comment section, accessed on 2018/12/04}
 \PrintBackRefs{\CurrentBib}
 
 \end{thebibliography}

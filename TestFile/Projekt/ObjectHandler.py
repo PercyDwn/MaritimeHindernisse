@@ -95,7 +95,7 @@ class ObjectHandler:
                 # try to update
                 updated = self.updateObjectStates()
                 if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
-
+            print(self.getTimeStepCount())
             return self.ObjectStates[t-1]
                 
 

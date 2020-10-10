@@ -13,12 +13,16 @@ from plot import *
 
 def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_horizon,P_horizon):
     
+    #Ausagabe: estimate_all -> Liste mit den estimates über alle Zeitschritten.
+    #          estimate_horizon_all -> Liste mit den estimates des Horizonts (est_hor_k) über alle Zeitschritten.
+                #estimate -> Zeilen: Zustände (Position und Geschwindigkeit) Spalten: Objekte 
+                #est_hor_k -> Höhe und Winkel des Horizonts
     
-        ObjectHandler.setImageFolder('Bilder/list1') #Ordner der Bildern
+        ObjectHandler.setImageFolder('Bilder/list3') #Ordner der Bildern
         ObjectHandler.setImageBaseName('')
         ObjectHandler.setImageFileType('.jpg') #Art der Bildern
         ObjectHandler.setDebugLevel(2)
-        safe_pic = True 
+        safe_pic = False
 
         F = [[1,T,0,0],
              [0,1,0,0],
@@ -58,8 +62,6 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                 current_measurement_k = ObjectHandler.getObjectStates(k) #Daten der Detektion eines Zeitschrittes 
                 HORIZON = ObjectHandler.getHorizonData(k) 
                 horizon_lines_k = HORIZON[0] #3 Horizont Kandidaten
-                print('........')
-                print(horizon_lines_k)
                 heightsDiff_horizon = np.zeros((len(horizon_lines_k)))#Initialisierung Liste der Höhedifferenzen
             except InvalidTimeStepError as e:
                 print(e.args[0])
@@ -70,9 +72,8 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
             if k < N: #warmup_data vorbereiten
                 warmup_data.append(current_measurement_k) #Append Messungen für den M/N Algorithmus
                 horizonHeight_list.append(getHorList(horizon_lines_k)) #Append Messungen des Horizonts für die Kandidatenentscheidung
-                print('........')
-                print(horizonHeight_list)
-                print('........')
+               
+                
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 
                 mn_data = warmup_data[:]

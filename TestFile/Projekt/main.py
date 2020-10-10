@@ -17,8 +17,8 @@ Q = [[100,0,0,0],
              [0,100,0,0],
              [0,0,100,0],
              [0,0,0,100]] #Varianz des Modellrauschens 2D
-R = [[10,0],
-    [0,10]] #Varianz des Messrauschens
+R = [[100,0],
+    [0,100]] #Varianz des Messrauschens
 P_i_init = [[100,0,0,0],[0,1,0,0],[0,0,100,0],[0,0,0,1]] #Initialisierung der Kovarianzmatrix des Scätzfehlers
 treshhold = 0.08 #M/N Trashhold
 Q_horizon = [[0.1,0],
