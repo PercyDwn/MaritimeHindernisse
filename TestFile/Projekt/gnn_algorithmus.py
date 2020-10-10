@@ -99,7 +99,10 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
           
                     measurement_k = current_measurement_k
                     m = len(measurement_k) #Anzahl Messungen pro Zeitschritt k
-                    lambda_c = round(0.001 + 1-n/m,4) #Clutter Intensität
+                    if m !=0:
+                        lambda_c = round(0.001 + 1-n/m,4) #Clutter Intensität
+                    else:
+                        lambda_c = 0.0001
                     L_detection = np.zeros((n,m)) #Kostfunktion detektiert
                     L_missdetection = np.zeros((n,n)) #Kostfunktion nicht-detektiert
                     L_missdetection[:,:] = np.inf # Alle Einträge gleich unendlich setzen 
@@ -188,12 +191,13 @@ def horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k
     for horizon in range(len(horizon_lines_k)):
         heightsDiff_horizon[horizon] = abs(horizon_lines_k[horizon].height -est_hor_k[0])#Liste von Höhendifferenz verglichen mit der Höhe des Zustandsvektors
      
-    state_hor_meas[0,0] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].height #Höhe des nahligenden Horizonts
-    state_hor_meas[0,1] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].angle  #Winkel des nahligenden Horizonts
+    
     if len(horizon_lines_k) == 0:# Analysieren ob Horizon detektiert wurde
        theta_k = 0
     else:
        theta_k =1
+       state_hor_meas[0,0] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].height #Höhe des nahligenden Horizonts
+       state_hor_meas[0,1] =  horizon_lines_k[np.argmin(heightsDiff_horizon)].angle  #Winkel des nahligenden Horizonts
     est_hor_k,P_horizon = kalman_filter_update(est_hor_k,P_horizon,H_horizon,np.transpose(state_hor_meas),theta_k,R_horizon,2)#Kalmann Update
     
     return np.transpose(est_hor_k), P_horizon
