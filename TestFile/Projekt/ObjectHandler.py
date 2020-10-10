@@ -25,6 +25,7 @@ class ObjectHandler:
         self.HorizonLines: List = []
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
+        self.ImageLeadingZeros: int = None
         self.ImageFileType: str = '.jpg'
         self.Img: ndarray 
         self.image_height: int
@@ -55,6 +56,10 @@ class ObjectHandler:
 
     def setImageBaseName(self, baseName: str) -> bool:
         self.ImageBaseName = baseName
+        return True
+
+    def setImageLeadingZeros(self, zeros: int) -> bool:
+        self.ImageLeadingZeros = zeros
         return True
 
     def setImageFileType(self, fileType: str) -> bool:
@@ -155,7 +160,20 @@ class ObjectHandler:
         # check if folder and image base is set
         if type(self.ImageFolder) is str and type(self.ImageBaseName) is str:
             # if so, concat with current time step to next image name
-            filepath = self.ImageFolder  + '/' + self.ImageBaseName + str(currentTimeStep) + self.ImageFileType
+            if self.ImageLeadingZeros:
+                # number of leading zeros given
+                formatStr = "{:0"+str(self.ImageLeadingZeros)+"d}"
+                num = formatStr.format(currentTimeStep)
+                filepath = self.ImageFolder  + '/' + self.ImageBaseName + str(num) + self.ImageFileType
+            else:
+                # number of leading zeros not given, try 1 to 8
+                for ic in range(1,8):
+                    formatStr = "{:0"+str(ic)+"d}"
+                    num = formatStr.format(currentTimeStep)
+                    filepath = self.ImageFolder  + '/' + self.ImageBaseName + str(num) + self.ImageFileType
+                    nextImage = Path(filepath)
+                    if nextImage.is_file():
+                        break
         else:
             # else, return false
             if self.printDebug(0): print('image folder or base name is not set')
