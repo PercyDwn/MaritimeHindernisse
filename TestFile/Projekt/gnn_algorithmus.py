@@ -164,6 +164,9 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                     velocity_all.append(velocity_k)
                 else:
                     positionen_k = []
+                    measurement_k = current_measurement_k# Das habe
+                    mn_data.pop(0)                       # ich an dieser Stelle
+                    mn_data.append(measurement_k)        # eingefügt.
                 #----------------#
 
                 plot_GNN(positionen_k,current_measurement_k,fig, axs,k,ObjectHandler)
@@ -175,9 +178,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                 if len(velocity_all)<N:
                     n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
                 else:
-                    n, estimate = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n)
-                   
-                
+                    n, estimate = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n)                
                 
             
             k = k+1
