@@ -7,6 +7,7 @@ from MN import*
 from ObjectHandler import *
 
 #Initialisierung
+safe_pic = False
 dimensions = 2
 p_d = 0.9999 #Detektionsrate
 T= 0.5 #Abtastzeit
@@ -28,7 +29,7 @@ R_horizon = [[1,0],
 P_horizon = [[1,0],
             [0,1]]  #Anfangsvarianz des Scätzfehlers des Horizonts
 #GNN Aufruf
-estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold,Q_horizon,R_horizon,P_horizon) #Aufruf des GNN
+estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold,Q_horizon,R_horizon,P_horizon,safe_pic) #Aufruf des GNN
 
 
 

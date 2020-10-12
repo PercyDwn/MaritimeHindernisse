@@ -223,6 +223,7 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
         pos_old = numpy.matmul(H,est) #Positionen alt (Eingangs des MN)
         pos_new = numpy.transpose(numpy.array(anfangsWerte))
         est_updated = numpy.zeros((4,n_new))
+        
     #Initialisierung 
         if n_old < 1:
             est_updated[0,:] = pos_new[0,:]
@@ -261,6 +262,16 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
 
 
         
-    except:
-        est_updated = numpy.array([])
+    except: #Für den Fall, dass für zwei aufeinander folgenden Zeitschritten n gleich null ist
+        
+        if n_new == 0:
+            est_updated = numpy.array([])
+        else:
+            est_updated = numpy.zeros((4,n_new))
+            pos_new = numpy.transpose(numpy.array(anfangsWerte))
+            for i in range(n_new):
+                est_updated[0,i] = pos_new[0,i]
+                est_updated[1,i] = 0
+                est_updated[2,i] = pos_new[1,i]
+                est_updated[3,i] = 0
     return n_new,est_updated

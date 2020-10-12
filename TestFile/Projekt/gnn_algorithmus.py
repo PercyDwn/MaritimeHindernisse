@@ -11,18 +11,18 @@ from ObjectHandler import *
 import random
 from plot import *
 
-def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_horizon,P_horizon):
+def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_horizon,P_horizon,safe_pic):
     
     #Ausagabe: estimate_all -> Liste mit den estimates über alle Zeitschritten.
     #          estimate_horizon_all -> Liste mit den estimates des Horizonts (est_hor_k) über alle Zeitschritten.
                 #estimate -> Zeilen: Zustände (Position und Geschwindigkeit) Spalten: Objekte 
                 #est_hor_k -> Höhe und Winkel des Horizonts
     
-        ObjectHandler.setImageFolder('Bilder/list3') #Ordner der Bildern
+        ObjectHandler.setImageFolder('Bilder/list5') #Ordner der Bildern
         ObjectHandler.setImageBaseName('')
         ObjectHandler.setImageFileType('.jpg') #Art der Bildern
         ObjectHandler.setDebugLevel(2)
-        safe_pic = False
+        
 
         F = [[1,T,0,0],
              [0,1,0,0],
@@ -96,6 +96,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                     P = np.zeros((number_states,n*number_states))
                     for i in range(n):
                         P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
+                    
           
                     measurement_k = current_measurement_k
                     m = len(measurement_k) #Anzahl Messungen pro Zeitschritt k
@@ -182,6 +183,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                 
             
             k = k+1
+            print(k)
         plt_GNN_settings(fig,axs)    
         
         

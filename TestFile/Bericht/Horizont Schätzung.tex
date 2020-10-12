@@ -1,5 +1,6 @@
 \documentclass[10pt,a4paper]{article}
 \usepackage{amsmath}   
+\usepackage{graphicx}
 
 
 \begin{document}
@@ -32,6 +33,13 @@ führt.\\
 Die Anfangskovarianzmatrix des Systemfehlers $\textbf{P}_{0_{horizon}}$, die Varianz des Messrauschens $\textbf{R}_{horizon}$ und die Varianz des Systemrauschens $\textbf{Q}_{horizon}$ werden ebenfalls als eine zweidimensionale Einheitsmatrix angenommen.\\
 Für den \textit{PHD} wird in dem ersten Zeitschritt $k = 0$ einen der drei Kandidaten einfach zufällig gewählt, da man keine zusätzliche Information verfügt, die diese Wahl beeinflussen kann.\\
 Bei dem \textit{GNN} wird die Zeitverzögerung, die für den \textit{M/N Algorithmus} erforderlich ist, ausgenutzt, um bei $k = N$ den besten Kandidaten zu erhalten.
-\subsection{MN Horizont}
+\section{Kandidatenermittlung für den \textit{GNN}}
+	Mit den drei Horizontkandidaten, welche von der Objektdetektion zu jedem Zeitschritt geliefert werden, erhält man für die ersten N=4 Zeitschritte insgesamt zwölf Messpunkte über diesem Zeitraum verteilt. Abgesehen von der zeitlichen Abfolge, hat man keine Information darüber wie die Messpunkte untereinander verknüpft sind. Um trotzdem den besten Kandidaten zu ermitteln, wurden die Messpunkte miteinander über die zeitliche Abfolge kombiniert. Abbildung \ref{fig: Verteilung der Horizontkandidaten ueber die ersten N Zeitschritte} zeigt beispielhaft die Kombinationsmöglichkeiten. Bei drei Horizontkandidaten pro Zeitschritt und mit $N=4$ gibt es insgesamt $3^4=81$ Möglichkeiten die Messpunkte miteinander zu verknüpfen. Ausgehend von dem \textit{Constant Position Model} wurde die Kombination als bester Kandidat ausgewählt, welche die geringste Varianz aufwies.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=.6\linewidth]{./Pictures_report/Verteilung der Horizontkandidaten ueber die ersten N Zeitschritte.png}
+		\caption{Verteilung der  Horizontkandidaten über die ersten $N$ Zeitschritte}
+		\label{fig: Verteilung der Horizontkandidaten ueber die ersten N Zeitschritte}
+	\end{figure} 
 
 \end{document}
