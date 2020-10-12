@@ -90,7 +90,7 @@ def uebersicht(measurements,N):
     
 
 #M/N Logik für den Anfang###########################################################################################################################
-def initMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):#(Anzahl der benoetigten Detektionen, Anzahl der Scans, Messdaten 2D, Geschwindigkeiten, Abtastzeit, est, treshhold position, n_old)  
+def initMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old,P,P_i_init):#(Anzahl der benoetigten Detektionen, Anzahl der Scans, Messdaten 2D, Geschwindigkeiten, Abtastzeit, est, treshhold position, n_old)  
     min_x, min_y, max_x, max_y, normed_data=norm(measurements)
     #normed_data=measurements
     n=0                                                             #Anzahl der geschätzten Objekte
@@ -138,11 +138,11 @@ def initMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):#(Anzahl der
     #for x in range(len(uebersichtMatrix)):
     #    print(uebersichtMatrix[x])
     #return n, AnfangsWerteGNN
-    return deathsBirths(n,AnfangsWerteGNN,est,n_old)
+    return deathsBirths(n,AnfangsWerteGNN,est,n_old,P,P_i_init)
 
 
 #M/N Logik über Geschwindigkeiten###################################################################################################################
-def veloMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):#(Anzahl der benoetigten Detektionen, Anzahl der Scans, Messdaten 2D , Geschwindigkeiten, Abtastzeit, est, treshhold position, n_old)  
+def veloMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old,P,P_i_init):#(Anzahl der benoetigten Detektionen, Anzahl der Scans, Messdaten 2D , Geschwindigkeiten, Abtastzeit, est, treshhold position, n_old)  
     min_x, min_y, max_x, max_y, normed_data=norm(measurements)
     min_x, min_y, max_x, max_y, normed_velocities=norm(velocities)
     #normed_data=measurements
@@ -195,7 +195,7 @@ def veloMnLogic(M,N,measurements,velocities,T, est,treshhold,n_old):#(Anzahl der
     #for x in range(len(uebersichtMatrix)):
     #    print(uebersichtMatrix[x])
     #return n, AnfangsWerteGNN
-    return deathsBirths(n,AnfangsWerteGNN,est,n_old)
+    return deathsBirths(n,AnfangsWerteGNN,est,n_old,P,P_i_init)
 
 
 #M/N Logik für Horizont###########################################################################################################################
@@ -213,9 +213,11 @@ def horizonMnLogic(measurements):#(Messdaten)
                     temp_path=[]#Zwischenspeicher leeren
     return path[3]
 
-def deathsBirths(n_new,anfangsWerte,est,n_old):
+def deathsBirths(n_new,anfangsWerte,est,n_old,P,P_i_init):
+    
     H= numpy.array([[1,0,0,0],[0,0,1,0]]) #Ausgangsmatrix
     H_velocity = numpy.array([[0,1,0,0],[0,0,0,1]])
+    number_states = 4
     
     
     try:
@@ -224,14 +226,24 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
         pos_new = numpy.transpose(numpy.array(anfangsWerte))
         est_updated = numpy.zeros((4,n_new))
         
+        
     #Initialisierung 
         if n_old < 1:
             est_updated[0,:] = pos_new[0,:]
             est_updated[2,:] = pos_new[1,:]
-
-        #Erweiterung : nur im Fall, dass Deaths oder Births auftreten n_alt != n_new.
+            P = numpy.zeros((number_states,n_new*number_states))
+           
+            for i in range(n_new):
+                P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
+                
+                
+        
         elif n_new > n_old: #Births: Die Koordinaten die die minimale Abstände von den alten Objekten aufweisen, werden als "schon vorhandetes Objekt" betrachtet und daher werden als neues Objekt ausgeschlossen
+            
             vel_new = numpy.zeros((n_new-n_old)) #Geschwinigkeit neu. Erstmal als 0 annehmen. 
+            P_new = numpy.zeros((number_states,(n_new-n_old)*number_states))
+            for i in range(n_new-n_old):
+                P_new[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
             for i in range(n_old):
                 distances = [] #Liste mit Abständen zu den alten koordinaten
                 for j in range(pos_new.shape[1]):
@@ -242,10 +254,13 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
             est_updated[1,:] = numpy.concatenate((vel_old[0],vel_new),0)
             est_updated[2,:] = numpy.concatenate((pos_old[1],pos_new[1]),0)
             est_updated[3,:] = numpy.concatenate((vel_old[1],vel_new),0)
-        
-        
-    
+            P = numpy.concatenate((P,P_new),1)
+            
+            
+            #P_i = P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
+            
         elif n_new < n_old: #Deaths: Die Koordinaten die die maximale Abstände von den alten Objekten aufweisen, werden als "sterbende Objekte" betrachtet und daher werden von den Zuständen gelöscht 
+            P = numpy.zeros((number_states,n_new*number_states))
             for i in range(n_new):
                 distances = [] #Liste mit Abständen zu den alten koordinaten
                 for j in range(n_old):
@@ -255,9 +270,11 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
                 est_updated[1,i] = vel_old[0,index_min]
                 est_updated[2,i] = pos_old[1,index_min]
                 est_updated[3,i] = vel_old[1,index_min]
+                P[0:number_states,i*number_states:number_states*(i+1)] = P[0:number_states,index_min*number_states:number_states*(index_min+1)]
                 
         elif n_new == n_old:
             est_updated = est
+            P = P
      
 
 
@@ -266,12 +283,16 @@ def deathsBirths(n_new,anfangsWerte,est,n_old):
         
         if n_new == 0:
             est_updated = numpy.array([])
+            P = numpy.array([])
         else:
             est_updated = numpy.zeros((4,n_new))
             pos_new = numpy.transpose(numpy.array(anfangsWerte))
+            P = numpy.zeros((number_states,n_new*number_states))
+                
             for i in range(n_new):
                 est_updated[0,i] = pos_new[0,i]
                 est_updated[1,i] = 0
                 est_updated[2,i] = pos_new[1,i]
                 est_updated[3,i] = 0
-    return n_new,est_updated
+                P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
+    return n_new,est_updated,P

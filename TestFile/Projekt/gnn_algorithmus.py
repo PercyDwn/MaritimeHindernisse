@@ -55,6 +55,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
         est_hor_k = np.zeros((1,2)) #Zustand des Horizonts
         state_hor_meas = np.zeros((1,2)) #Messung des Zustands des Horizonts
         horizonHeight_list = [] #Liste der Höhen der Kandidaten des Horizonts für alles k<N
+        P = [] #Initialisierung Kovarianz Matrix des Schätzfehlers
         ## Berechnung auf Messdaten
         while pictures_availiable == True: 
             try: #Erfolg, falls ein Bild vorhanden ist
@@ -77,14 +78,13 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 
                 mn_data = warmup_data[:]
-                
-                n,estimate = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n) #Anzahl Objekte mit M/N Algorithmus
-                
+                n,estimate, P = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n,P,P_i_init) #Anzahl Objekte mit M/N Algorithmus
+
                 #MN Horizont aufrufen, um nur eine Linie von drei zu erhalten als Horizont-Kandidat
                 horizon_opt_height = horizonMnLogic(horizonHeight_list) #Höhe des besten Horizontkandidaten 
                 est_hor_k[0,0] = horizon_opt_height
                 est_hor_k[0,1] = horizon_lines_k[horizonHeight_list[N-1].tolist().index(horizon_opt_height)].angle #Winkel  des besten Horizontkandidaten 
-                
+               
             if k>= N: #Falls Daten schon vorbereitet, Algorithmus starten
                 #Horizontfilterung
                 est_hor_k,P_horizon = horizonState_gnn(R_horizon,P_horizon,H_horizon,F_horizon,Q_horizon,est_hor_k,horizon_lines_k,heightsDiff_horizon,state_hor_meas) #Zustand und Scätzfehlers aktualisieren
@@ -93,11 +93,6 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                 
                 if n != 0: #Falls mindestens ein Objekt detektiert wurde:
                     theta_k = np.zeros((1,n)) #Data Assossiation Vektor
-                    P = np.zeros((number_states,n*number_states))
-                    for i in range(n):
-                        P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
-                    
-          
                     measurement_k = current_measurement_k
                     m = len(measurement_k) #Anzahl Messungen pro Zeitschritt k
                     if m !=0:
@@ -110,7 +105,8 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                     L = np.zeros((n,m+n)) #Gesamte Kostenmatrix
                     for i in range(n): 
                         estimate_i = np.transpose(estimate[0:number_states,i] )   #Zustandände pro Objekt aus der gesamten estimates Matrix extraieren. Muss Transponiert werden, da Python mit stehenden Vektoren nicht umgehen kann
-                        P_i= P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
+                        P_i = P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
+                       
                     #Prädiktion mit Kalmanfilter
                         estimate_i,P_i = kalman_filter_prediction(estimate_i, P_i,F,Q) 
          
@@ -177,11 +173,10 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                 estimate_all.append(estimate.tolist()) #Zustand am Zeitpunkt k in die gesamte Matrix einfügen
                 estimate_horizont_all.append(est_hor_k.tolist())
                 if len(velocity_all)<N:
-                    n, estimate = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n) #Anzahl Objekte
+                    n, estimate,P = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n,P,P_i_init) #Anzahl Objekte
                 else:
-                    n, estimate = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n)                
-                
-            
+                    n, estimate, P = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n,P,P_i_init)                
+           
             k = k+1
             print(k)
         plt_GNN_settings(fig,axs)    
@@ -276,7 +271,7 @@ def gnn_testdaten(p_d,M,N,dimensions,T):
         P = np.zeros((number_states,n*number_states))
         for i in range(n):
             P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
-          
+        
         
         estimate_all =[]
         estimate_all.append(init_values.tolist()) #Liste mit  Erwartungswerten von allen Zuständen aller Objekten über alle Zeitschritten
