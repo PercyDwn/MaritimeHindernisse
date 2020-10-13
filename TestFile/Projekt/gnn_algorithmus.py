@@ -178,7 +178,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                     n, estimate, P = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n,P,P_i_init)                
            
             k = k+1
-            print(k)
+            
         plt_GNN_settings(fig,axs)    
         
         

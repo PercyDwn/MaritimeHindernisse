@@ -220,7 +220,7 @@ def deathsBirths(n_new,anfangsWerte,est,n_old,P,P_i_init):
     number_states = 4
     
     
-    try:
+    try: #Erfolg wenn n nicht zwei mal in Folge gleich null ist
         vel_old = numpy.matmul(H_velocity,est) #Geschwindigkeit alt
         pos_old = numpy.matmul(H,est) #Positionen alt (Eingangs des MN)
         pos_new = numpy.transpose(numpy.array(anfangsWerte))
@@ -241,7 +241,7 @@ def deathsBirths(n_new,anfangsWerte,est,n_old,P,P_i_init):
         elif n_new > n_old: #Births: Die Koordinaten die die minimale Abstände von den alten Objekten aufweisen, werden als "schon vorhandetes Objekt" betrachtet und daher werden als neues Objekt ausgeschlossen
             
             vel_new = numpy.zeros((n_new-n_old)) #Geschwinigkeit neu. Erstmal als 0 annehmen. 
-            P_new = numpy.zeros((number_states,(n_new-n_old)*number_states))
+            P_new = numpy.zeros((number_states,(n_new-n_old)*number_states)) #Initialisierung der neuen Varianz: Bei Geburt werden die neulich erzeugten Objete der Varianz = P_init zugewiesen
             for i in range(n_new-n_old):
                 P_new[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
             for i in range(n_old):
@@ -257,10 +257,8 @@ def deathsBirths(n_new,anfangsWerte,est,n_old,P,P_i_init):
             P = numpy.concatenate((P,P_new),1)
             
             
-            #P_i = P[0:number_states,i*number_states:number_states*(i+1)] #Kovarianz pro Objekt aus der gesamten P matrix extraieren 
-            
         elif n_new < n_old: #Deaths: Die Koordinaten die die maximale Abstände von den alten Objekten aufweisen, werden als "sterbende Objekte" betrachtet und daher werden von den Zuständen gelöscht 
-            P = numpy.zeros((number_states,n_new*number_states))
+            P_new = numpy.zeros((number_states,n_new*number_states))# Bei deaths werden die Varianzen der sterbenden Objete gelöscht
             for i in range(n_new):
                 distances = [] #Liste mit Abständen zu den alten koordinaten
                 for j in range(n_old):
@@ -270,8 +268,9 @@ def deathsBirths(n_new,anfangsWerte,est,n_old,P,P_i_init):
                 est_updated[1,i] = vel_old[0,index_min]
                 est_updated[2,i] = pos_old[1,index_min]
                 est_updated[3,i] = vel_old[1,index_min]
-                P[0:number_states,i*number_states:number_states*(i+1)] = P[0:number_states,index_min*number_states:number_states*(index_min+1)]
-                
+                P_new[0:number_states,i*number_states:number_states*(i+1)] = P[0:number_states,index_min*number_states:number_states*(index_min+1)]
+            P = P_new
+            
         elif n_new == n_old:
             est_updated = est
             P = P
@@ -294,5 +293,5 @@ def deathsBirths(n_new,anfangsWerte,est,n_old,P,P_i_init):
                 est_updated[1,i] = 0
                 est_updated[2,i] = pos_new[1,i]
                 est_updated[3,i] = 0
-                P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers
+                P[0:number_states,i*number_states:number_states*(i+1)] = P_i_init #Kovarianzmatrix des Schätzfehlers gleich P_init initialisiert
     return n_new,est_updated,P

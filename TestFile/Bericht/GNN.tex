@@ -281,10 +281,10 @@ Die Platzierung der Startwerten entscheidet also, ob die Schätzung des GNN als 
 Nach der Bestimmung der Objektanzahl, analysiert der \textit{M/N Algorithmus} welche Koordinaten welchem Objektkandidaten gehört und diese werden als x,y Größe für den Zeitschritt $k = N-1$ verwendet. Werden die richtige Objektkandidaten gefunden, kann man sicherstellen, dass die Startwerte geeignet sind. Falls die gefundenen Kandidaten sich mit den echte unterscheiden, liegen die Startwerte auch falsch und die Qualität der Schätzung des GNN wird je stärker beeinträchtigt je größer diese Abweichung ist.\\
 Die Anfangsgeschwindigkeiten $v^x$ und $v^y$ werden immer als null initialisiert.
 \subsection{Deaths and Births}\label{subsub:GNNDeathBirth}
-In einem praktischen Anwendung Szenario bleibt selbstverständlich die Anzahl der Objekte nicht konstant. Daher in jedem Zeitschritt wird es eine Analyse benötigt, die entscheidet ob ein neues Objekt auf die Bildaufnahme aufgetreten oder verschwunden ist. Man nennt solches Verfahren als \textit{Deaths and Births Analyse}.\\
+In einem praktischen Anwendungsszenario bleibt selbstverständlich die Anzahl der Objekte nicht konstant. Daher in jedem Zeitschritt wird es eine Analyse benötigt, die entscheidet ob ein neues Objekt auf die Bildaufnahme aufgetreten oder verschwunden ist. Man nennt solches Verfahren als \textit{Deaths and Births Analyse}.\\
 Zum Gegenteil des \textit{PHD- Algorithmus} wird dieser Schritt bei dem \textit{GNN } simpel gehalten. Nach der Bestimmung der Objektanzahl $n_k$, ist ein Objekt \textit{gestorben}, falls $n_k < n_{k-1}$ und wurde \textit{geboren}, falls $n_k > n_{k-1}$.\\
-Für den ersten Fall, vergleicht man die Positionen der Objekte anhand der $k$ und $k-1$ Zeitschritten. Die Koordinaten aus $k-1$, die betragsmäßig am weitesten der neuen Koordinaten $k$ liegen, werden aus dem Zustand gelöscht, daher Objekte, die diesen Koordinaten entsprechen werden als \textit{Tot} angesehen.\\
-Für den Fall neuer Geburten, vergleicht man wieder die Beträge der Position über den letzten zwei Zeitschritten. Die Objekte dessen Koordinaten auf $k-1$ die größten Abstände zum $k$ aufweisen, werden als Objekte, die neulich geboren wurden, erkannt. Deren Positionen werden zusammen mit den Anfangsgeschwindigkeiten in den aktualisierten Zustand eingespeichert.
+Für den ersten Fall, vergleicht man die Positionen der Objekte anhand der $k$ und $k-1$ Zeitschritten. Die Koordinaten aus $k-1$, die betragsmäßig am weitesten der neuen Koordinaten $k$ liegen, werden aus dem Zustand gelöscht, daher Objekte, die diesen Koordinaten entsprechen werden als \textit{Tot} angesehen. Die Kovarianzmatrix des Schätzfehlers, die dem gelöschten Zustand gehört wir ebenfalls nicht weiter berücksichtigt. \\
+Für den Fall neuer Geburten, vergleicht man wieder die Beträge der Position über den letzten zwei Zeitschritten. Die Objekte dessen Koordinaten auf $k-1$ die größten Abstände zum $k$ aufweisen, werden als Objekte, die neulich geboren wurden, erkannt. Deren Positionen werden zusammen mit den Anfangsgeschwindigkeiten in den aktualisierten Zustand eingespeichert. Die Kovarianzmatrix des Schätzfehlers neuer Objekte werden mit $\textbf{P}^i_0$ initialisiert.
 \newline
 \newline
 \section{\textit{GNN} Zusammenfassung}
@@ -302,19 +302,19 @@ Nach der Vorstellung des Aufbaus des \textit{Algorithmus}, ist es möglich seine
   \EndIf
   \If {$k = N$ }
   \State $n_k$ aus dem \textit{M/N Algorithmus}
-  \State Initialisierung $x_{N|N-1}$
+  \State Initialisierung $\underline{x}_{N|N-1}$
   \EndIf
   \If {$k>N$}
       \For{$i \leq n_k$}
-          \State \textit{Kalman-Prädiktion: }$x_{k|k-1}$ und $P_{k|k-1}$  mithilfe der Gleichungen  \ref{eq:GNNPraediktionX} und                 \ref{eq:GNNPraediktionP} ausrechnen .
+          \State \textit{Kalman-Prädiktion: }$\underline{x}_{k|k-1}$ und $\textbf{P}_{k|k-1}$  mithilfe der Gleichungen  \ref{eq:GNNPraediktionX} und                 \ref{eq:GNNPraediktionP} ausrechnen .
           \State Kostenmatrix mithilfe der Gleichung \eqref{eq:GNNKostenMatrix} erstellen 
           \State Wahrscheinlichste Hypothese mithilfe eines \textit{Hungarian-Algorithmus}
-          \State \textit{Kalman-Update: }$x_{k|k}$ und $P_{k|k}$ mithilfe der Gleichungen \ref{eq:GNNUpdate} korrigieren
-          \State $x_{k|k}$ ausgeben
+          \State \textit{Kalman-Update: }$underline{x}_{k|k}$ und $\textbf{P}_{k|k}$ mithilfe der Gleichungen \ref{eq:GNNUpdate} korrigieren
+          \State $underline{x}_{k|k}$ ausgeben
       \EndFor
       \State Daten für \textit{M/N Algorithmus} aktualisieren
       \State $n_{k+1}$ bestimmen mithilfe des  \textit{M/N Algorithmus}
-      \State $x_{k+1|k}$ mithilfe \textit{Deaths and Births Analyse} ergänzen
+      \State $\underline{x}_{k+1|k}$ und $\textbf{P}_{k+1|k}$ mithilfe \textit{Deaths and Births Analyse} ergänzen
       
   \EndIf
   $k = k+1$

@@ -7,7 +7,7 @@ from MN import*
 from ObjectHandler import *
 
 #Initialisierung
-safe_pic = False
+safe_pic = True
 dimensions = 2
 p_d = 0.9999 #Detektionsrate
 T= 0.5 #Abtastzeit

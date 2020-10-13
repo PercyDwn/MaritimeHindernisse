@@ -1,6 +1,5 @@
 Generell über P berichten
 Bericht: Schätzung P bei deaths und Births
 tilde für schätzung
-Kommentar Code
-Jeden Datensatz ausprobrieren.
+
 
