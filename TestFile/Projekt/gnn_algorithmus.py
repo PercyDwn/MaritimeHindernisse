@@ -11,7 +11,7 @@ from ObjectHandler import *
 import random
 from plot import *
 
-def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_horizon,P_horizon,safe_pic):
+def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold1,treshhold2, Q_horizon, R_horizon,P_horizon,safe_pic):
     
     #Ausagabe: estimate_all -> Liste mit den estimates über alle Zeitschritten.
     #          estimate_horizon_all -> Liste mit den estimates des Horizonts (est_hor_k) über alle Zeitschritten.
@@ -47,7 +47,9 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
         estimate = np.zeros((4,1)) #Zustandschätzung eines Objekts
         pictures_availiable = True #While Schleife Initialisierung
         fig, axs = plt.subplots(3)
+        fig_n,axs_n =plt.subplots(1)
         real_pic = plt.figure()
+        n_all =[] #Anzahl Objekte über alle Zeitschritten 
         estimate_all =[]   #Zustandschätzung aller Objekte aller Zeitschritten
         estimate_horizont_all = [] #Zustandschätzung aller Horizonten (Winkel und Höhe) aller Zeitschritten
         velocity_all = []   
@@ -78,7 +80,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
             if k==N: #n zum ersten Mal ausrechnen und Anfangsbedingung festlegen
                 
                 mn_data = warmup_data[:]
-                n,estimate, P = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold,n,P,P_i_init) #Anzahl Objekte mit M/N Algorithmus
+                n,estimate, P = initMnLogic(M,N,mn_data,[0,0],T, estimate,treshhold1,n,P,P_i_init) #Anzahl Objekte mit M/N Algorithmus
 
                 #MN Horizont aufrufen, um nur eine Linie von drei zu erhalten als Horizont-Kandidat
                 horizon_opt_height = horizonMnLogic(horizonHeight_list) #Höhe des besten Horizontkandidaten 
@@ -166,20 +168,20 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold, Q_horizon, R_
                     mn_data.append(measurement_k)        # eingefügt.
                 #----------------#
 
-                plot_GNN(positionen_k,current_measurement_k,fig, axs,k,ObjectHandler)
+                plot_GNN(positionen_k,current_measurement_k,fig, axs,fig_n,axs_n,k,ObjectHandler,n_all,N)
                 if safe_pic == True:
                     plot_GNN_realpic(ObjectHandler,positionen_k,k,N, real_pic,current_measurement_k,est_hor_k[0,0])
                 
                 estimate_all.append(estimate.tolist()) #Zustand am Zeitpunkt k in die gesamte Matrix einfügen
                 estimate_horizont_all.append(est_hor_k.tolist())
                 if len(velocity_all)<N:
-                    n, estimate,P = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold,n,P,P_i_init) #Anzahl Objekte
+                    n, estimate,P = initMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold1,n,P,P_i_init) #Anzahl Objekte
                 else:
-                    n, estimate, P = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,0.015,n,P,P_i_init)                
+                    n, estimate, P = veloMnLogic(M,N,mn_data,velocity_all,T, estimate,treshhold2,n,P,P_i_init)                
            
             k = k+1
             
-        plt_GNN_settings(fig,axs)    
+        plt_GNN_settings(fig,axs,fig_n,axs_n)    
         
         
         return estimate_all , estimate_horizont_all

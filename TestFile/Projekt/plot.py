@@ -2,7 +2,10 @@ import  matplotlib.pyplot as plt
 import numpy as np
 import os
 
-def plot_GNN(pos_k,meas_k,fig, axs,k,ObjectHandler):
+
+    
+   
+def plot_GNN(pos_k,meas_k,fig, axs,fig_n,axs_n,k,ObjectHandler,n_all,N):
     
     for m in range(len(meas_k)):
         axs[0].plot(meas_k[m][0],k,'ro',color='black')
@@ -18,8 +21,11 @@ def plot_GNN(pos_k,meas_k,fig, axs,k,ObjectHandler):
              axs[2].plot(absolute_value_gnn,k,'r+')
     except:
         print('No Object detected')
-         
-
+        n = 0
+    k_all = np.linspace(N,k,k-N+1)
+    n_all.append(n)
+    axs_n.plot(k_all,n_all) # Plot Anzahl der Objekte   
+   
 def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k,height_hor):
 
     cwd = os.getcwd() 
@@ -60,7 +66,7 @@ def plot_GNN_realpic(ObjectHandler,pos_k,k,N, real_pic,meas_k,height_hor):
     
     
     
-def plt_GNN_settings(fig,axs):
+def plt_GNN_settings(fig,axs,fig_n,axs_n):
         fig.suptitle('Performance GNN')
         axs[0].grid()
         axs[1].grid()
@@ -71,6 +77,11 @@ def plt_GNN_settings(fig,axs):
         axs[1].set_ylabel('k')
         axs[2].set_xlabel('Betrag')
         axs[2].set_ylabel('k')
+        #####################
+        axs_n.grid()
+        axs_n.set_xlabel('k')
+        axs_n.set_ylabel('n')
+        fig_n.suptitle('Anzahl der Objekte')
         plt.show()
         
     

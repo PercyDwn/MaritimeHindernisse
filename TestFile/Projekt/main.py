@@ -7,7 +7,7 @@ from MN import*
 from ObjectHandler import *
 
 #Initialisierung
-safe_pic = True
+safe_pic = False
 dimensions = 2
 p_d = 0.9999 #Detektionsrate
 T= 0.5 #Abtastzeit
@@ -21,7 +21,8 @@ Q = [[100,0,0,0],
 R = [[100,0],
     [0,100]] #Varianz des Messrauschens
 P_i_init = [[100,0,0,0],[0,1,0,0],[0,0,100,0],[0,0,0,1]] #Initialisierung der Kovarianzmatrix des Scätzfehlers
-treshhold = 0.08 #M/N Trashhold
+treshhold1 = 0.08 #M/N Trashhold 1
+treshhold2 = 0.015 #M/N Trashhold 2
 Q_horizon = [[0.1,0],
             [0,0.1]] ##Varianz des Modellrauschens Horizont
 R_horizon = [[1,0],
@@ -29,7 +30,7 @@ R_horizon = [[1,0],
 P_horizon = [[1,0],
             [0,1]]  #Anfangsvarianz des Scätzfehlers des Horizonts
 #GNN Aufruf
-estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold,Q_horizon,R_horizon,P_horizon,safe_pic) #Aufruf des GNN
+estimate_gnn,n = gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold1,treshhold2,Q_horizon,R_horizon,P_horizon,safe_pic) #Aufruf des GNN
 
 
 
