@@ -18,7 +18,7 @@ def gnn(p_d,M,N,dimensions,T,ObjectHandler,Q,R,P_i_init,treshhold1,treshhold2, Q
                 #estimate -> Zeilen: Zustände (Position und Geschwindigkeit) Spalten: Objekte 
                 #est_hor_k -> Höhe und Winkel des Horizonts
     
-        ObjectHandler.setImageFolder('Bilder/list5') #Ordner der Bildern
+        ObjectHandler.setImageFolder('Bilder/list1') #Ordner der Bildern
         ObjectHandler.setImageBaseName('')
         ObjectHandler.setImageFileType('.jpg') #Art der Bildern
         ObjectHandler.setDebugLevel(2)

@@ -97,4 +97,58 @@ Mills-Tettey, G\BPBI A.%
   assignment problem with changing costs}.{\BBCQ}.
 \PrintBackRefs{\CurrentBib}
 
+\bibitem [\protect \citeauthoryear {%
+Pavlina~Konstantinova%
+}{%
+Pavlina~Konstantinova%
+}{%
+{\protect \APACyear {2003}}%
+}]{%
+MOT}
+\APACinsertmetastar {%
+MOT}%
+\begin{APACrefauthors}%
+Pavlina~Konstantinova, T\BPBI S., Alexander~Udvarev.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2003}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Study of a Target Tracking Algorithm Using Global
+  Nearest Neighbor Approach} {A study of a target tracking algorithm using
+  global nearest neighbor approach}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{International Conference on Computer Systems and
+  Technologies}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Pektas%
+\ \BBA {} Sabuncu%
+}{%
+Pektas%
+\ \BBA {} Sabuncu%
+}{%
+{\protect \APACyear {2012}}%
+}]{%
+MN}
+\APACinsertmetastar {%
+MN}%
+\begin{APACrefauthors}%
+Pektas, F.%
+\BCBT {}\ \BBA {} Sabuncu, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2012}{05}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A score-based track initiation procedure to eliminate
+  false tracks in the presence of sea clutter} {A score-based track initiation
+  procedure to eliminate false tracks in the presence of sea clutter}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE National Radar Conference - Proceedings}{}{}{}.
+\newblock
+\begin{APACrefDOI} \doi{10.1109/RADAR.2012.6212252} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
 \end{thebibliography}

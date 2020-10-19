@@ -19,47 +19,46 @@ You're missing a field name---line 23 of file Referenzen.bib
  :     %note = {In comment section, accessed on 2018/12/04}
 (Error may have been on previous line)
 I'm skipping whatever remains of this entry
-Warning--I didn't find a database entry for "MN"
 apacite.bst [2013/07/21 v6.03 APA bibliography style]
-You've used 4 entries,
+You've used 6 entries,
             6951 wiz_defined-function locations,
-            1292 strings with 11121 characters,
-and the built_in function-call counts, 6398 in all, are:
-= -- 866
-> -- 49
-< -- 225
-+ -- 223
-- -- 12
-* -- 328
-:= -- 1006
-add.period$ -- 19
-call.type$ -- 4
-change.case$ -- 56
+            1304 strings with 11534 characters,
+and the built_in function-call counts, 10313 in all, are:
+= -- 1343
+> -- 73
+< -- 440
++ -- 438
+- -- 16
+* -- 592
+:= -- 1808
+add.period$ -- 27
+call.type$ -- 6
+change.case$ -- 92
 chr.to.int$ -- 0
-cite$ -- 8
-duplicate$ -- 147
-empty$ -- 285
-format.name$ -- 74
-if$ -- 1333
+cite$ -- 12
+duplicate$ -- 226
+empty$ -- 428
+format.name$ -- 112
+if$ -- 2040
 int.to.chr$ -- 0
-int.to.str$ -- 12
+int.to.str$ -- 18
 missing$ -- 0
-newline$ -- 95
-num.names$ -- 32
-pop$ -- 246
+newline$ -- 144
+num.names$ -- 48
+pop$ -- 292
 preamble$ -- 1
-purify$ -- 15
+purify$ -- 25
 quote$ -- 0
-skip$ -- 437
+skip$ -- 694
 stack$ -- 0
-substring$ -- 250
-swap$ -- 82
-text.length$ -- 9
+substring$ -- 479
+swap$ -- 129
+text.length$ -- 15
 text.prefix$ -- 0
 top$ -- 1
-type$ -- 448
+type$ -- 608
 warning$ -- 0
-while$ -- 26
+while$ -- 40
 width$ -- 0
-write$ -- 109
+write$ -- 166
 (There was 1 error message)

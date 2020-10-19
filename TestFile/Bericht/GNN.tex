@@ -18,7 +18,7 @@
 
 \section{Global Nearest Neighbour: Algorithmus und Idee}
 \section{Grundlage \textit{GNN}}
-Da die Verfolgung der exakten gesuchten posteriori Wahrscheinlichkeit, aufgrund begrenzter Rechnerzeit und hohen Rechneraufwand, nicht genau bestimmbar ist, sind Approximationen für eine durchführbare Rechnung erforderlich. In diesem Kapitel wird der einfachste und rechnengünstigste Tracking Algorithmus vorgestellt, der Global Nearest Neighbour (\textit{GNN}).\\
+Da die Verfolgung der exakten gesuchten posteriori Wahrscheinlichkeit, aufgrund begrenzter Rechnerzeit und hohen Rechneraufwand, nicht genau bestimmbar ist, sind Approximationen für eine durchführbare Rechnung erforderlich. In diesem Kapitel wird der einfachste und rechnengünstigste Tracking Algorithmus vorgestellt, der Global Nearest Neighbour (\textit{GNN}, siehe \cite{MOT}).\\
 Wie bereits erwähnt, werden hauptsächlich zwei Annahmen getroffen, um die Problematik noch berechenbar zu gestalten, die sogenannte Merging und Pruning. Der \textit{GNN} basiert sich auf ein abruptes Pruning.
 \subsection{Bekannte Anzahl von Objekten}
 Eine wichtige Annahme und gleichzeitig Einschränkung dieses Algorithmus, bezieht sich auf die Voraussetzung, dass die Anzahl der Objekte $n_k$ in jedem Zeitschritt bekannt ist. Diese Annahme ist hinsichtlich einer Performance Analyse auf künstliche Testdaten ausreichend, allerdings wird der Algorithmus für eine Realitätsnahe Simulation so gut wie unbrauchbar. In den späteren Kapiteln, wird die \textit{M/N} Methode vorgestellt, die eine Einschätzung von $n_k$ liefern kann, daher wäre der GNN bei einer praktischen Anwendung verwendbar.
