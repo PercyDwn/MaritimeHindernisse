@@ -72,7 +72,7 @@ print('get measurements ...')
 meas: List[ndarray] = []
 ObjectHandler.setPlotOnUpdate(True)
 for k in range(1,21):
-    meas.insert(k,  ObjectHandler.getObjectStates(k, 'cc'))
+    meas.insert(k,  ObjectHandler.getObjectStates(k, 'cb'))
 
 print('rearrange measurements ...')
 meas_v: List[ndarray] = []
@@ -90,11 +90,17 @@ ci = 1
 for z in meas_v:
     phd.predict()
     phd.correct(z)
-    phd.prune(array([0.001]), array([100]), 200)
+    fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci)+'before pruning', savePath = '/PHD_Plots')
+    phd.prune(array([0.01]), array([20]), 100)
     pos_phd.append(phd.extract())
     print( 'timestep ' + str(ci) )
     print( 'tracking ' + str(len(phd.extract())) + ' objects' )
-    fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci), savePath = '/PHD_Plots')
+    fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci)+'after pruning', savePath = '/PHD_Plots')
+    for l in range(len(z)):
+       plt.plot(z[0],z[1],'ro',color= 'black', ms= 1)
+    for est in phd.extract():
+       plt.plot(est[0],est[1],'ro',color= 'red', ms= 1)
+    #plt.show()
     fig.close()
     ci += 1
     print('------------------')
@@ -102,7 +108,7 @@ for z in meas_v:
 # plot data
 
 # xy 
-for i in range(20):
+for i in range(len(meas_v)):
     #Messungen
     for j in range(len(meas_v[i])):
         plt.plot(meas_v[i][j][0],meas_v[i][j][1],'ro',color='black')
@@ -115,45 +121,44 @@ for i in range(20):
 plt.title('x-y-Raum')
 plt.xlabel('x-Koord.')
 plt.ylabel('y-Koord.')
-plt.axis([-5,645,-5,485])
 plt.gca().invert_yaxis()
 plt.show()
 
-# x-axis
-K = np.arange(len(meas_v))
+## x-axis
+#K = np.arange(len(meas_v))
 
-for i in K:
-    #Messungen
-    for j in range(len(meas_v[i])):
-        plt.plot(K[i], meas_v[i][j][0],'ro',color='black')
+#for i in K:
+#    #Messungen
+#    for j in range(len(meas_v[i])):
+#        plt.plot(K[i], meas_v[i][j][0],'ro',color='black')
 
-    #Schätzungen
-    for l in range(len(pos_phd[i])):
-        plt.plot(K[i], pos_phd[i][l][0],'ro',color= 'red', ms= 3)
+#    #Schätzungen
+#    for l in range(len(pos_phd[i])):
+#        plt.plot(K[i], pos_phd[i][l][0],'ro',color= 'red', ms= 3)
         
-#plt.legend(['Zk', 'phd'])     
-plt.title('x-Raum')
-plt.xlabel('zeitpunkt k')
-plt.ylabel('x-Koord.')
-plt.axis([-1,20,-5,645])
-plt.show()
+##plt.legend(['Zk', 'phd'])     
+#plt.title('x-Raum')
+#plt.xlabel('zeitpunkt k')
+#plt.ylabel('x-Koord.')
+#plt.axis([-1,20,-5,645])
+#plt.show()
 
-# y-axis
-for k in K:
-    #Messungen
-    for j in range(len(meas_v[k])):
-        plt.plot(K[k], meas_v[k][j][1],'ro',color='black')
+## y-axis
+#for k in K:
+#    #Messungen
+#    for j in range(len(meas_v[k])):
+#        plt.plot(K[k], meas_v[k][j][1],'ro',color='black')
 
-    #Schätzungen
-    for l in range(len(pos_phd[k])):
-        plt.plot(K[k], pos_phd[k][l][1],'ro',color= 'red', ms= 3)
+#    #Schätzungen
+#    for l in range(len(pos_phd[k])):
+#        plt.plot(K[k], pos_phd[k][l][1],'ro',color= 'red', ms= 3)
         
-#plt.legend(['Zk', 'phd'])     
-plt.title('y-Raum')
-plt.xlabel('zeitpunkt k')
-plt.ylabel('y-Koord.')
-plt.axis([-1,20,-5,485])
-plt.show()
+##plt.legend(['Zk', 'phd'])     
+#plt.title('y-Raum')
+#plt.xlabel('zeitpunkt k')
+#plt.ylabel('y-Koord.')
+#plt.axis([-1,20,-5,485])
+#plt.show()
 
 # Scater plot 3D
 #------------------------------------------------------------------------
@@ -212,4 +217,4 @@ plt.show()
 #        print(e.args[0])
 #    print('---------------------------------------')
 
-cv2.waitKey(0)
+#cv2.waitKey(0)

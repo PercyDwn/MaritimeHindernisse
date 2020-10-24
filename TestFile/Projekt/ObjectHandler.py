@@ -123,7 +123,7 @@ class ObjectHandler:
         return self.HorizonLines[t-1]
 
     # format coordinates
-    def returnCoordinates(self, state: Tuple, position: str = 'cc') -> List:
+    def returnCoordinates(self, state: Tuple, position: str = 'cb') -> List:
 
         # print(state)
 
@@ -153,7 +153,7 @@ class ObjectHandler:
         return [return_x, return_y]
 
     # return last item in object states list
-    def getLastObjectStates(self, position: str = 'cc') -> List:
+    def getLastObjectStates(self, position: str = 'cb') -> List:
 
         return self.returnCoordinates(self.ObjectStates[-1], position)
 
