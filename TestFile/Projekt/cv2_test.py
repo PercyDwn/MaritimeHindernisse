@@ -2,6 +2,20 @@ import cv2
 import numpy as np
 import glob
 
+def draw(img, corners, imgpts):
+    imgpts = np.int32(imgpts).reshape(-1,2)
+
+    # draw ground floor in green
+    img = cv2.drawContours(img, [imgpts[:4]],-1,(0,255,0),-3)
+
+    # draw pillars in blue color
+    for i,j in zip(range(4),range(4,8)):
+        img = cv2.line(img, tuple(imgpts[i]), tuple(imgpts[j]),(255),3)
+
+    # draw top layer in red color
+    img = cv2.drawContours(img, [imgpts[4:]],-1,(0,0,255),3)
+
+    return img
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((7*7,3), np.float32)
@@ -34,8 +48,12 @@ for fname in images:
   axis = np.float32( [ [0,0,0], [0,5,0], [5,5,0], [5,0,0], [0,0,-3],[0,5,-3],[5,5,-3],[5,0,-3] ] )
   imgpts, jac = cv2.projectPoints(axis, rvecs, tvecs, mtx, dist)
 
-  print(imgpts)
-  print("...")
+  # draw(img, corners, imgpts)
+  # cv2.imshow("cube", img)
+  # cv2.waitKey(0)
+
+  # print(imgpts)
+  # print("...")
   for pt in imgpts:
     cv2.circle(diceimg, (pt[0][0], pt[0][1]), radius=1, color=(0,0,255), thickness=-1)
 
@@ -69,6 +87,10 @@ for fname in images:
 
   print("camera matrix:")
   print(mtx)
+  print("rotation matrix:")
+  print(rvecs)
+  print("translation vector:")
+  print(tvecs)
   print("distortion:")
   print(dist) 
 

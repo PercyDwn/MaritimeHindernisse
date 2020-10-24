@@ -9,13 +9,14 @@ import math
 
 from typing import List, Tuple
 
-def phd_BirthModels(obj_w: int, obj_h: int, num_w: int, num_h: int, ypt: int = 0, boatContour: Tuple = None) -> List[Gaussian]:
+def phd_BirthModels(obj_w: int, obj_h: int, num_w: int, num_h: int, ypt: int = 0, xpe: int = 20, boatContour: Tuple = None) -> List[Gaussian]:
 
     birth_belief: List[Gaussian] = []
     b_leftside: List[Gaussian] = [] 
     b_rightside: List[Gaussian] = [] 
 
-    cov_mul = 1
+    cov_mul = 100
+    padding_edge = xpe
 
     if boatContour and boatContour[0] == 'Triangle':
         margin = boatContour[1]
@@ -36,9 +37,9 @@ def phd_BirthModels(obj_w: int, obj_h: int, num_w: int, num_h: int, ypt: int = 0
          [0.0,              0.0,              20.0,   0.0],
          [0.0,              0.0,              0.0,    20.0]])
     for i in range(0,num_h+1):
-        mean_left = vstack([20, (i*(obj_h-2*ypt)/num_h)+ypt, 10.0, 0])
+        mean_left = vstack([padding_edge, (i*(obj_h-2*ypt)/num_h)+ypt, 10.0, 0])
         b_leftside.append(Gaussian(mean_left, cov_mul*cov_edge))
-        mean_right = vstack([obj_w-20, (i*(obj_h-ypt)/num_h)+ypt, -10.0, 0])
+        mean_right = vstack([obj_w-padding_edge, (i*(obj_h-ypt)/num_h)+ypt, -10.0, 0])
         b_rightside.append(Gaussian(mean_right, cov_mul*cov_edge))
 
     cov_area = array(

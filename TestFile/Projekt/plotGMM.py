@@ -84,11 +84,14 @@ def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str 
   # normalize
   gz /= gz.max()
   # draw contour
-  plt.contourf(gz, alpha=.5, antialiased=True)
+  if imgPath:
+    plt.contourf(gz, alpha=.5, antialiased=True)
+  else:
+    plt.contourf(gz, level = 10 , antialiased=True)
+    # invert y axis
+    plt.gca().invert_yaxis()
   # set window title
   plt.gcf().canvas.set_window_title(figureTitle)
-  # invert y axis
-  #plt.gca().invert_yaxis()
 
   # save figure if savePath is set and valid
   if savePath != '' and savePath[0] == '/': 

@@ -350,7 +350,8 @@ class ObstacleDetector(object):
                        rotate: bool=True,
                        plot_method: str='matplot',
                        wait_time: int=0,
-        ) -> None:
+                       show: bool=True
+        ) -> np.ndarray:
         
         if horizon_lines:
 
@@ -372,12 +373,14 @@ class ObstacleDetector(object):
         if 'matplot' in plot_method:
             fig, ax = plt.subplots()
             if len(img.shape) > 2 and img.shape[2] > 1:
-                ax.imshow(img)
+                if show == True: ax.imshow(img)
             else:
-                ax.imshow(img, cmap='gray')
+                if show == True: ax.imshow(img, cmap='gray')
         elif 'cv' in plot_method:
-            cv2.imshow('image', img)
+            if show == True: cv2.imshow('image', img)
             cv2.waitKey(wait_time)
+        
+        return img
 
 
 def main():

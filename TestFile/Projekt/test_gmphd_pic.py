@@ -24,10 +24,11 @@ from typing import List, Tuple, cast
 
 # ObjectHandler init
 ObjectHandler = ObjectHandler()
-ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
+ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1_0')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)
+ObjectHandler.setPlotOnUpdate(True)
 
 # GM_PHD filter init
 F = array([[1.0, 0.0, 1.0, 0.0], 
@@ -51,9 +52,9 @@ for hl in HorizontLines:
 img_w = 640
 img_h = 480
 # create birth_belief
-boatContour = ('Triangle', 30,140)
-ypt = cast(int, ypt)
-birth_belief = phd_BirthModels(obj_w = img_w, obj_h = img_h, num_w = 12, num_h = 8, ypt = ypt, boatContour=boatContour)
+boatContour = ('Triangle', 30,120)
+ypt = cast(int, ypt) - 10
+birth_belief = phd_BirthModels(obj_w = img_w, obj_h = img_h, num_w = 8, num_h = 6, ypt = ypt, xpe = 0, boatContour=boatContour)
 # plot gmm
 imgPath = os.getcwd()+'/TestFile/Projekt/Bilder/list1/1.jpg'
 fig = plotGMM(gmm = birth_belief, pixel_w = img_w, pixel_h = img_h, detail = 1 , method = 'rowwise', figureTitle = 'Birth Belief GMM', savePath = '/PHD_Plots', imgPath = imgPath)
@@ -61,7 +62,7 @@ fig.show()
 
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.01
+intensity = 0.0001
 
 # phd object
 phd = GaussianMixturePHD(birth_belief, survival_rate, detection_rate, intensity, F, H, Q, R)

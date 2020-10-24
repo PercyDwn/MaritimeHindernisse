@@ -13,6 +13,7 @@ from numpy import ndarray
 from obstacle_detect import *
 from CustomErrors import *
 
+import cv2
 
 class ObjectHandler:
     
@@ -22,6 +23,7 @@ class ObjectHandler:
         
         self.DebugLevel = 0
         self.ObjectStates: List = []
+        self.DetectedObstacles: List = []
         self.HorizonLines: List = []
         self.ImageFolder: str = None
         self.ImageBaseName: str = None
@@ -30,7 +32,7 @@ class ObjectHandler:
         self.Img: ndarray 
         self.image_height: int
         self.image_width: int
-        self.PlotOnUpdate: bool = True
+        self.PlotOnUpdate: bool = False
 
     def setDebugLevel(self, debugLevel: int = 0) -> None:
         self.DebugLevel = debugLevel
@@ -84,7 +86,7 @@ class ObjectHandler:
         return self.ObjectStates
 
     # return object states for a given time step t
-    def getObjectStates(self, t: int, position: str = 'cc') -> List:
+    def getObjectStates(self, t: int, position: str = 'cb') -> List:
         if(t > self.getTimeStepCount()):
             # try and update object state data
             for i in range(0,t - self.getTimeStepCount()):
@@ -97,6 +99,17 @@ class ObjectHandler:
         for obj in self.ObjectStates[t-1]:
             formattedCoordinates.append(self.returnCoordinates(obj, position))
         return formattedCoordinates
+
+    def getDetectedObstacles(self, t: int) -> List:
+        if(t > self.getTimeStepCount()):
+            # try and update object state data
+            for i in range(0,t - self.getTimeStepCount()):
+                # try to update
+                updated = self.updateObjectStates()
+                if updated == False:  raise InvalidTimeStepError('time step is out of bound!')
+        
+        # return data for requested time step
+        return self.DetectedObstacles[t-1]
                 
     def getHorizonLines(self, t:int):
         if(t > self.getTimeStepCount()):
@@ -209,6 +222,7 @@ class ObjectHandler:
                         })
                 # add list to list with obstacles over all time steps
                 self.ObjectStates.append(ObstacleStates)
+                self.DetectedObstacles.append(obstacles)
             else:
                 obstacles = None
             # plot image with found obstacles
@@ -223,7 +237,36 @@ class ObjectHandler:
             if self.printDebug(0): print(filepath + ' is not a valid file')
             return False
 
+    def plot_distances(self, img, obstacles, horizon_lines, distances) -> None:
 
+        detector = ObstacleDetector()
+        img = detector.plot_img(img, obstacles=obstacles,horizon_lines=horizon_lines,plot_method='cv', wait_time=1, show = False)
+
+        font                   = cv2.FONT_HERSHEY_SIMPLEX
+        fontScale              = .5
+        fontColor              = (255,30,30)
+        lineType               = 2
+
+        for i,obstacle in enumerate(obstacles, start=0):
+            text = "%.2f m" % (distances[i])
+            
+            coordinates = self.returnCoordinates(state = {
+                            "x": obstacle.x,
+                            "y": obstacle.y,
+                            "width": obstacle.width,
+                            "height": obstacle.height
+                        }, position = 'lt')
+            position = (coordinates[0], coordinates[1])
+            cv2.putText(
+                img,
+                text, 
+                position, 
+                font, 
+                fontScale,
+                fontColor,
+                lineType)
+
+        cv2.imshow('Image', img)
 
 
 
