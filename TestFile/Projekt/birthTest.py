@@ -96,13 +96,15 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
             b_area.append(Gaussian(mean, cov_area, 0.1))
     
     
-    birth_belief.extend(b_leftside)
-    birth_belief.extend(b_rightside)
+    #birth_belief.extend(b_leftside)
+    #birth_belief.extend(b_rightside)
     birth_belief.extend(b_area)
 
     return birth_belief
 
-birth_belief = phd_BirthModels(5, 5)
+
+
+birth_belief = phd_BirthModels(2, 1)
 fig = plotGMM(birth_belief, 640, 480, 1)
 plt.show()
 

@@ -61,3 +61,40 @@ endVio = [[62.363],
           [0.1798]]
 vioPos = BoatPos(startVio, endVio, 5, kmax)
 
+#Camera location:
+#x = 53.162m
+#y = -27.496m
+#z = 0.7986m
+
+camPos = [[53.162],
+          [-27.496],
+          [0.7986]]
+
+for k in range(kmax):
+    plt.plot(greenPos[k][0], greenPos[k][1],'ro',color= 'green', ms= 3)
+    plt.plot(redPos[k][0], redPos[k][1],'ro',color= 'red', ms= 3)
+    plt.plot(vioPos[k][0], vioPos[k][1],'ro',color= 'violet', ms= 3)
+
+plt.plot(camPos[0], camPos[1], 'ro',color= 'black', ms= 5)
+plt.show()
+
+#Violet Boat location:
+########################
+#start
+startVio = [[52.363],
+            [-32.401], 
+            [0.1798]]
+#end
+endVio = [[62.363],
+          [-36.401], 
+          [0.1798]]
+alpha = math.atan(np.subtract(endVio[1],startVio[1])/np.subtract(endVio[0],startVio[0]))
+#startMid
+startVioMid = [[52.363],
+            [-32.401], 
+            [0.1798]]
+#endMid
+endVioMid = [[62.363],
+          [-36.401], 
+          [0.1798]]
+vioMidPos = BoatPos(startVioMid, endVioMid, 5, kmax)

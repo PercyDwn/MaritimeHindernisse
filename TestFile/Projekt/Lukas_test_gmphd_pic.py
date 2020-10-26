@@ -29,7 +29,7 @@ from typing import List, Tuple
 ObjectHandler = ObjectHandler()
 #Dateipfad individuell anpassen!!
 #################################
-ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list1')
+ObjectHandler.setImageFolder('/TestFile/Projekt/Bilder/list3')
 ObjectHandler.setImageBaseName('')
 ObjectHandler.setImageFileType('.jpg')
 ObjectHandler.setDebugLevel(2)

@@ -35,7 +35,7 @@ F = array([[1.0, 0.0, 1.0, 0.0],
 H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
 Q = .1*eye(4)
-R = .05*eye(2)
+R = .5*eye(2)
 
 #Def. Birth_belief
 
@@ -59,32 +59,47 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     # Birthmodelle Rand links
     #--------------------------
     b_leftside: List[Gaussian] = [] 
-    cov_edge = array([[15, 0.0,         0.0, 0.0], 
-                     [0.0, obj_h/(4*num_h), 0.0, 0.0],
+    cov_edge = array([[7, 0.0,         0.0, 0.0], 
+                     [0.0, obj_h/(num_h), 0.0, 0.0],
                      [0.0, 0.0,         5.0, 0.0],
                      [0.0, 0.0,         0.0, 5.0]])
-    for i in range(1,num_h):
-        mean = vstack([0, i*obj_h/(num_h+1), 1.0, 1.0])
-        b_leftside.append(Gaussian(mean, cov_edge))
+    for i in range(num_h):
+        mean = vstack([5,  i*obj_h/num_h+obj_h/(2*num_h), 1.0, 0.0])
+        b_leftside.append(Gaussian(mean, 10*cov_edge, 0.05))
     
     # Birthmodelle Rand rechts
     #--------------------------
     b_rightside: List[Gaussian] = [] 
-    for i in range(1,num_h):
-        mean = vstack([obj_w, i*obj_h/(num_h+1), -1.0, 1.0])
-        b_rightside.append(Gaussian(mean, cov_edge))
+    for i in range(num_h):
+        mean = vstack([obj_w-5,  i*obj_h/num_h+obj_h/(2*num_h), -1.0, 0.0])
+        b_rightside.append(Gaussian(mean, 10*cov_edge, 0.05))
+
+    cov_area = array([[(obj_w/num_w), 0.0,            0.0,    0.0], 
+                     [0.0,          (obj_h/(num_h)),  0.0,    0.0],
+                     [0.0,          0.0,            20.0,   0.0],
+                     [0.0,          0.0,            0.0,    20.0]])
+    b_area: List[Gaussian] = []
+    for i in range(num_h):
+        for j in range(num_w): 
+            mean = vstack([j*obj_w/num_w+obj_w/(2*num_w), i*obj_h/num_h+obj_h/(2*num_h), 0.0, 0.0])
+            b_area.append(Gaussian(mean, 10*cov_area, 0.2))
 
     birth_belief.extend(b_leftside)
     birth_belief.extend(b_rightside)
+    #birth_belief.extend(b_area)
 
     return birth_belief
 
 
-birth_belief = phd_BirthModels(10, 10)
+birth_belief = phd_BirthModels(1, 1)
+
+fig = plotGMM(birth_belief, 50, 50)
+plt.title('gausplot des birthmodels')
+plt.show()
 
 survival_rate = 0.99
 detection_rate = 0.9
-intensity = 0.05
+intensity = 0.001
 
 phd = GaussianMixturePHD(
                 birth_belief,
@@ -120,8 +135,8 @@ for i in range(20):
     meas.insert(10+i, [ array([[10.+1.5*i], [20.+i]]), array([[35.-1.5*i], [15.]]), array([[40.-i], [26.+i]]), array([[50*random.random()], [50*random.random()]]),  array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
     
 
-fig = plt.figure
-fig = plotGMM(birth_belief, 50, 50, 1)
+
+fig = plotGMM(birth_belief, 50, 50)
 plt.title('gausplot des birthmodels')
 plt.show()
 
@@ -131,9 +146,9 @@ for z in meas:
     phd.predict()
     phd.correct(z)
     #pruning
-    phd.prune(array([0.1]), array([3]), 20)
-    fig = plt.figure
-    fig = plotGMM(phd.gmm, 50, 50, 2)
+    phd.prune(array([0.001]), array([5]), 20)
+    
+    #fig = plotGMM(phd.gmm, 50, 50)
     
     maxWeight = 0
     for comp in phd.gmm:
@@ -147,11 +162,11 @@ for z in meas:
     print('min weight: ' + str(minWeight))
     plt.title('gausplot')
     
-    for m in z:
-        plt.plot(m[0], m[1], 'ro',color= 'white', ms= 2)
-    for m in phd.extract():
-        plt.plot(m[0],m[1],'ro',color= 'red', ms= 1)
-    plt.show()
+    #for m in z:
+    #    plt.plot(m[0], m[1], 'ro',color= 'white', ms= 2)
+    #for m in phd.extract():
+    #    plt.plot(m[0],m[1],'ro',color= 'red', ms= 1)
+    #plt.show()
     pos_phd.append(phd.extract())
 
     #print(phd.extract())

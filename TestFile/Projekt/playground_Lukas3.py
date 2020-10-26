@@ -1,3 +1,4 @@
+
 from ObjectHandler import *
 import  matplotlib.pyplot as plt
 import numpy as np
@@ -62,24 +63,24 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
         mean = vstack([30,  i*obj_h/num_h+obj_h/(2*num_h), 10.0, 0.0])
         #print(i*obj_h/num_h+obj_h/(2*num_h))
         #print('--------------')
-        b_leftside.append(Gaussian(mean, 40*cov_edge, 0.2))   
+        b_leftside.append(Gaussian(mean, 750*cov_edge, 0.2))   
     # Birthmodelle Rand rechts
     #--------------------------
     b_rightside: List[Gaussian] = [] 
     for i in range(num_h):
         mean = vstack([obj_w-30,  i*obj_h/num_h+obj_h/(2*num_h), -10.0, 0.0])
-        b_rightside.append(Gaussian(mean, 40*cov_edge, 0.2))
+        b_rightside.append(Gaussian(mean, 750*cov_edge, 0.2))
     # Birthmodelle übers Bild
     #--------------------------
     cov_area = array([[(obj_w/num_w), 0.0,            0.0,    0.0], 
                      [0.0,          (obj_h/(num_h)),  0.0,    0.0],
-                     [0.0,          0.0,            100.0,   0.0],
-                     [0.0,          0.0,            0.0,    100.0]])
+                     [0.0,          0.0,            20.0,   0.0],
+                     [0.0,          0.0,            0.0,    20.0]])
     b_area: List[Gaussian] = []
     for i in range(num_h):
         for j in range(num_w): 
             mean = vstack([j*obj_w/num_w+obj_w/(2*num_w), i*obj_h/num_h+obj_h/(2*num_h), 0.0, 0.0])
-            b_area.append(Gaussian(mean, 40*cov_area, 0.25))
+            b_area.append(Gaussian(mean, 750*cov_area, 0.3))
             
     #birth_belief.extend(b_leftside)
     #birth_belief.extend(b_rightside)
@@ -88,11 +89,13 @@ def phd_BirthModels (num_w: int, num_h: int) -> List[Gaussian]:
     return birth_belief
 
 
-birth_belief = phd_BirthModels(5, 4) #12, 10
+birth_belief = phd_BirthModels(1, 2) #12, 10
 
-#fig = plotGMM(birth_belief, 640, 480)
-#plt.title('gausplot des birthmodels')
-#plt.show()
+#fig = plotGMM(birth_belief, 640, 480, 2, 'pixelwise')
+fig = plotGMM(birth_belief, 640, 480)
+
+plt.title('gausplot des birthmodels')
+plt.show()
 
 
 maxWeight = 0
@@ -111,7 +114,7 @@ print('Num of Gaus in gmm: ' + str(numGaus))
 
 survival_rate = 0.999
 detection_rate = 0.9
-intensity = 0.00003 #0.000075
+intensity = 0.000005 #0.000075
 T = 1
 F = array(
   [[1.0, 0.0, T,    0.0], 
@@ -123,12 +126,12 @@ H = array(
   [[1.0, 0.0, 0.0, 0.0],
    [0.0, 1.0, 0.0, 0.0]]
 )
-Q = 1*array([[(T**4)/4,  0,      (T**3)/2, 0],
+Q = 15*array([[(T**4)/4,  0,      (T**3)/2, 0],
               [0,       (T**4)/4, 0,      (T**3)/2],
               [(T**3)/2,  0,      T**2,   0], 
               [0,      (T**3)/2,  0,      T**2]
               ])
-R = 1*array(
+R = 20*array(
   [[1, 0],
    [0, 2]]
 )
@@ -150,7 +153,7 @@ pos_phd: List[ndarray] = []
 
 inspect = 10
 
-for k in range(1,31):
+for k in range(1,21):
     meas.insert(k,  ObjectHandler.getObjectStates(k, 'cb'))
     meas_vk: ndarray = []
     for j in range(len(meas[k-1])):
@@ -167,7 +170,7 @@ for k in range(1,31):
     #for est in phd.extract():
     #        plt.plot(est[0],est[1],'ro',color= 'red', ms= 1)
     #plt.show()
-    phd.prune(array([0.01]), array([5]), 8)
+    phd.prune(array([0.02]), array([5]), 8)
     print('Anzahl an Gaussummanden nachm pruning: ' + str(len(phd.gmm)))
     fig = plotGMM(phd.gmm, 640, 480)
     for l in range(len(meas_v[k-1])):

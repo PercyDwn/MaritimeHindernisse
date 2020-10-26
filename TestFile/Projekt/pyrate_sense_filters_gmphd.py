@@ -313,7 +313,7 @@ class GaussianMixturePHD:
             #print('Normalize assert: '+str(1 - sum([c.w for c in batch])))
             #assert (1 - sum([c.w for c in batch]) < 1E-3), "Error with Normalize weights"
             
-
+             
             # Append batch to updated GMM
             updated += batch
 

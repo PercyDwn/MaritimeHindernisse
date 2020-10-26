@@ -167,7 +167,7 @@ class ObjectHandler:
                 filepath = self.ImageFolder  + '/' + self.ImageBaseName + str(num) + self.ImageFileType
             else:
                 # number of leading zeros not given, try 1 to 8
-                for ic in range(1,8):
+                for ic in range(1,2):
                     formatStr = "{:0"+str(ic)+"d}"
                     num = formatStr.format(currentTimeStep)
                     filepath = self.ImageFolder  + '/' + self.ImageBaseName + str(num) + self.ImageFileType
