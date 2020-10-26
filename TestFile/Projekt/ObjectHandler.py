@@ -265,8 +265,10 @@ class ObjectHandler:
                 fontScale,
                 fontColor,
                 lineType)
+        
+        return img
 
-        cv2.imshow('Image', img)
+        
 
 
 

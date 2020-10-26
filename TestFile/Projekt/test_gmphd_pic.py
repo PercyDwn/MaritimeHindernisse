@@ -73,6 +73,7 @@ meas: List[ndarray] = []
 ObjectHandler.setPlotOnUpdate(True)
 for k in range(1,21):
     meas.insert(k,  ObjectHandler.getObjectStates(k, 'cb'))
+    cv2.waitKey(0)
 
 print('rearrange measurements ...')
 meas_v: List[ndarray] = []

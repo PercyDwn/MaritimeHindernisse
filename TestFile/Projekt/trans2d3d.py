@@ -68,14 +68,10 @@ def retrieveImagePoints() -> None:
     cv2.waitKey(0)
 
 
-def trans3d2d(X: float, Y: float, Z: float, cameraMatrix: array, rotMatrix: array, transVec: array) -> array:
-
-    M = np.array([X, Y, Z])
+def trans3d2d(coord3D, cameraMatrix: array, rotMatrix: array, transVec: array) -> array:
+    ObjPt = np.array([coord3D[0], coord3D[1], coord3D[2], [1]])
     Rt = np.hstack((rotMatrix, transVec))
-    #Rt = np.concatenate((rotMatrix, transVec), axis=1)
-    vec_2d = cameraMatrix @ Rt @ M
-    print(vec_2d)
-
+    vec_2d = cameraMatrix @ Rt @ ObjPt
     return vec_2d
 
 if __name__ == "__main__":

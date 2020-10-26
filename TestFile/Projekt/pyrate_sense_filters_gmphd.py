@@ -145,10 +145,10 @@ class GaussianMixturePHD:
                 'PROBLEM!!'
                 'Was wenn thersh kleiner 0,5 -> round immer 0!! => keine states'
                 states += [component.x for _ in range(int(round(component.w)))]
-                print(range(int(round(component.w))))
+                # print(range(int(round(component.w))))
                 #states += [component.x]
 
-        print('Number of extracted states: ' + str(len(states)))
+        # print('Number of extracted states: ' + str(len(states)))
         # Return all extracted states
         return states
 

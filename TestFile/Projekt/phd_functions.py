@@ -9,14 +9,55 @@ import math
 
 from typing import List, Tuple
 
+def phd_BirthModelsOld (num_w: int, num_h: int) -> List[Gaussian]:
+    """
+     Args:
+            ObjectHandler: ObjectHandler          
+            num_w: number of fields on width
+            num_h: number of Fields on height
+            
+    """
+
+    
+
+    obj_h = 50
+    obj_w = 50
+
+    birth_belief: List[Gaussian] = []
+
+    # Birthmodelle Rand links
+    #--------------------------
+    b_leftside: List[Gaussian] = [] 
+    cov_edge = array([[15, 0.0,         0.0, 0.0], 
+                     [0.0, obj_h/(4*num_h), 0.0, 0.0],
+                     [0.0, 0.0,         5.0, 0.0],
+                     [0.0, 0.0,         0.0, 5.0]])
+    for i in range(1,num_h):
+        mean = vstack([0, i*obj_h/(num_h+1), 1.0, 1.0])
+        b_leftside.append(Gaussian(mean, cov_edge))
+    
+    # Birthmodelle Rand rechts
+    #--------------------------
+    b_rightside: List[Gaussian] = [] 
+    for i in range(1,num_h):
+        mean = vstack([obj_w, i*obj_h/(num_h+1), -1.0, 1.0])
+        b_rightside.append(Gaussian(mean, cov_edge))
+
+    birth_belief.extend(b_leftside)
+    birth_belief.extend(b_rightside)
+
+    return birth_belief
+
 def phd_BirthModels(obj_w: int, obj_h: int, num_w: int, num_h: int, ypt: int = 0, xpe: int = 20, boatContour: Tuple = None) -> List[Gaussian]:
 
     birth_belief: List[Gaussian] = []
     b_leftside: List[Gaussian] = [] 
     b_rightside: List[Gaussian] = [] 
 
-    cov_mul = 100
+    cov_mul = 10
     padding_edge = xpe
+    cov_padding_edge = 0
+
 
     if boatContour and boatContour[0] == 'Triangle':
         margin = boatContour[1]
@@ -32,8 +73,8 @@ def phd_BirthModels(obj_w: int, obj_h: int, num_w: int, num_h: int, ypt: int = 0
         checkTriangle = False
 
     cov_edge = array(
-        [[(obj_w/num_w)+40, 0.0,              0.0,    0.0], 
-         [0.0,              (obj_h/num_h)+40, 0.0,    0.0],
+        [[(obj_w/num_w)+cov_padding_edge, 0.0,              0.0,    0.0], 
+         [0.0,              (obj_h/num_h)+cov_padding_edge, 0.0,    0.0],
          [0.0,              0.0,              20.0,   0.0],
          [0.0,              0.0,              0.0,    20.0]])
     for i in range(0,num_h+1):

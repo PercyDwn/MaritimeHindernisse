@@ -65,7 +65,7 @@ def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str 
     stdout.write("\r100 percent finished  \n")
   # calculate gauss values rowwise
   elif method == 'rowwise':
-    #with progressbar.ProgressBar(max_value=pixel_row_count) as bar:
+    with progressbar.ProgressBar(max_value=pixel_row_count) as bar:
       for gaussian_obj in gmm:
         # get distribution of current gm
         distribution = gaussian_obj.distribution()
@@ -78,8 +78,8 @@ def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str 
           # calc gauss value for current row and set in gauss array gz
           gz[i,:] +=  gaussian_obj.distributionValues(distribution, x_vect)
           # increase counter and recalc progress
-          #pixel_row_counter+=1
-          #bar.update(pixel_row_counter)
+          pixel_row_counter+=1
+          bar.update(pixel_row_counter)
 
   # normalize
   gz /= gz.max()
@@ -87,7 +87,7 @@ def plotGMM(gmm: list, pixel_w: int, pixel_h: int, detail: int = 1, method: str 
   if imgPath:
     plt.contourf(gz, alpha=.5, antialiased=True)
   else:
-    plt.contourf(gz, level = 10 , antialiased=True)
+    plt.contourf(gz , antialiased=True)
     # invert y axis
     plt.gca().invert_yaxis()
   # set window title

@@ -4,8 +4,6 @@ from numpy.linalg import inv
 import glob
 from scipy.spatial.transform import Rotation as Rot
 
-
-
 """ h,  w = img.shape[:2]
 newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 # undistort
@@ -100,50 +98,56 @@ def transform2DPoint(mtx, dist, objpoints, imgpoints, uvPoint, point_img) -> Non
     Rot_Obj = Rot.from_rotvec(rvecs_t)
     R = Rot_Obj.as_matrix()
 
+    P = get3Dcoordinates(mtx, R, uvPoint, tvecs, Z_const=75)
+    print("Point:")
+    print(P)
+
+def get3Dcoordinates(mtx, R, uvPoint, tvecs, Z_const, s=None):
     # inv(R)@inv(M)@s*(u,v,1) = (X,Y,Z_const)+inv(R)@t
     left = inv(R) @ inv(mtx) @ uvPoint
     right = inv(R) @ tvecs
 
-    s = (75 + right[2][0]) / (left[2][0])
-    P = inv(R) @ (s * inv(mtx) @ uvPoint - tvecs) 
-
+    if s == None:
+        s = (Z_const + right[2][0]) / (left[2][0])
     print("s:" + str(s))
+    P = inv(R) @ (s * inv(mtx) @ uvPoint - tvecs) 
+    return P  
 
-    print("Point:")
-    print(P)
-  
 
-images = glob.glob('TestFile/Projekt/Bilder/cv2/room_201020.jpg')
-# img points for 1920 image
-objpoints = np.float32([[0,0,0],[1010,400,0],[145,1165,0],[880,1190,0]])
-imgpoints = np.float32([[[1780,1333]],[[378,732]],[[1360,267]],[[730,221]]])
-uvPoint = np.array([[882],[459],[1]])
-cbw = 9
-cbh = 6
 
-""" images = glob.glob('TestFile/Projekt/Bilder/cv2/room_201020_4032.jpg')
-# img points for 4032 image
-objpoints = np.float32([[0,0,0],[1420,400,0],[145,1165,0],[870,1220,0]])
-imgpoints = np.float32([[[3740,2802]],[[795,1538]],[[2856,560]],[[1534,463]]])
-uvPoint = np.array([[1852],[963],[1]])
-cbw = 9
-cbh = 6 """
+if __name__ == "__main__":
+    images = glob.glob('TestFile/Projekt/Bilder/cv2/room_201020.jpg')
+    # img points for 1920 image
+    objpoints = np.float32([[0,0,0],[1010,400,0],[145,1165,0],[880,1190,0]])
+    imgpoints = np.float32([[[1780,1333]],[[378,732]],[[1360,267]],[[730,221]]])
+    uvPoint = np.array([[882],[459],[1]])
+    cbw = 9
+    cbh = 6
 
-img, mtx, dist = initCam(images, cbw, cbh)
-newcameramtx = undistort(mtx, dist, img)
-transform2DPoint(newcameramtx, dist, objpoints, imgpoints, uvPoint, img)
+    """ images = glob.glob('TestFile/Projekt/Bilder/cv2/room_201020_4032.jpg')
+    # img points for 4032 image
+    objpoints = np.float32([[0,0,0],[1420,400,0],[145,1165,0],[870,1220,0]])
+    imgpoints = np.float32([[[3740,2802]],[[795,1538]],[[2856,560]],[[1534,463]]])
+    uvPoint = np.array([[1852],[963],[1]])
+    cbw = 9
+    cbh = 6 """
 
-""" images = glob.glob('TestFile/Projekt/Bilder/cv2/chessboard_3.jpg')
-cbw = 7
-cbh = 7
+    img, mtx, dist = initCam(images, cbw, cbh)
+    newcameramtx = undistort(mtx, dist, img)
+    transform2DPoint(newcameramtx, dist, objpoints, imgpoints, uvPoint, img)
 
-img, mtx, dist = initCam(images, cbw, cbh)
-undistort(mtx, dist, img) """
-# transform2DPoint(mtx, dist, objpoints, imgpoints, img)
+    """ images = glob.glob('TestFile/Projekt/Bilder/cv2/chessboard_3.jpg')
+    cbw = 7
+    cbh = 7
 
-cv2.destroyAllWindows()
+    img, mtx, dist = initCam(images, cbw, cbh)
+    undistort(mtx, dist, img) """
+    # transform2DPoint(mtx, dist, objpoints, imgpoints, img)
 
-"""
-Todo:
-- improve intrinsic camera values
-"""
+    cv2.destroyAllWindows()
+
+    """
+    Todo:
+    - improve intrinsic camera values
+    """
+    
