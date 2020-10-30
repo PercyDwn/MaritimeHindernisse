@@ -32,25 +32,24 @@ H = array([[1.0, 0.0, 0.0, 0.0],
            [0.0, 1.0, 0.0, 0.0]])
 Q = 20*eye(4)
 R = array(
-    [[7, 0],
-     [0, 50]])
-Q = .1*eye(4)
-R = .05*eye(2)
+    [[1, 0],
+     [0, 1]])
+
 
 # image size
 img_w = 50
 img_h = 50
 
-birth_belief = phd_BirthModels(obj_w = img_w, obj_h = img_h, num_w = 5, num_h = 5, ypt = 0, xpe = 0)
+birth_belief = phd_BirthModels(obj_w = img_w, obj_h = img_h, num_w = 10, num_h = 10, ypt = 0, xpe = 0)
 # birth_belief = phd_BirthModelsOld(num_w = 10, num_h = 10)
 
 fig = plotGMM(gmm = birth_belief, pixel_w = img_w, pixel_h = img_h, figureTitle = 'Birth Belief GMM', savePath = '/PHD_Plots')
-# fig.show()
+fig.show()
 
 # phd settings
 survival_rate = 0.999
-detection_rate = 0.9
-intensity = 0.05
+detection_rate = 0.999
+intensity = 0.001
 
 # phd object
 phd = GaussianMixturePHD(birth_belief, survival_rate, detection_rate, intensity, F, H, Q, R)

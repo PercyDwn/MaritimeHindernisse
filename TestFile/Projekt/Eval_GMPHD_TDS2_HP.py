@@ -65,6 +65,7 @@ if __name__ == '__main__':
             [0.0, 1.0, 0.0, 0.0]])
     Q = .1*eye(4)
     R = .05*eye(2)
+    R = .05*eye(2)
 
     obj_h = 50
     obj_w = 50
@@ -73,13 +74,7 @@ if __name__ == '__main__':
     # survival rate, detection rate and clutter intensity
     survival_rate = 0.99
     detection_rate = 0.9
-    intensity = 0.05
-    # obj 1 is not recognized at all
     intensity = 0.005
-    # too much clutter as object esimtated
-    intensity = 0.01
-    # a bit clutter, but all objects correctly recognized
-    intensity = 0.01
 
     # phd object
     phd = GaussianMixturePHD(birth_belief,survival_rate,detection_rate,intensity,F,H,Q,R)
@@ -101,12 +96,12 @@ if __name__ == '__main__':
     # ==============
     # create objects
     print('creating objects...')
-    random.seed(55)
+    random.seed(70)
     # good seeds: 30,55
 
     # first ten timesteps
     for i in range(10):
-        obj_1_pos = array([[0.+i], [10.+i]])
+        obj_1_pos = array([[5.], [25+i]])
         obj_2_pos = array([[50.-1.5*i], [15.]])
         obj_3_pos = array([[50.-i], [15.+i]])
         obj_4_pos = array([[25.+i/10], [10.+i]])
@@ -122,6 +117,7 @@ if __name__ == '__main__':
     # timesteps 11 to 30
     for i in range(20):
         obj_1_pos = array([[10.+1.5*i], [20.+i]])
+        obj_1_pos = array([[5+i], [35]])
         obj_2_pos = array([[35.-1.5*i], [15.]])
         obj_3_pos = array([[40.-i], [26.+i]])
         obj_4_pos = array([[25.+(i+10)/10], [10.+(i+10)]])
@@ -143,27 +139,47 @@ if __name__ == '__main__':
     inac_intensity = 1.5
     # timestemps 1 to 10
     for i in range(10):
+        randNotRec = random.randint(0,39)
         inac_x = ((random.random()-0.5)*inac_intensity)
         inac_y = ((random.random()-0.5)*inac_intensity)
-        obj_1_meas = array([obj_1_x_list[i]+inac_x, obj_1_y_list[i]+inac_y])
-        obj_2_meas = array([obj_2_x_list[i]+inac_x, obj_2_y_list[i]+inac_y])
-        obj_3_meas = array([obj_3_x_list[i]+inac_x, obj_3_y_list[i]+inac_y])
-        obj_4_meas = array([obj_4_x_list[i]+inac_x, obj_4_y_list[i]+inac_y])
-        meas_obj.append([obj_1_meas, obj_2_meas, obj_3_meas, obj_4_meas])
-        meas.append([obj_1_meas, obj_2_meas, obj_3_meas, obj_4_meas, array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
+        temp_list = []
+        if 0 <= randNotRec <= 1: 
+          obj_1_meas = array([obj_1_x_list[i]+inac_x, obj_1_y_list[i]+inac_y])
+          temp_list.append(obj_1_meas)
+        if 2 <= randNotRec <= 3: 
+          obj_2_meas = array([obj_2_x_list[i]+inac_x, obj_2_y_list[i]+inac_y])
+          temp_list.append(obj_2_meas)
+        if 4 <= randNotRec <= 5: 
+          obj_3_meas = array([obj_3_x_list[i]+inac_x, obj_3_y_list[i]+inac_y])
+          temp_list.append(obj_3_meas)
+        if 6 <= randNotRec <= 7: 
+          obj_4_meas = array([obj_4_x_list[i]+inac_x, obj_4_y_list[i]+inac_y])
+          temp_list.append(obj_4_meas)
+        meas_obj.append(temp_list)
+        meas.append(temp_list.extend([array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ]))
         
         # without measurement inaccuracies
         # meas.append([array([[0.+i], [10.+i]]), array([[50.-1.5*i], [15.]]), array([[50.-i], [15.+i]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
     # timestemps 21 to 30
     for i in range(20):
+        randNotRec = random.randint(0,39)
         inac_x = ((random.random()-0.5)*inac_intensity)
         inac_y = ((random.random()-0.5)*inac_intensity)
-        obj_1_meas = array([obj_1_x_list[i+10]+inac_x, obj_1_y_list[i+10]+inac_y])
-        obj_2_meas = array([obj_2_x_list[i+10]+inac_x, obj_2_y_list[i+10]+inac_y])
-        obj_3_meas = array([obj_3_x_list[i+10]+inac_x, obj_3_y_list[i+10]+inac_y])
-        obj_4_meas = array([obj_4_x_list[i+10]+inac_x, obj_4_y_list[i+10]+inac_y])
-        meas_obj.append([obj_1_meas, obj_2_meas, obj_3_meas, obj_4_meas])
-        meas.append([obj_1_meas, obj_2_meas, obj_3_meas, obj_4_meas, array([[50*random.random()], [50*random.random()]]),  array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ] )
+        temp_list = []
+        if 0 <= randNotRec <= 1: 
+          obj_1_meas = array([obj_1_x_list[i+10]+inac_x, obj_1_y_list[i+10]+inac_y])
+          temp_list.append(obj_1_meas)
+        if 2 <= randNotRec <= 3: 
+          obj_2_meas = array([obj_2_x_list[i+10]+inac_x, obj_2_y_list[i+10]+inac_y])
+          temp_list.append(obj_2_meas)
+        if 4 <= randNotRec <= 5: 
+          obj_3_meas = array([obj_3_x_list[i+10]+inac_x, obj_3_y_list[i+10]+inac_y])
+          temp_list.append(obj_3_meas)
+        if 6 <= randNotRec <= 7: 
+          obj_4_meas = array([obj_4_x_list[i+10]+inac_x, obj_4_y_list[i+10]+inac_y])
+          temp_list.append(obj_4_meas)
+        meas_obj.append(temp_list)
+        meas.append(temp_list.extend([array([[50*random.random()], [50*random.random()]]),  array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]), array([[50*random.random()], [50*random.random()]]) ]))
 
     # =================
     # plot birth belief

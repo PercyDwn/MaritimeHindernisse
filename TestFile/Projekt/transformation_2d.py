@@ -12,7 +12,7 @@ def line_eq(p1: tuple, p2: tuple ):
     return m,b
 
 def line_gen_eq(m,b):
-    return -m/2, 2, -b/2
+    return -m, 1, -b
 
 def get_d(A,B,C,u,v) -> float:
     return abs(A*u+B*v+C) / sqrt(A**2 + B**2)
@@ -31,7 +31,7 @@ ObjectHandler.setDebugLevel(2)
 ObjectHandler.setPlotOnUpdate(False)
 
 H = 0.7986
-f = 2666.67
+f = 2666.67 * 640/1920
 
 kmax = 50
 fps = 5
@@ -74,7 +74,8 @@ for t in range(1,21):
           Z = get_Z(f,d,H)
           Z_sum += Z 
           Z_count += 1
-      Distances.append( (Z_sum/Z_count) )
+          if li == 3:  Distances.append( Z )    
+      # Distances.append( (Z_sum/Z_count) )
     
     realZredBoat = get_real_Z(redBoatPos[t-1], camLocation)
     realZgreenBoat = get_real_Z(greenBoatPos[t-1], camLocation)

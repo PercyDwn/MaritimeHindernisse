@@ -73,12 +73,6 @@ if __name__ == '__main__':
     # survival rate, detection rate and clutter intensity
     survival_rate = 0.99
     detection_rate = 0.9
-    intensity = 0.05
-    # obj 1 is not recognized at all
-    intensity = 0.005
-    # too much clutter as object esimtated
-    intensity = 0.01
-    # a bit clutter, but all objects correctly recognized
     intensity = 0.01
 
     # phd object

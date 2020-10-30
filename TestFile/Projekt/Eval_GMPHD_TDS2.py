@@ -73,12 +73,6 @@ if __name__ == '__main__':
     # survival rate, detection rate and clutter intensity
     survival_rate = 0.99
     detection_rate = 0.9
-    intensity = 0.05
-    # obj 1 is not recognized at all
-    intensity = 0.005
-    # too much clutter as object esimtated
-    intensity = 0.01
-    # a bit clutter, but all objects correctly recognized
     intensity = 0.01
 
     # phd object
@@ -101,12 +95,13 @@ if __name__ == '__main__':
     # ==============
     # create objects
     print('creating objects...')
-    random.seed(55)
+    random.seed(70)
     # good seeds: 30,55
 
     # first ten timesteps
     for i in range(10):
         obj_1_pos = array([[0.+i], [10.+i]])
+        obj_1_pos = array([[5.], [25+i]])
         obj_2_pos = array([[50.-1.5*i], [15.]])
         obj_3_pos = array([[50.-i], [15.+i]])
         obj_4_pos = array([[25.+i/10], [10.+i]])
@@ -122,6 +117,7 @@ if __name__ == '__main__':
     # timesteps 11 to 30
     for i in range(20):
         obj_1_pos = array([[10.+1.5*i], [20.+i]])
+        obj_1_pos = array([[5+i], [35]])
         obj_2_pos = array([[35.-1.5*i], [15.]])
         obj_3_pos = array([[40.-i], [26.+i]])
         obj_4_pos = array([[25.+(i+10)/10], [10.+(i+10)]])

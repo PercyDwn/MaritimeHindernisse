@@ -77,6 +77,7 @@ def trans3d2d(coord3D, cameraMatrix: array, rotMatrix: array, transVec: array) -
 if __name__ == "__main__":
     u = 83
     v = 176
+    uvPoint = (83,176)
     fx = 2667
     fy = 2250
     cx = 1920/2
@@ -96,6 +97,7 @@ if __name__ == "__main__":
     
     # not working
       # k_real = trans(u, v, fx, fy, cx, cy, R_quat, t)
+    P = get3Dcoordinates(M,R,uvPoint,R.dot(t),Z_const,s=None)
 
     # retrieve imagePoints
     # retrieveImagePoints()
@@ -117,7 +119,7 @@ if __name__ == "__main__":
     imagePoints[0] = imageRed;
     imagePoints[1] = imageGreen;
 
-    trans3d2d(X=61.368,Y=-38.401,Z=0.1798, cameraMatrix=M, rotMatrix=r.as_matrix(), transVec=t)
+    trans3d2d(([61.368],[-38.401],[0.1798]), cameraMatrix=M, rotMatrix=r.as_matrix(), transVec=t)
 
     # retval,rvev,tvec = initTrans(objectPoints=objectPoints, imagePoints=imagePoints, cameraMatrix=M)
     
