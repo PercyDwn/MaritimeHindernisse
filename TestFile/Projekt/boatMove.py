@@ -13,7 +13,7 @@ Fps ist 5
 => Bewegungsmuster für Boote
 """
 
-def BoatPos(start, end, fps, kmax) -> List[ndarray]:
+def BoatPos(start, end, fps, kmax, shift: float = 0.0) -> List[ndarray]:
     """
     Args:
         start: Startpunkt x,y,z Koordinaten in m
@@ -23,9 +23,12 @@ def BoatPos(start, end, fps, kmax) -> List[ndarray]:
     """
     BoatPos: List[ndarray] = []
     delta_v = np.subtract(end,start)/(kmax-1)
+    alpha = np.arctan(delta_v[1]/delta_v[0])
     #delta_v = (end-start)/kmax
     for k in range(kmax):
-        BoatPos.append(start+(k)*delta_v)
+        pos_x = start[0]+(k*delta_v[0]) + (np.cos(alpha) * shift)
+        pos_y = start[1]+(k*delta_v[1]) + (np.sin(alpha) * shift)
+        BoatPos.append([ [pos_x],[pos_y] ])
     return BoatPos
 
   

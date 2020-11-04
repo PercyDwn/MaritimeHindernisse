@@ -91,12 +91,12 @@ ci = 1
 for z in meas_v:
     phd.predict()
     phd.correct(z)
-    fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci)+'before pruning', savePath = '/PHD_Plots')
+    #fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci)+'before pruning', savePath = '/PHD_Plots')
     phd.prune(array([0.01]), array([20]), 100)
     pos_phd.append(phd.extract())
     print( 'timestep ' + str(ci) )
     print( 'tracking ' + str(len(phd.extract())) + ' objects' )
-    fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci)+'after pruning', savePath = '/PHD_Plots')
+    #fig = plotGMM(gmm = phd.gmm, pixel_w = 640, pixel_h = 480, detail = 1 , method = 'rowwise', figureTitle = 'PHD GMM k-' + str(ci)+'after pruning', savePath = '/PHD_Plots')
     for l in range(len(z)):
        plt.plot(z[0],z[1],'ro',color= 'black', ms= 1)
     for est in phd.extract():
