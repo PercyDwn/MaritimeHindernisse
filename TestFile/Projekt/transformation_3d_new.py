@@ -31,7 +31,7 @@ print(R)
 t = np.vstack([-53.162, +27.496, -0.7986])
 # t = np.vstack([53.162, -27.496, 0.7986])
 
-Z_const = .1798
+Z_const = .0
 
 redBoat2DCoord = np.array([
   (164,134),
@@ -47,7 +47,7 @@ redBoat2DCoord = np.array([
 ])
 
 greenBoat2DCoord = np.array([
-  (475,112)
+  (480,121)
 ])
 
 fps=5
